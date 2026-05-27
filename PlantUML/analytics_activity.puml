@@ -1,0 +1,32 @@
+@startuml
+title Activity phien analytics KLT/Farneback
+
+start
+:Nguoi dung bam Start Analysis;
+:Khoa do nhay KLT va Farneback;
+:Vo hieu hoa ghi video va doi mode;
+while (Con frame camera?) is (co)
+  :Clone frame thanh 2 ban;
+  fork
+    :Chay KLT;
+    :Lay KLT metrics;
+  fork again
+    :Chay Farneback;
+    :Lay Farneback metrics;
+  end fork
+  :Ghep frame trai-phai;
+  :Ve overlay thong so;
+  :Tao AnalyticsSample;
+  :Luu sample vao session tam;
+endwhile (khong)
+:Nguoi dung bam Stop Analysis;
+if (Co sample hop le?) then (co)
+  :Tao AnalyticsSession;
+  :Luu JSON bang AnalyticsStorageUtil;
+else (khong)
+  :Thong bao khong co sample;
+endif
+:Khoi phuc dieu khien giao dien;
+stop
+
+@enduml

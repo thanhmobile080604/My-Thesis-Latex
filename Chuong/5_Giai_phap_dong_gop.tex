@@ -1,0 +1,146 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Chương này trình bày các giải pháp và đóng góp nổi bật của đồ án. Các nội dung được chọn là những phần có tính thiết kế riêng của hệ thống, không chỉ là việc sử dụng thư viện sẵn có. Mỗi đóng góp được trình bày theo ba phần: vấn đề cần giải quyết, giải pháp đã triển khai và kết quả đạt được.
+
+\section{Chuỗi phân giải vị trí vệ tinh GNSS theo độ ưu tiên}
+\label{section:5.1}
+\subsection{Bài toán}
+Trên Android, \texttt{GnssStatus} thường cung cấp azimuth và elevation của vệ tinh nhưng không phải lúc nào cũng cung cấp tọa độ vệ tinh trong không gian. Một số thiết bị có thể có PVT chi tiết hơn thông qua dữ liệu đo GNSS, nhưng khả năng truy cập không ổn định giữa các phiên bản Android và chipset. Nếu chỉ dựa vào azimuth/elevation, mô hình 3D có thể hiển thị vệ tinh ở vị trí xấp xỉ nhưng không phản ánh được nguồn dữ liệu chính xác hơn khi hệ thống có thể lấy được.
+
+Vấn đề đặt ra là cần một cơ chế phân giải vị trí vệ tinh có thứ tự ưu tiên rõ ràng, tận dụng dữ liệu tốt nhất đang có nhưng vẫn đảm bảo giao diện không bị trống khi thiếu dữ liệu. Cơ chế này cũng cần ghi nhận nguồn vị trí để người dùng biết vệ tinh được hiển thị từ PVT thật, IGS, CelesTrak hay xấp xỉ. Đây là yêu cầu quan trọng vì cùng một vị trí hiển thị trên renderer có thể có mức độ tin cậy khác nhau tùy nguồn.
+
+\subsection{Giải pháp}
+Đồ án triển khai lớp \texttt{GnssSatelliteTracker} làm điểm tập trung của toàn bộ dữ liệu vệ tinh. Lớp này duy trì ba cache chính: PVT mới nhất theo \texttt{SatelliteKey}, broadcast ephemeris từ IGS và orbit record từ CelesTrak. Với mỗi vệ tinh trong \texttt{GnssStatus}, tracker gọi hàm \texttt{resolvePosition} và thử lần lượt các nguồn dữ liệu. PVT chỉ được dùng nếu chưa quá hạn 10 giây; broadcast ephemeris chỉ được dùng nếu epoch gần thời điểm quan sát trong ngưỡng 12 giờ; CelesTrak được dùng cho các chòm được hỗ trợ; cuối cùng là phương pháp xấp xỉ.
+
+Thuật toán phân giải được mô tả ở mức khái quát trong Thuật toán~\ref{alg:gnss-resolve}. Thuật toán này không buộc mọi thiết bị phải có cùng khả năng GNSS. Thay vào đó, hệ thống đi từ nguồn tốt nhất tới nguồn dự phòng, và dừng ngay khi tìm được kết quả hợp lệ.
+
+\begin{algorithm}[H]
+\caption{Phân giải vị trí vệ tinh theo độ ưu tiên}
+\label{alg:gnss-resolve}
+\KwIn{\texttt{SatelliteKey}, trạng thái vệ tinh, vị trí người quan sát}
+\KwOut{\texttt{ResolvedSatellitePosition}}
+Kiểm tra cache PVT theo \texttt{SatelliteKey}\;
+\If{PVT tồn tại và chưa quá hạn}{
+    Chuyển ECEF sang LLA\;
+    Tính tốc độ quán tính\;
+    \Return kết quả với nguồn \texttt{Real GNSS PVT}\;
+}
+Chọn broadcast ephemeris gần thời điểm quan sát nhất\;
+\If{ephemeris hợp lệ}{
+    Lan truyền quỹ đạo từ bản ghi IGS\;
+    \Return kết quả với nguồn \texttt{IGS Broadcast}\;
+}
+Kiểm tra orbit record từ CelesTrak\;
+\If{orbit record tồn tại}{
+    Lan truyền bằng SGP4 hoặc Kepler fallback\;
+    \Return kết quả với nguồn \texttt{CelesTrak}\;
+}
+Tính vị trí xấp xỉ từ azimuth, elevation và vị trí người quan sát\;
+\Return kết quả với nguồn \texttt{Approximate}\;
+\end{algorithm}
+
+Điểm quan trọng trong giải pháp là mỗi bước không chỉ trả tọa độ mà còn trả metadata về nguồn. \texttt{ResolvedSatellitePosition} chứa \texttt{positionSource} và \texttt{ephemerisSource}; \texttt{SatelliteInfo} chuyển thông tin này tới renderer và dialog chi tiết. Nhờ vậy, phần giao diện có thể giải thích dữ liệu đang hiển thị, còn log phát triển có thể phát hiện khi nguồn dữ liệu chuyển từ PVT sang fallback hoặc ngược lại.
+
+\subsection{Kết quả đạt được}
+Giải pháp này giúp module GNSS hoạt động ổn định trong nhiều mức khả dụng dữ liệu. Khi thiết bị hỗ trợ PVT, hệ thống ưu tiên tọa độ ECEF thật và tính vận tốc quán tính. Khi không có PVT, ứng dụng vẫn có thể hiển thị vệ tinh từ IGS hoặc CelesTrak. Khi không có mạng hoặc không có dữ liệu quỹ đạo phù hợp, giao diện vẫn còn khả năng hiển thị xấp xỉ bằng azimuth/elevation thay vì bỏ trống hoàn toàn. Bảng~\ref{table:gnss-source-priority} tóm tắt các nguồn dữ liệu trong chuỗi ưu tiên.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{2.2cm}|p{4.3cm}|p{6.4cm}|}
+\hline
+\textbf{Ưu tiên} & \textbf{Nguồn dữ liệu} & \textbf{Vai trò} \\ \hline
+1 & Real GNSS PVT & Sử dụng tọa độ và vận tốc ECEF từ thiết bị nếu có thể trích xuất. \\ \hline
+2 & IGS Broadcast Ephemeris & Lan truyền quỹ đạo từ lịch vệ tinh công khai khi PVT không có. \\ \hline
+3 & CelesTrak OMM/SGP4 & Dùng phần tử quỹ đạo trung bình cho GPS, Galileo, BeiDou và các chòm hỗ trợ. \\ \hline
+4 & Approximate & Tạo vị trí xấp xỉ từ vị trí người quan sát, azimuth, elevation và bán kính quỹ đạo. \\ \hline
+\end{tabular}
+\caption{Chuỗi ưu tiên nguồn dữ liệu vệ tinh}
+\label{table:gnss-source-priority}
+\end{table}
+
+\section{Cơ chế so sánh Optical Flow công bằng trên cùng luồng camera}
+\label{section:5.2}
+\subsection{Bài toán}
+KLT và Farneback có bản chất khác nhau nên việc so sánh trực tiếp dễ bị sai lệch nếu mỗi thuật toán chạy ở thời điểm khác nhau hoặc dùng tham số không tương đương. KLT xử lý các điểm đặc trưng thưa, còn Farneback xử lý trường chuyển động dày đặc. Nếu chỉ nhìn vào hình ảnh phủ vector, người dùng khó biết thuật toán nào nhanh hơn, ổn định hơn hoặc phát hiện được nhiều chuyển động hơn trong cùng điều kiện.
+
+Một thách thức khác là các chỉ số đánh giá không nên trộn lẫn đo lường trực tiếp với suy luận chủ quan. Ví dụ FPS và thời gian xử lý là chỉ số đo trực tiếp từ thời gian chạy; confidence lại phụ thuộc vào cách định nghĩa inlier. Nếu trình bày tất cả như các biểu đồ ngang hàng, người đọc có thể hiểu sai ý nghĩa của từng metric. Do đó, cần phân tách chỉ số chính và chỉ số hỗ trợ.
+
+\subsection{Giải pháp}
+Đồ án triển khai chế độ analysis trong \texttt{CameraOpticalFlowFragment}. Khi chế độ này bật, mỗi frame camera được clone thành hai bản. Một bản chạy KLT, bản còn lại chạy Farneback. Hai ảnh kết quả được scale và ghép vào cùng một frame trái-phải để người dùng quan sát đồng thời. Độ nhạy hai thuật toán được khóa về cùng một mức trong phiên phân tích để giảm tác động của thao tác người dùng.
+
+Mỗi thuật toán trả về \texttt{OpticalFlowMetrics}. Đối với KLT, hệ thống ghi số điểm theo dõi, số vector hoạt động, median displacement và confidence theo Forward-Backward Error. Đối với Farneback, hệ thống ghi số sample trên lưới, số vector vượt ngưỡng, trung bình displacement và confidence dựa trên kiểm tra flow ngược ở vị trí tương ứng. Phiên đo chỉ vẽ biểu đồ chính cho FPS, process time và tracks/active vectors vì đây là các chỉ số đo trực tiếp, còn confidence được đưa vào summary để hỗ trợ diễn giải.
+
+Thuật toán~\ref{alg:analysis} mô tả cách ghi một sample trong phiên analysis. Quy trình này được lặp lại theo từng frame camera cho tới khi người dùng dừng phân tích.
+
+\begin{algorithm}[H]
+\caption{Ghi sample phân tích KLT/Farneback}
+\label{alg:analysis}
+\KwIn{Frame camera đã tiền xử lý}
+\KwOut{\texttt{AnalyticsSample}}
+Clone frame thành \texttt{kltFrame} và \texttt{farnebackFrame}\;
+Chạy \texttt{KLT.run(kltFrame)} để lấy output và metrics\;
+Chạy \texttt{Farneback.run(farnebackFrame)} để lấy output và metrics\;
+Ghép hai frame kết quả thành frame trái-phải\;
+Vẽ overlay thông số lên từng nửa frame\;
+Tạo \texttt{AnalyticsSample} từ metrics hai thuật toán\;
+Lưu sample vào session đang chạy\;
+\end{algorithm}
+
+\subsection{Kết quả đạt được}
+Cơ chế này tạo được một quy trình đánh giá có tính lặp lại hơn so với quan sát thủ công từng thuật toán. Người dùng có thể chạy cùng một cảnh camera, dừng phiên và mở biểu đồ để xem sự thay đổi theo thời gian. Cách lưu \texttt{AnalyticsSession} dưới dạng JSON giúp kết quả không phụ thuộc vào vòng đời màn hình và có thể mở lại sau. Bảng~\ref{table:analytics-metrics} mô tả ý nghĩa các metric chính.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{3.2cm}|p{4.4cm}|p{5.6cm}|}
+\hline
+\textbf{Metric} & \textbf{Cách đo} & \textbf{Ý nghĩa} \\ \hline
+FPS & $1000 / processTimeMs$ & Tốc độ xử lý tức thời của thuật toán trên frame hiện tại. \\ \hline
+Process time & Thời gian chạy thuật toán bằng clock hệ thống & Chi phí CPU/GPU tương đối của từng phương pháp. \\ \hline
+Tracks/active vectors & Số điểm KLT hoặc sample Farneback vượt ngưỡng & Mức độ hoạt động của trường chuyển động được phát hiện. \\ \hline
+Average displacement & Trung bình hoặc median của vector dịch chuyển & Hướng và độ lớn chuyển động biểu kiến sau lọc. \\ \hline
+Confidence & Tỷ lệ inlier theo kiểm tra tiến-lùi & Mức tin cậy tương đối, phụ thuộc vào định nghĩa FBE của hệ thống. \\ \hline
+\end{tabular}
+\caption{Các thông số trong phiên phân tích Optical Flow}
+\label{table:analytics-metrics}
+\end{table}
+
+\section{Pipeline xử lý video RAFT bất đồng bộ}
+\label{section:5.3}
+\subsection{Bài toán}
+Mô hình RAFT cung cấp trường Optical Flow dày đặc nhưng khó chạy ổn định trên mọi thiết bị Android vì yêu cầu bộ nhớ và thời gian suy luận cao. Nếu gửi video tới server bằng một request đồng bộ duy nhất, kết nối có thể bị timeout hoặc người dùng không biết tiến độ. Bên cạnh đó, video là file lớn nên hệ thống cần kiểm soát file tạm và không để rò rỉ tài nguyên sau khi xử lý.
+
+Một yêu cầu thực tế khác là người dùng không nên bị buộc ở lại màn hình gửi video. Khi xử lý kéo dài, người dùng có thể chuyển sang màn hình khác hoặc khóa màn hình. Do đó, ứng dụng Android cần một cơ chế xử lý nền và một overlay tiến độ độc lập với fragment hiện tại.
+
+\subsection{Giải pháp}
+Đồ án tách xử lý RAFT thành server FastAPI. Android gửi video bằng endpoint tạo job, nhận \texttt{job\_id}, sau đó thăm dò trạng thái. Server dùng một \texttt{VideoJob} để lưu trạng thái \texttt{queued}, \texttt{processing}, \texttt{completed} hoặc \texttt{failed}. Hàm \texttt{run\_video\_job} chạy trong background task, gọi \texttt{OpticalFlowProcessor.process\_video} và cập nhật progress thông qua callback.
+
+Trong \texttt{OpticalFlowProcessor}, mỗi video được đọc bằng \texttt{cv2.VideoCapture}. Server giữ một buffer frame ngắn để ước lượng flow qua khoảng cách vài frame, giúp vector hiển thị rõ hơn trên video có chuyển động chậm. Kết quả được vẽ theo hai chế độ. Với vector, server lấy mẫu lưới, lọc vector yếu bằng percentile và chuẩn hóa chiều dài hiển thị. Với heatmap, server tính magnitude, làm mượt, chuẩn hóa và blend colormap với frame gốc. Sau khi trả file kết quả, server đưa cleanup vào background task để xóa file tạm.
+
+Ở phía Android, \texttt{VideoProcessingForegroundService} chịu trách nhiệm upload, polling và download. \texttt{VideoProcessingManager} quản lý overlay tiến độ ở cấp Activity, có thể hiển thị dạng card hoặc thu gọn thành bubble. Khi video sẵn sàng, overlay chuyển sang trạng thái hoàn tất và cho phép người dùng mở video kết quả.
+
+\subsection{Kết quả đạt được}
+Pipeline bất đồng bộ giúp người dùng có trải nghiệm rõ ràng hơn khi xử lý video dài. Ứng dụng không bị khóa ở một màn hình cụ thể vì overlay tiến độ được quản lý bởi \texttt{VideoProcessingManager} và foreground service. Nếu job thành công, người dùng có thể mở video kết quả ngay; nếu job lỗi, ứng dụng nhận được trạng thái failed và thông báo lỗi. Về phía server, việc tách input/output tạm và cleanup giảm nguy cơ tích tụ file sau nhiều lần thử nghiệm.
+
+\section{Thiết kế ROI cho Optical Flow}
+\label{section:5.4}
+\subsection{Bài toán}
+Trong nhiều trường hợp, người dùng chỉ quan tâm tới chuyển động trong một vùng ảnh nhất định. Ví dụ, người dùng có thể muốn theo dõi vật thể ở giữa khung hình, bỏ qua chuyển động nền hoặc tránh vùng có nhiễu ánh sáng. Nếu thuật toán luôn xử lý toàn frame, kết quả có thể bị ảnh hưởng bởi các vùng không liên quan và thời gian xử lý cũng tăng.
+
+\subsection{Giải pháp}
+Đồ án triển khai \texttt{RoiOverlayView} để người dùng chọn vùng quan tâm. Vùng này được lưu dưới dạng tọa độ chuẩn hóa theo view. Khi frame camera được xử lý, ứng dụng ánh xạ tọa độ chuẩn hóa về tọa độ frame, tạo \texttt{Rect} và mask polygon. Thuật toán Optical Flow chạy trên submat tương ứng. Sau khi xử lý, ứng dụng khôi phục phần ngoài mask bằng frame gốc để chỉ giữ kết quả trong ROI.
+
+Khó khăn chính là camera preview có thể scale và crop khác với frame xử lý. Vì vậy, mapping cần tính aspect ratio của view, kích thước frame, hệ số scale và offset. Nếu vùng chọn quá nhỏ, hệ thống không xử lý vì Optical Flow cần đủ pixel để phát hiện đặc trưng hoặc lấy mẫu vector.
+
+\subsection{Kết quả đạt được}
+ROI giúp người dùng kiểm soát vùng phân tích, giảm nhiễu trực quan và tập trung vào đối tượng quan tâm. Chức năng này cũng làm cho ứng dụng giống một công cụ thử nghiệm hơn, vì người dùng có thể thay đổi vùng xử lý mà không cần sửa mã nguồn.
+
+\section{Tổng hợp đóng góp}
+\label{section:5.5}
+Các đóng góp của đồ án có tính bổ sung cho nhau. Chuỗi phân giải GNSS giúp phần vệ tinh có dữ liệu đáng quan sát và có giải thích nguồn. Cơ chế analytics giúp phần Optical Flow không chỉ dừng ở minh họa mà còn có dữ liệu so sánh. Pipeline RAFT server mở rộng hệ thống từ thời gian thực trên thiết bị sang xử lý video ngoại tuyến bằng mô hình học sâu. ROI giúp người dùng kiểm soát phạm vi xử lý trên camera. Các đóng góp này đều xuất phát từ yêu cầu thực tế của sản phẩm và được hiện thực trực tiếp trong mã nguồn.
+
+\section{Kết chương}
+\label{section:5.6}
+Chương này đã phân tích các giải pháp quan trọng nhất của đồ án. Khác với Chương 4, chương này tập trung vào ý nghĩa kỹ thuật và lý do hình thành các giải pháp. Những nội dung này là cơ sở để đánh giá mức độ hoàn thành và giá trị của đồ án trước khi đi tới phần kết luận và hướng phát triển ở Chương 6.
+
+\end{document}

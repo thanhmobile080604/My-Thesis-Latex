@@ -1,0 +1,57 @@
+@startuml
+title Kien truc tong quan he thong
+
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+actor "Nguoi dung" as User
+
+package "GNSSAndOpticalFlowApp (Android)" {
+  component "UI Fragments" as UI
+  component "ViewModels" as VM
+  component "GNSS Module" as GNSS
+  component "Optical Flow Module" as OF
+  component "Analytics Storage" as Analytics
+  component "Video Client/Service" as Video
+  component "OpenGL/AR Renderer" as Renderer
+}
+
+package "Android Platform" {
+  component "Location/GNSS API" as AndroidGNSS
+  component "CameraX" as CameraX
+  component "Sensors/IMU" as Sensors
+}
+
+package "External Data" {
+  component "IGS Broadcast" as IGS
+  component "CelesTrak OMM" as CelesTrak
+  component "Map/Route Data" as MapData
+}
+
+package "OpticalFlowServer" {
+  component "FastAPI" as API
+  component "Video Job State" as Job
+  component "RAFT Processor" as RAFT
+  component "ONNX Runtime" as ONNX
+}
+
+User --> UI
+UI --> VM
+VM --> GNSS
+VM --> OF
+VM --> Video
+VM --> Analytics
+GNSS --> AndroidGNSS
+GNSS --> IGS
+GNSS --> CelesTrak
+GNSS --> Renderer
+UI --> MapData
+OF --> CameraX
+OF --> Sensors
+Video --> API
+API --> Job
+API --> RAFT
+RAFT --> ONNX
+API --> Video
+
+@enduml

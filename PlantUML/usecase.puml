@@ -1,0 +1,41 @@
+@startuml
+title Use case tong quat
+
+left to right direction
+
+actor "Nguoi dung" as User
+actor "May chu Optical Flow" as Server
+actor "Dich vu du lieu ngoai" as External
+
+rectangle "GNSSAndOpticalFlowApp" {
+  usecase "Xem ban do GNSS 2D" as UC1
+  usecase "Tim dia diem va xem tuyen duong" as UC2
+  usecase "Xem ve tinh tren mo hinh 3D" as UC3
+  usecase "Xem ve tinh bang AR" as UC4
+  usecase "Phan tich camera bang KLT/Farneback" as UC5
+  usecase "Chon ROI" as UC6
+  usecase "Ghi video ket qua" as UC7
+  usecase "Chay phien analytics" as UC8
+  usecase "Xu ly video bang RAFT server" as UC9
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+
+External --> UC1
+External --> UC2
+External --> UC3
+Server --> UC9
+
+UC5 ..> UC6 : include
+UC8 ..> UC5 : include
+UC9 ..> UC7 : extend
+
+@enduml

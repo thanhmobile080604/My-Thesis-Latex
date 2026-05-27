@@ -1,0 +1,51 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+\section{Kết luận}
+\label{section:6.1}
+Đồ án đã xây dựng một hệ thống gồm ứng dụng Android và máy chủ xử lý video nhằm trực quan hóa vệ tinh GNSS và phân tích chuyển động camera bằng Optical Flow. Ứng dụng Android đã hiện thực các chức năng chính: hiển thị bản đồ hai chiều, tìm kiếm địa điểm, vẽ tuyến đường, chuyển sang mô hình Trái Đất ba chiều, quan sát vệ tinh, mở màn hình AR, chạy KLT và Farneback trên camera, chọn ROI, ghi video, lưu phiên phân tích và xem biểu đồ so sánh. Máy chủ FastAPI đã hiện thực pipeline nhận video, chạy mô hình RAFT dạng ONNX, cập nhật tiến độ job và trả video kết quả.
+
+So với các ứng dụng bản đồ phổ thông, hệ thống của đồ án cung cấp thêm lớp quan sát vệ tinh và nguồn dữ liệu quỹ đạo. So với các demo Optical Flow đơn lẻ, hệ thống có cơ chế so sánh KLT/Farneback trên cùng luồng camera, lưu phiên đo và trình bày biểu đồ. So với việc chạy AI trực tiếp trên thiết bị, giải pháp server giúp đưa RAFT vào quy trình xử lý video mà không phụ thuộc hoàn toàn vào tài nguyên của điện thoại.
+
+Bảng~\ref{table:conclusion-results} tổng hợp mức độ hoàn thành các nhóm mục tiêu chính.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{4.0cm}|p{7.0cm}|p{2.0cm}|}
+\hline
+\textbf{Nhóm mục tiêu} & \textbf{Kết quả đạt được} & \textbf{Mức độ} \\ \hline
+Trực quan hóa bản đồ GNSS & Hiển thị vị trí, tìm kiếm địa điểm, vẽ tuyến đường và chuyển giữa bản đồ 2D/3D. & Đạt \\ \hline
+Trực quan hóa vệ tinh & Thu nhận trạng thái vệ tinh, phân giải vị trí theo nhiều nguồn và hiển thị trên renderer. & Đạt \\ \hline
+Optical Flow thời gian thực & Chạy KLT/Farneback, hỗ trợ vector, heatmap, moving mode, ROI và ghi video. & Đạt \\ \hline
+Analytics & Lưu phiên so sánh, hiển thị biểu đồ FPS, process time và tracks/active vectors. & Đạt \\ \hline
+RAFT server & Tạo job xử lý video, theo dõi progress, tải video kết quả và dọn file tạm. & Đạt \\ \hline
+Đánh giá định lượng sâu & Chưa có benchmark trên nhiều thiết bị và tập dữ liệu chuẩn. & Cần mở rộng \\ \hline
+\end{tabular}
+\caption{Tổng hợp kết quả đạt được}
+\label{table:conclusion-results}
+\end{table}
+
+Các đóng góp nổi bật của đồ án gồm: (i) chuỗi phân giải vị trí vệ tinh theo độ ưu tiên Real GNSS PVT, IGS, CelesTrak và xấp xỉ; (ii) cơ chế analytics cho phép so sánh hai thuật toán Optical Flow cổ điển bằng các chỉ số đo trực tiếp; (iii) pipeline xử lý video RAFT bất đồng bộ có theo dõi tiến độ và dọn file tạm; và (iv) cơ chế ROI giúp người dùng giới hạn vùng phân tích Optical Flow. Những đóng góp này đã được tích hợp vào sản phẩm mã nguồn, không chỉ dừng ở mức mô tả lý thuyết.
+
+Bên cạnh kết quả đạt được, đồ án vẫn còn một số hạn chế. Thứ nhất, phần đánh giá mới tập trung vào kiểm thử chức năng và quan sát định tính, chưa có benchmark trên nhiều thiết bị, nhiều độ phân giải và nhiều điều kiện ánh sáng. Thứ hai, việc hợp nhất IMU với Optical Flow mới dừng ở hỗ trợ phát hiện trạng thái di chuyển, chưa có bộ lọc sensor fusion đầy đủ để ước lượng quỹ đạo ổn định. Thứ ba, mô hình RAFT server phụ thuộc vào môi trường triển khai và tốc độ mạng, vì vậy trải nghiệm xử lý video có thể thay đổi theo cấu hình máy chủ. Thứ tư, màn hình AR hiện tập trung vào minh họa tương đối, chưa đạt mức hiệu chỉnh không gian chính xác như các hệ AR thương mại chuyên sâu.
+
+\section{Bài học kinh nghiệm}
+\label{section:6.2}
+Trong quá trình thực hiện đồ án, một bài học quan trọng là các bài toán tích hợp cảm biến trên thiết bị di động không chỉ phụ thuộc vào thuật toán mà còn phụ thuộc mạnh vào vòng đời ứng dụng. Camera, GNSS, cảm biến, OpenGL và foreground service đều có lifecycle riêng. Nếu không tách trạng thái khỏi view và không dừng callback đúng thời điểm, ứng dụng dễ gặp lỗi rò tài nguyên, crash hoặc cập nhật giao diện khi fragment không còn tồn tại.
+
+Bài học thứ hai là cần phân biệt rõ giữa dữ liệu đo trực tiếp và dữ liệu suy diễn. Trong phần analytics, FPS và process time là các số đo trực tiếp từ thời gian chạy, trong khi confidence phụ thuộc vào định nghĩa Forward-Backward Error. Việc trình bày các metric này với cùng mức độ khẳng định có thể gây hiểu nhầm. Vì vậy, hệ thống ưu tiên các biểu đồ đo trực tiếp và dùng confidence như một chỉ số hỗ trợ.
+
+Bài học thứ ba là các nguồn dữ liệu bên ngoài cần có fallback. GNSS PVT không phải thiết bị nào cũng cung cấp; IGS và CelesTrak phụ thuộc vào mạng; server RAFT phụ thuộc vào model và môi trường chạy. Thiết kế hệ thống theo chuỗi ưu tiên và trạng thái lỗi rõ ràng giúp ứng dụng vẫn hoạt động được trong điều kiện dữ liệu không đầy đủ.
+
+\section{Hướng phát triển}
+\label{section:6.3}
+Hướng phát triển đầu tiên là bổ sung bộ đánh giá định lượng có kiểm soát. Hệ thống có thể ghi lại tập video chuẩn với chuyển động biết trước, chạy KLT, Farneback và RAFT trên nhiều thiết bị, sau đó so sánh FPS, process time, độ ổn định vector và mức tiêu thụ tài nguyên. Kết quả này sẽ giúp xác định rõ ngưỡng cấu hình phù hợp cho từng thuật toán.
+
+Hướng thứ hai là phát triển sensor fusion giữa Optical Flow, IMU và GNSS. Thay vì chỉ dùng IMU để phát hiện moving mode, hệ thống có thể sử dụng bộ lọc Kalman hoặc complementary filter để kết hợp gia tốc, con quay, chuyển động ảnh và vị trí GNSS. Nếu thực hiện tốt, ứng dụng có thể ước lượng quỹ đạo camera ổn định hơn trong các tình huống GNSS yếu hoặc camera thiếu đặc trưng.
+
+Hướng thứ ba là tối ưu RAFT trên thiết bị biên. Có thể thử các mô hình nhẹ hơn, lượng tử hóa sâu hơn hoặc dùng GPU/NNAPI nếu thiết bị hỗ trợ. Khi đó, một phần xử lý video có thể chạy cục bộ, giảm phụ thuộc vào server. Hướng này cần đi kèm cơ chế fallback để vẫn dùng server khi thiết bị không đáp ứng tài nguyên.
+
+Hướng thứ tư là hoàn thiện trải nghiệm AR và GNSS. Màn hình AR có thể kết hợp hiệu chỉnh hướng nhìn, bộ lọc làm mượt orientation và cảnh báo độ tin cậy theo C/N0 hoặc số vệ tinh used-in-fix. Phần bản đồ 3D có thể bổ sung timeline quỹ đạo, phân loại vệ tinh theo chòm và chế độ phát lại dữ liệu đã ghi. Những cải tiến này sẽ biến hệ thống thành một công cụ học tập và thử nghiệm hoàn chỉnh hơn cho định vị vệ tinh và thị giác máy tính trên thiết bị di động.
+
+Hướng thứ năm là hoàn thiện đóng gói và triển khai. Server có thể được container hóa bằng Docker, kèm health check, giới hạn dung lượng upload, chính sách timeout và cơ chế tự dọn job cũ. Ứng dụng Android có thể bổ sung màn hình cấu hình server, kiểm tra kết nối trước khi upload và cơ chế retry có giới hạn. Các cải tiến này sẽ giúp hệ thống ổn định hơn khi sử dụng ngoài môi trường phát triển.
+
+\end{document}

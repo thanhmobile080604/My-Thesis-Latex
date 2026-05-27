@@ -1,0 +1,34 @@
+\lstdefinelanguage{Kotlin}{
+  morekeywords={
+    package,import,class,interface,object,fun,val,var,if,else,when,for,while,
+    return,true,false,null,private,public,override,companion,data,enum,suspend,
+    try,catch,finally
+  },
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]"
+}
+
+\lstdefinelanguage{bash}{
+  morekeywords={uvicorn,gradlew.bat},
+  sensitive=true,
+  morecomment=[l]{\#},
+  morestring=[b]"
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape,
+  stringstyle=\ttfamily,
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=8pt,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  tabsize=2,
+  captionpos=b
+}

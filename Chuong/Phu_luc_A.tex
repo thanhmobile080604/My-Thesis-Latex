@@ -1,0 +1,29 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\section{Triển khai máy chủ Optical Flow}
+Máy chủ được đặt trong thư mục \texttt{OpticalFlowServer}. Trước khi chạy, cần cài các thư viện Python trong \texttt{requirements.txt}, đặt file mô hình ONNX cùng thư mục với \texttt{main.py} và khởi động server bằng Uvicorn. Lệnh chạy thử trên máy phát triển là:
+
+\begin{lstlisting}[language=bash,caption={Khởi động máy chủ FastAPI}]
+uvicorn main:app --host 0.0.0.0 --port 8000
+\end{lstlisting}
+
+Nếu ứng dụng Android chạy trên thiết bị thật và server nằm trên máy cá nhân, có thể dùng Cloudflare Tunnel để tạo URL HTTPS. URL này được cấu hình trong file \texttt{local.properties} của ứng dụng Android.
+
+\begin{lstlisting}[language=bash,caption={Cấu hình URL máy chủ cho Android}]
+opticalFlowServerBaseUrl=https://your-tunnel-url.trycloudflare.com
+\end{lstlisting}
+
+\section{Build ứng dụng Android}
+Ứng dụng Android nằm trong thư mục \texttt{GNSSAndOpticalFlowApp}. Dự án sử dụng Gradle Kotlin DSL. Trước khi build, cần đảm bảo Android SDK tương ứng với compile SDK 37 đã được cấu hình trong Android Studio. Với máy phát triển Windows, có thể chạy:
+
+\begin{lstlisting}[language=bash,caption={Build debug APK}]
+gradlew.bat assembleDebug
+\end{lstlisting}
+
+Ứng dụng yêu cầu quyền camera, vị trí, internet, foreground service và thông báo. Khi kiểm thử trên thiết bị thật, nên bật GPS, cấp quyền vị trí chính xác và kiểm tra server bằng endpoint \texttt{/health} trước khi xử lý video.
+
+\section{Các bước sử dụng chính}
+Sau khi cài ứng dụng, người dùng đi qua màn hình giới thiệu và vào màn hình chính. Tab GNSS cho phép xem bản đồ, tìm kiếm địa điểm và chuyển sang mô hình 3D hoặc AR. Tab Optical Flow cho phép mở camera, chọn thuật toán KLT hoặc Farneback, chọn ROI, ghi video, chạy analysis và mở thư viện kết quả. Với xử lý video RAFT, người dùng chọn video, gửi lên server, theo dõi overlay tiến độ và mở video kết quả khi job hoàn tất.
+
+\end{document}

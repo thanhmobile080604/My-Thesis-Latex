@@ -1,0 +1,43 @@
+@startuml
+title Luong xu ly Optical Flow thoi gian thuc
+
+actor "Nguoi dung" as User
+participant "CameraOpticalFlowFragment" as Fragment
+participant "CameraX ImageAnalysis" as CameraX
+participant "RoiOverlayView" as ROI
+participant "KLT/Farneback" as Algorithm
+participant "IMUEstimator" as IMU
+participant "MotionVectorViz" as MV
+participant "VideoEncoder" as Encoder
+participant "AnalyticsStorageUtil" as Analytics
+
+User -> Fragment : Mo tab Optical Flow
+Fragment -> CameraX : bind Preview + ImageAnalysis
+CameraX -> Fragment : ImageProxy frame
+Fragment -> Fragment : Convert RGBA -> Mat, rotate frame
+Fragment -> IMU : getLinearAcceleration()
+IMU --> Fragment : motion magnitude
+
+alt ROI enabled
+  Fragment -> ROI : get normalized ROI
+  Fragment -> Fragment : map ROI to frame + create mask
+end
+
+Fragment -> Algorithm : run(frame/submat)
+Algorithm --> Fragment : OFOutput(frame, position, metrics)
+Fragment -> MV : getMotionVector(position)
+MV --> Fragment : motion trail Mat
+
+alt Recording
+  Fragment -> Encoder : encodeFrame(resultFrame)
+end
+
+alt Analysis active
+  Fragment -> Algorithm : run KLT clone
+  Fragment -> Algorithm : run Farneback clone
+  Fragment -> Analytics : record sample
+end
+
+Fragment -> User : Hien thi frame vector/heatmap
+
+@enduml

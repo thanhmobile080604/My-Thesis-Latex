@@ -1,0 +1,64 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\section{Đặc tả use case xem vệ tinh GNSS}
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{4cm}|p{9cm}|}
+\hline
+\textbf{Tên use case} & Xem vệ tinh GNSS trên bản đồ 3D/AR \\ \hline
+\textbf{Tác nhân} & Người dùng \\ \hline
+\textbf{Tiền điều kiện} & Ứng dụng đã có quyền vị trí; GPS được bật hoặc chế độ vị trí giả lập được kích hoạt trong cấu hình phát triển. \\ \hline
+\textbf{Luồng chính} & Người dùng mở tab GNSS, ứng dụng đăng ký nhận vị trí và callback GNSS, tracker xây dựng danh sách vệ tinh, renderer hiển thị vệ tinh trên mô hình 3D, người dùng chọn vệ tinh để xem chi tiết. \\ \hline
+\textbf{Luồng thay thế} & Nếu không có dữ liệu PVT, hệ thống dùng IGS, CelesTrak hoặc xấp xỉ. Nếu không có vệ tinh khả dụng, ứng dụng hiển thị cảnh báo thay vì dừng đột ngột. \\ \hline
+\textbf{Hậu điều kiện} & Người dùng quan sát được thông tin vệ tinh và nguồn phân giải vị trí tương ứng. \\ \hline
+\end{tabular}
+\caption{Đặc tả use case xem vệ tinh GNSS}
+\end{table}
+
+\section{Đặc tả use case phân tích camera bằng Optical Flow}
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{4cm}|p{9cm}|}
+\hline
+\textbf{Tên use case} & Phân tích camera bằng KLT hoặc Farneback \\ \hline
+\textbf{Tác nhân} & Người dùng \\ \hline
+\textbf{Tiền điều kiện} & Ứng dụng có quyền camera; OpenCV được nạp thành công. \\ \hline
+\textbf{Luồng chính} & Người dùng mở tab Optical Flow, chọn thuật toán, điều chỉnh độ nhạy, tùy chọn ROI, camera gửi frame tới thuật toán, ứng dụng hiển thị vector hoặc heatmap và motion trail. \\ \hline
+\textbf{Luồng thay thế} & Nếu người dùng chưa cấp quyền camera, ứng dụng yêu cầu quyền. Nếu ROI quá nhỏ hoặc không khép kín, ứng dụng yêu cầu chọn lại. \\ \hline
+\textbf{Hậu điều kiện} & Kết quả Optical Flow được hiển thị thời gian thực và có thể ghi thành video. \\ \hline
+\end{tabular}
+\caption{Đặc tả use case phân tích camera bằng Optical Flow}
+\end{table}
+
+\section{Đặc tả use case chạy phiên analytics}
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{4cm}|p{9cm}|}
+\hline
+\textbf{Tên use case} & So sánh KLT và Farneback \\ \hline
+\textbf{Tác nhân} & Người dùng \\ \hline
+\textbf{Tiền điều kiện} & Camera đang hoạt động; người dùng không ghi video tại thời điểm bắt đầu phân tích. \\ \hline
+\textbf{Luồng chính} & Người dùng nhấn Start Analysis, ứng dụng khóa độ nhạy, chạy KLT và Farneback trên cùng frame, ghép kết quả trái-phải, ghi sample metrics, người dùng dừng phân tích và ứng dụng lưu session. \\ \hline
+\textbf{Luồng thay thế} & Nếu người dùng đang ghi video, ứng dụng yêu cầu dừng ghi trước khi phân tích. Nếu không có sample hợp lệ, ứng dụng không tạo session rỗng. \\ \hline
+\textbf{Hậu điều kiện} & Phiên analytics được lưu và có thể xem lại ở màn hình biểu đồ. \\ \hline
+\end{tabular}
+\caption{Đặc tả use case chạy phiên analytics}
+\end{table}
+
+\section{Đặc tả use case xử lý video RAFT}
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{4cm}|p{9cm}|}
+\hline
+\textbf{Tên use case} & Xử lý video bằng RAFT trên máy chủ \\ \hline
+\textbf{Tác nhân} & Người dùng, máy chủ Optical Flow \\ \hline
+\textbf{Tiền điều kiện} & URL server HTTPS đã được cấu hình; server nạp được mô hình ONNX; thiết bị có kết nối mạng. \\ \hline
+\textbf{Luồng chính} & Người dùng chọn video, ứng dụng gửi multipart request tạo job, server xử lý background, ứng dụng thăm dò progress, tải file kết quả và mở trình phát video. \\ \hline
+\textbf{Luồng thay thế} & Nếu server không sẵn sàng hoặc model lỗi, job chuyển sang failed và ứng dụng hiển thị thông báo. Nếu người dùng thoát màn hình, foreground service tiếp tục quản lý tiến độ. \\ \hline
+\textbf{Hậu điều kiện} & File video kết quả được lưu vào thư viện ứng dụng hoặc thông báo lỗi được trả về rõ ràng. \\ \hline
+\end{tabular}
+\caption{Đặc tả use case xử lý video RAFT}
+\end{table}
+
+\end{document}

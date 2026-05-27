@@ -1,0 +1,11 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\begin{center}
+    \Large{\textbf{ABSTRACT}}\\
+\end{center}
+\vspace{1cm}
+
+Modern mobile devices can acquire GNSS signals, inertial measurements and camera frames at high frequency. Most map applications, however, focus on the user location and provide limited support for inspecting satellite states, orbit data sources or relative camera motion. This thesis develops an Android application that combines GNSS visualization and optical-flow-based motion analysis. In the GNSS module, the application collects location updates, satellite status and raw GNSS measurements, then resolves satellite positions using a priority chain consisting of Real GNSS PVT, IGS Broadcast Ephemeris, CelesTrak OMM/SGP4 and an azimuth/elevation approximation fallback. The results are displayed on a two-dimensional map, a three-dimensional Earth model and an augmented-reality view. In the optical flow module, the application implements KLT and Farneback with OpenCV for real-time camera analysis, supports region-of-interest selection, still/moving modes, video recording, analysis-session storage and comparison metrics including FPS, processing time, active vectors and confidence. For offline video processing, a FastAPI server runs an ONNX RAFT model and exposes job creation, progress tracking and result download APIs. The main contribution is an integrated mobile architecture that combines GNSS, OpenGL/AR and Optical Flow in a single workflow, together with a measurement mechanism for classical algorithms and an HTTPS-deployable RAFT inference pipeline. The implemented system satisfies the core functional requirements and provides a basis for future work on deeper sensor fusion, broader device-level evaluation and edge AI inference optimization.
+
+\end{document}

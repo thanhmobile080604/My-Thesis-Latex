@@ -1,0 +1,64 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+\section{Đặt vấn đề}
+\label{section:1.1}
+Các thiết bị di động hiện đại đã trở thành một nền tảng cảm biến tổng hợp. Một điện thoại Android phổ thông có thể cung cấp vị trí người dùng, trạng thái vệ tinh GNSS, dữ liệu camera, gia tốc kế, con quay hồi chuyển và kết nối mạng. Những nguồn dữ liệu này thường được sử dụng rời rạc trong các ứng dụng khác nhau: ứng dụng bản đồ tập trung vào vị trí và dẫn đường, ứng dụng camera tập trung vào ghi hình, còn các công cụ xử lý ảnh hoặc GNSS chuyên dụng thường hướng tới một nhóm người dùng kỹ thuật hẹp. Sự tách rời này làm giảm khả năng quan sát tổng thể giữa không gian vật lý, tín hiệu định vị và chuyển động thị giác thu nhận bởi camera.
+
+Trong bài toán định vị, người dùng thường chỉ nhìn thấy kết quả cuối cùng là một điểm tọa độ trên bản đồ. Tuy nhiên, phía sau điểm tọa độ đó là nhiều thông tin có giá trị: vệ tinh nào đang được thiết bị quan sát, cường độ tín hiệu ra sao, vệ tinh thuộc chòm nào, có được dùng trong nghiệm định vị hay không và vị trí vệ tinh được suy ra từ nguồn dữ liệu nào. Android cung cấp các API cho phép truy cập trạng thái vệ tinh và một phần dữ liệu đo GNSS thô, trong đó \texttt{GnssMeasurementsEvent} cho phép ứng dụng nhận tập đo từ GNSS engine trên thiết bị \cite{android-gnss-event}. Nếu được trực quan hóa hợp lý, các dữ liệu này có thể giúp người dùng hiểu rõ hơn về hoạt động của GNSS, đặc biệt trong các bối cảnh học tập, thử nghiệm và minh họa kỹ thuật.
+
+Trong bài toán xử lý ảnh, Optical Flow là một kỹ thuật quan trọng để ước lượng chuyển động biểu kiến giữa các khung hình liên tiếp. Kỹ thuật này có thể dùng để biểu diễn hướng dịch chuyển của camera, theo dõi chuyển động trong cảnh, tạo heatmap chuyển động hoặc làm thành phần đầu vào cho các hệ thống định vị thị giác. OpenCV cung cấp các thuật toán cổ điển như Lucas-Kanade và Farneback, còn các mô hình học sâu như RAFT cho phép ước lượng trường chuyển động dày đặc hơn \cite{opencv-optical-flow,raft2020}. Tuy vậy, các thuật toán này có chi phí xử lý và đặc tính đầu ra khác nhau. Nếu chỉ trình diễn một thuật toán, người dùng khó thấy được sự đánh đổi giữa tốc độ, độ chi tiết và độ ổn định.
+
+Từ thực tế trên, đồ án lựa chọn đề tài xây dựng một ứng dụng Android kết hợp trực quan hóa GNSS và phân tích chuyển động camera bằng Optical Flow. Hệ thống hướng tới việc biến điện thoại thành một công cụ thử nghiệm nhỏ gọn: người dùng có thể quan sát vệ tinh trên bản đồ hai chiều, mô hình Trái Đất ba chiều và màn hình AR; đồng thời có thể chạy KLT, Farneback trên camera, ghi lại video, lưu phiên đo và xử lý video ngoại tuyến bằng mô hình RAFT trên máy chủ.
+
+\section{Tính cấp thiết của đề tài}
+\label{section:1.2}
+Đề tài có ý nghĩa thực tiễn vì các ứng dụng di động ngày càng cần kết hợp nhiều nguồn cảm biến. Trong các bài toán dẫn đường trong nhà, thực tế tăng cường, đo chuyển động, robot di động hoặc kiểm tra chất lượng tín hiệu định vị, việc chỉ dựa trên một nguồn dữ liệu thường không đủ. GNSS cung cấp thông tin vị trí tuyệt đối nhưng có thể suy giảm trong đô thị, trong nhà hoặc khi bị che khuất. Camera cung cấp chuyển động tương đối và thông tin ngữ cảnh hình ảnh nhưng nhạy với ánh sáng, texture và chuyển động nhanh. IMU phản ứng nhanh nhưng dễ trôi khi tích phân theo thời gian. Một ứng dụng thử nghiệm tích hợp các nguồn này giúp người phát triển quan sát và đánh giá từng thành phần trước khi tiến tới các hệ thống sensor fusion phức tạp hơn.
+
+Đề tài cũng có ý nghĩa về mặt học thuật và đào tạo. Các khái niệm như ECEF, WGS84, broadcast ephemeris, SGP4, sparse/dense optical flow, Forward-Backward Error và mô hình RAFT thường được trình bày trong các tài liệu riêng biệt. Khi được đưa vào một sản phẩm Android có giao diện tương tác, các khái niệm này trở nên trực quan hơn. Người dùng có thể không chỉ đọc công thức mà còn nhìn thấy vệ tinh, vector chuyển động, heatmap và biểu đồ đo đạc trong cùng một ứng dụng.
+
+Về mặt kỹ thuật phần mềm, đề tài yêu cầu giải quyết nhiều vấn đề tích hợp: quản lý quyền Android, lifecycle của camera và cảm biến, xử lý frame thời gian thực, vẽ OpenGL, lưu trữ phiên phân tích, giao tiếp HTTP với máy chủ, xử lý job bất đồng bộ và dọn tài nguyên tạm. Đây là một bài toán phù hợp với đồ án tốt nghiệp vì có cả phần ứng dụng, phần thuật toán, phần kiến trúc và phần đánh giá.
+
+\section{Mục tiêu đề tài}
+\label{section:1.3}
+Mục tiêu tổng quát của đồ án là xây dựng một hệ thống phần mềm gồm ứng dụng Android và máy chủ xử lý video, phục vụ trực quan hóa vệ tinh GNSS và phân tích chuyển động camera bằng Optical Flow. Hệ thống cần hoạt động như một sản phẩm thử nghiệm hoàn chỉnh, có giao diện người dùng, có khả năng chạy trực tiếp trên thiết bị Android và có pipeline server cho các tác vụ AI nặng.
+
+Về GNSS, hệ thống cần thu nhận vị trí hiện tại, trạng thái vệ tinh và dữ liệu đo GNSS nếu thiết bị hỗ trợ. Ứng dụng cần hiển thị vị trí người dùng trên bản đồ hai chiều, hỗ trợ tìm kiếm địa điểm và vẽ tuyến đường. Ngoài ra, hệ thống cần trực quan hóa vệ tinh trên mô hình Trái Đất ba chiều và màn hình AR, kèm thông tin chi tiết về chòm vệ tinh, SVID, C/N0, azimuth, elevation, trạng thái used-in-fix và nguồn phân giải vị trí.
+
+Về Optical Flow, hệ thống cần chạy được ít nhất hai thuật toán cổ điển trên camera thời gian thực: KLT và Farneback. Ứng dụng cần cho phép điều chỉnh độ nhạy, chọn vùng quan tâm, hiển thị vector hoặc heatmap, ghi video kết quả và đo các thông số như FPS, thời gian xử lý, số điểm/vector hoạt động và độ tin cậy. Hệ thống cũng cần có chế độ phân tích so sánh, trong đó KLT và Farneback chạy trên cùng dữ liệu đầu vào để tạo phiên đo có thể lưu và xem lại.
+
+Về xử lý video ngoại tuyến, hệ thống cần triển khai máy chủ nhận video từ ứng dụng Android, chạy mô hình RAFT dạng ONNX và trả về video đã phủ vector hoặc heatmap. Máy chủ cần hỗ trợ job bất đồng bộ để người dùng theo dõi tiến độ thay vì phải chờ một request đồng bộ dài. Ứng dụng Android cần hiển thị tiến độ xử lý, nhận kết quả và mở video đã xử lý bằng trình phát tích hợp.
+
+\section{Phạm vi đề tài}
+\label{section:1.4}
+Phạm vi của đồ án tập trung vào xây dựng một hệ thống thử nghiệm kỹ thuật, không nhằm thay thế các hệ thống định vị chính xác cao hoặc các thư viện thị giác máy tính chuyên dụng. Ở nhánh GNSS, đồ án không xây dựng bộ giải nghiệm vị trí người dùng từ pseudorange mà sử dụng vị trí do Android Location API cung cấp. Phần vệ tinh tập trung vào trực quan hóa trạng thái và phân giải vị trí vệ tinh theo nhiều nguồn dữ liệu. Các nguồn này gồm PVT thật nếu thiết bị cung cấp, IGS Broadcast Ephemeris, CelesTrak OMM/SGP4 và phương pháp xấp xỉ từ azimuth/elevation.
+
+Ở nhánh Optical Flow, đồ án tập trung vào biểu diễn chuyển động ảnh và đo đạc thuật toán, chưa phát triển một hệ thống định vị thị giác hoàn chỉnh. Các vector chuyển động được dùng để trực quan hóa, tạo motion trail, so sánh thuật toán và xử lý video. IMU được sử dụng để hỗ trợ phát hiện trạng thái di chuyển, nhưng chưa được hợp nhất sâu với Optical Flow bằng bộ lọc Kalman hoặc các bộ lọc sensor fusion đầy đủ.
+
+Ở nhánh RAFT, đồ án triển khai pipeline xử lý video thông qua máy chủ FastAPI. Việc tối ưu mô hình học sâu, huấn luyện lại RAFT hoặc đánh giá trên tập dữ liệu chuẩn không nằm trong phạm vi chính. Mô hình được sử dụng như một thành phần suy luận có sẵn, phục vụ mục tiêu tích hợp và trực quan hóa kết quả trên video người dùng.
+
+\section{Định hướng giải pháp}
+\label{section:1.5}
+Giải pháp của đồ án được xây dựng theo hướng module hóa. Ứng dụng Android là trung tâm tương tác với người dùng, gồm các module bản đồ/GNSS, camera/Optical Flow, analytics, video và điều hướng giao diện. Các thuật toán Optical Flow cùng triển khai một interface chung để có thể thay thế hoặc mở rộng. Các dữ liệu đo được đóng gói thành data class để truyền giữa thuật toán, ViewModel, bộ lưu trữ và giao diện.
+
+Đối với GNSS, đồ án thiết kế chuỗi ưu tiên nguồn dữ liệu. Cách tiếp cận này phản ánh thực tế rằng thiết bị Android không phải lúc nào cũng cung cấp cùng mức dữ liệu. Nếu có PVT thật, hệ thống dùng nguồn này vì có độ tin cậy cao nhất. Nếu không có, hệ thống dùng dữ liệu quỹ đạo công khai từ IGS hoặc CelesTrak. Nếu các nguồn quỹ đạo không khả dụng, hệ thống dùng phương pháp xấp xỉ để vẫn duy trì khả năng hiển thị. Mỗi kết quả vệ tinh đều mang nhãn nguồn dữ liệu, giúp người dùng hiểu rõ mức độ chính xác tương đối của thông tin.
+
+Đối với Optical Flow, đồ án kết hợp hai thuật toán cổ điển có tính chất đối lập. KLT là sparse optical flow, xử lý các điểm đặc trưng nên nhanh và tiết kiệm tài nguyên hơn. Farneback là dense optical flow, tạo trường chuyển động dày đặc hơn nhưng chi phí xử lý cao hơn. Cơ chế phân tích so sánh chạy hai thuật toán trên cùng frame để giảm thiên lệch do dữ liệu đầu vào khác nhau. Độ tin cậy được đánh giá bằng Forward-Backward Error nhằm phát hiện các vector thiếu ổn định.
+
+Đối với xử lý video bằng RAFT, đồ án sử dụng kiến trúc client-server. Android gửi video và nhận kết quả, còn server chịu trách nhiệm suy luận ONNX, vẽ kết quả và quản lý file tạm. Việc tách RAFT sang server giúp giảm yêu cầu phần cứng trên điện thoại, đồng thời giữ ứng dụng Android đủ nhẹ để chạy các chức năng thời gian thực bằng KLT và Farneback.
+
+\section{Đóng góp chính của đồ án}
+\label{section:1.6}
+Đóng góp thứ nhất là một ứng dụng Android tích hợp hai nhóm chức năng vốn thường tách rời: trực quan hóa GNSS và phân tích Optical Flow. Ứng dụng không chỉ hiển thị vị trí người dùng mà còn biểu diễn vệ tinh trên nhiều bề mặt giao diện, đồng thời cho phép phân tích chuyển động camera theo thời gian thực.
+
+Đóng góp thứ hai là chuỗi phân giải vị trí vệ tinh theo độ ưu tiên. Chuỗi này cho phép hệ thống tận dụng dữ liệu tốt nhất đang có, từ PVT thật, IGS, CelesTrak tới xấp xỉ hình học. Thiết kế này giúp ứng dụng bền vững hơn trước sự khác biệt giữa thiết bị, phiên bản Android và điều kiện mạng.
+
+Đóng góp thứ ba là cơ chế analytics cho Optical Flow. Hệ thống không chỉ vẽ vector lên camera mà còn lưu lại phiên đo, so sánh KLT và Farneback theo FPS, thời gian xử lý, số điểm/vector hoạt động và độ tin cậy. Các phiên đo được lưu thành dữ liệu có thể mở lại, giúp người dùng xem biến thiên hiệu năng theo thời gian.
+
+Đóng góp thứ tư là pipeline xử lý video RAFT bất đồng bộ. Máy chủ FastAPI nhận video, xử lý bằng ONNX Runtime, cập nhật tiến độ job và trả video kết quả. Pipeline này mở rộng khả năng của ứng dụng từ xử lý thời gian thực trên thiết bị sang xử lý AI ngoại tuyến.
+
+\section{Bố cục đồ án}
+\label{section:1.7}
+Phần còn lại của báo cáo được tổ chức như sau. Chương 2 trình bày khảo sát hiện trạng, phân tích tác nhân, use case, yêu cầu chức năng và yêu cầu phi chức năng của hệ thống. Chương 3 giới thiệu các công nghệ và cơ sở lý thuyết được sử dụng, bao gồm Android, CameraX, GNSS, WGS84, dữ liệu quỹ đạo, OpenGL/AR, KLT, Farneback, RAFT, FastAPI và ONNX Runtime. Chương 4 trình bày thiết kế kiến trúc, thiết kế dữ liệu, thiết kế luồng xử lý, triển khai ứng dụng, triển khai server, kiểm thử và đánh giá. Chương 5 tập trung vào các giải pháp và đóng góp nổi bật của đồ án. Chương 6 tổng kết kết quả đạt được, phân tích hạn chế và đề xuất hướng phát triển.
+
+\end{document}

@@ -1,0 +1,43 @@
+@startuml
+title Luong phan giai vi tri ve tinh GNSS
+
+actor "Nguoi dung" as User
+participant "GNSSViewerFragment" as Fragment
+participant "GNSSViewerViewModel" as VM
+participant "GnssSatelliteTracker" as Tracker
+participant "PVT Resolver" as PVT
+participant "IGS Repository" as IGS
+participant "CelesTrak Repository" as CT
+participant "SatelliteCalculator" as Calc
+participant "EarthRenderer" as Renderer
+
+User -> Fragment : Mo tab GNSS
+Fragment -> Fragment : Kiem tra GPS/quyen vi tri
+Fragment -> VM : startLocationUpdates()
+VM -> Tracker : refreshIgsBroadcastDataIfNeeded()
+Tracker -> IGS : getSnapshot()
+VM -> Tracker : refreshCelesTrakDataIfNeeded()
+Tracker -> CT : getSnapshot()
+
+Fragment -> Tracker : updateMeasurements(event)
+Tracker -> PVT : probeMeasurement()
+PVT --> Tracker : SatellitePvtSnapshot?
+
+Fragment -> VM : updateSatelliteSnapshot(status)
+VM -> Tracker : buildSatelliteInfo(status, location)
+
+alt Co PVT hop le
+  Tracker -> Calc : ECEF -> LLA
+else Co IGS ephemeris
+  Tracker -> Calc : propagate broadcast ephemeris
+else Co CelesTrak orbit
+  Tracker -> Calc : SGP4/Kepler propagation
+else Fallback
+  Tracker -> Calc : approximate from azimuth/elevation
+end
+
+Tracker --> VM : List<SatelliteInfo>
+VM --> Fragment : List<SatelliteInfo>
+Fragment -> Renderer : updateSatellites()
+
+@enduml
