@@ -12,7 +12,8 @@ package "GNSSAndOpticalFlowApp (Android)" {
   component "GNSS Module" as GNSS
   component "Optical Flow Module" as OF
   component "Analytics Storage" as Analytics
-  component "Video Client/Service" as Video
+  component "Video Worker/Client" as Video
+  component "Live Routing" as Routing
   component "OpenGL/AR Renderer" as Renderer
 }
 
@@ -20,18 +21,22 @@ package "Android Platform" {
   component "Location/GNSS API" as AndroidGNSS
   component "CameraX" as CameraX
   component "Sensors/IMU" as Sensors
+  component "WorkManager" as WorkManager
 }
 
 package "External Data" {
   component "IGS Broadcast" as IGS
-  component "CelesTrak OMM" as CelesTrak
+  component "CelesTrak TLE" as CelesTrak
   component "Map/Route Data" as MapData
+  component "GNSS Backend/MQTT" as Outer
 }
 
 package "OpticalFlowServer" {
   component "FastAPI" as API
   component "Video Job State" as Job
+  component "Upload Session State" as Upload
   component "RAFT Processor" as RAFT
+  component "Cutie ROI" as Cutie
   component "ONNX Runtime" as ONNX
 }
 
@@ -41,6 +46,7 @@ VM --> GNSS
 VM --> OF
 VM --> Video
 VM --> Analytics
+VM --> Routing
 GNSS --> AndroidGNSS
 GNSS --> IGS
 GNSS --> CelesTrak
@@ -48,9 +54,15 @@ GNSS --> Renderer
 UI --> MapData
 OF --> CameraX
 OF --> Sensors
+Routing --> CameraX
+Routing --> Sensors
+Video --> WorkManager
 Video --> API
+Video --> Outer
 API --> Job
+API --> Upload
 API --> RAFT
+RAFT --> Cutie
 RAFT --> ONNX
 API --> Video
 

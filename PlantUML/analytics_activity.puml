@@ -3,7 +3,7 @@ title Activity phien analytics KLT/Farneback
 
 start
 :Nguoi dung bam Start Analysis;
-:Khoa do nhay KLT va Farneback;
+:Khoa do nhay KLT va Farneback o muc 100;
 :Vo hieu hoa ghi video va doi mode;
 while (Con frame camera?) is (co)
   :Clone frame thanh 2 ban;

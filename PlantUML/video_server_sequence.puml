@@ -3,25 +3,38 @@ title Luong xu ly video RAFT bat dong bo
 
 actor "Nguoi dung" as User
 participant "Android App" as App
-participant "VideoProcessingForegroundService" as Service
+participant "VideoProcessingWorker" as Worker
 participant "OpticalFlowServerApi" as Client
 participant "FastAPI Server" as API
 participant "VideoJob Store" as Store
+participant "VideoUpload Store" as Upload
 participant "OpticalFlowProcessor" as Processor
 participant "ONNX Runtime" as ONNX
 
 User -> App : Chon video va che do xu ly
-App -> Service : start processing intent
-Service -> Client : createProcessVideoJob(file, fields)
-Client -> API : POST /process-video/jobs
+App -> Worker : enqueue WorkManager job
+alt File nho
+  Worker -> Client : createProcessVideoJob(file, fields)
+  Client -> API : POST /process-video/jobs
+else File lon
+  Worker -> Client : create upload session
+  Client -> API : POST /process-video/uploads
+  API -> Upload : create VideoUpload
+  loop tung chunk
+    Worker -> Client : uploadProcessVideoChunk()
+    Client -> API : POST /process-video/uploads/{id}/chunks
+  end
+  Worker -> Client : complete upload
+  Client -> API : POST /process-video/uploads/{id}/complete
+end
 API -> Store : create VideoJob(status=queued)
 API --> Client : job_id
 
 loop polling
-  Service -> Client : getProcessVideoJob(job_id)
+  Worker -> Client : getProcessVideoJob(job_id)
   Client -> API : GET /process-video/jobs/{job_id}
   API --> Client : status, progress
-  Service -> App : update overlay message
+  Worker -> App : update overlay message
 end
 
 API -> Processor : process_video(input, output)
@@ -30,10 +43,20 @@ ONNX --> Processor : flow outputs
 Processor -> Processor : draw vectors/heatmap
 Processor -> Store : update progress/completed
 
-Service -> Client : download result
-Client -> API : GET /process-video/jobs/{job_id}/result
-API --> Client : output mp4
-Service -> App : processedVideoPathToOpen
+Worker -> Client : get result info
+Client -> API : GET /process-video/jobs/{job_id}/result/info
+alt Ket qua co chunks
+  loop tung result chunk
+    Worker -> Client : download chunk
+    Client -> API : GET /process-video/jobs/{job_id}/result/chunks/{index}
+  end
+  Worker -> Client : cleanup result
+  Client -> API : DELETE /process-video/jobs/{job_id}/result
+else Tai ca file
+  Worker -> Client : download result
+  Client -> API : GET /process-video/jobs/{job_id}/result
+end
+Worker -> App : processedVideoPathToOpen
 App -> User : Mo video ket qua
 
 @enduml
