@@ -43,7 +43,7 @@ Máy chủ suy luận AI & Có thể chạy mô hình lớn như RAFT trên CPU/
 
 \section{Đối tượng sử dụng và tác nhân hệ thống}
 \label{section:2.2}
-Hệ thống hướng tới ba nhóm đối tượng tương ứng với ba bài toán của đồ án. Nhóm thứ nhất là người dùng quan tâm tới định vị và bản đồ, cần quan sát vị trí, tuyến đường, vệ tinh và quá trình di chuyển ở mức trực quan trong GNSS Viewer. Nhóm thứ hai là người học hoặc người phát triển muốn thử nghiệm Optical Flow View trên camera, quan sát vector chuyển động, ghi video và so sánh thuật toán. Nhóm thứ ba là người phát triển hệ thống muốn kiểm tra LiveRouting, tức luồng kết hợp GNSS với camera/IMU khi GNSS không đủ tin cậy.
+Hệ thống hướng tới ba nhóm đối tượng tương ứng với ba bài toán của đồ án. Nhóm thứ nhất là người dùng quan tâm tới định vị và bản đồ, cần quan sát vị trí, tuyến đường, vệ tinh và quá trình di chuyển ở mức trực quan trong GNSS Viewer. Nhóm thứ hai là người học hoặc người phát triển muốn thử nghiệm Optical Flow View trên camera, quan sát vector chuyển động, ghi video và so sánh thuật toán. Nhóm thứ ba là người phát triển hệ thống muốn kiểm tra LiveRouting, tức luồng kết hợp GNSS với camera/IMU và hình học tuyến đường khi GNSS không đủ tin cậy.
 
 Từ các nhóm đối tượng trên, đồ án xác định các tác nhân chính gồm người dùng Android, thiết bị Android, máy chủ Optical Flow và các dịch vụ dữ liệu bên ngoài. Người dùng Android thao tác với giao diện. Thiết bị Android cung cấp camera, GNSS, IMU, mạng và bộ nhớ. Máy chủ Optical Flow xử lý video bằng RAFT. Các dịch vụ dữ liệu bên ngoài gồm IGS, CelesTrak, bản đồ, dịch vụ định tuyến/tìm kiếm địa điểm và backend xử lý video bên ngoài trong chế độ \texttt{OUTER\_SERVER}.
 
@@ -95,7 +95,7 @@ Quy trình này được thiết kế để tránh phụ thuộc vào một màn
 \label{subsection:2.4.1}
 Chức năng này cho phép người dùng xem vị trí hiện tại trên bản đồ hai chiều, tìm kiếm địa điểm, xem khoảng cách và tuyến đường tới điểm đích. Tiền điều kiện là thiết bị đã cấp quyền vị trí hoặc ứng dụng đang chạy ở chế độ vị trí giả lập phục vụ thử nghiệm. Luồng chính gồm các bước: ứng dụng khởi tạo osmdroid, nhận vị trí hiện tại, hiển thị marker người dùng, người dùng nhập từ khóa, ứng dụng gọi repository tìm địa điểm, người dùng chọn kết quả và ứng dụng vẽ tuyến đường. Hậu điều kiện là giao diện hiển thị được vị trí, điểm đích và thông tin tuyến đường nếu truy vấn thành công.
 
-Khi người dùng bắt đầu live routing, ứng dụng chuyển sang màn hình theo dõi tuyến đường. GNSS được dùng làm nguồn vị trí chính. Nếu GNSS mất cập nhật quá ngưỡng, số vệ tinh thấp hoặc độ chính xác không đạt, hệ thống bật chế độ hỗ trợ bằng camera. Optical Flow cung cấp độ lớn chuyển động ảnh, IMU cung cấp yaw rate, và ViewModel tích phân dead reckoning ngắn hạn để cập nhật marker cho tới khi GNSS khả dụng trở lại.
+Khi người dùng bắt đầu live routing, ứng dụng chuyển sang màn hình theo dõi tuyến đường. GNSS được dùng làm nguồn vị trí chính. Nếu GNSS mất cập nhật quá ngưỡng, số vệ tinh thấp hoặc độ chính xác không đạt, hệ thống bật chế độ hỗ trợ bằng camera cho kịch bản di chuyển bằng xe. Optical Flow cung cấp metrics chuyển động ảnh, IMU cung cấp yaw rate, và ViewModel tạo ước lượng visual odometry thực dụng để suy ra tốc độ, thay đổi hướng và độ tin cậy. Vị trí dự đoán được map matching theo route với confidence thay vì ép bám cứng; nếu quỹ đạo ước lượng lệch route qua nhiều mẫu, ứng dụng yêu cầu tuyến đường mới khi có Internet, còn khi offline thì giữ route hiện tại và thông báo cho người dùng.
 
 \subsection{Trực quan hóa vệ tinh GNSS}
 \label{subsection:2.4.2}
@@ -136,7 +136,7 @@ FR-11 & Ứng dụng phải hỗ trợ ghi video kết quả từ camera Optical
 FR-12 & Ứng dụng phải lưu phiên phân tích so sánh KLT/Farneback và hiển thị lại bằng biểu đồ. \\ \hline
 FR-13 & Ứng dụng phải gửi video tới server RAFT, theo dõi tiến độ job và tải kết quả khi hoàn tất. \\ \hline
 FR-14 & Máy chủ phải cung cấp endpoint kiểm tra sức khỏe, tạo job, upload chunk, lấy trạng thái job, hủy job, lấy thông tin kết quả, tải file/chunk kết quả và dọn kết quả. \\ \hline
-FR-15 & Ứng dụng phải hỗ trợ live routing, kích hoạt hỗ trợ Optical Flow/IMU khi GNSS không đủ tin cậy và vẽ các path riêng cho GNSS thật, Optical Flow assist và chế độ test dropout. \\ \hline
+FR-15 & Ứng dụng phải hỗ trợ live routing cho kịch bản xe, kích hoạt hỗ trợ Optical Flow/IMU khi GNSS không đủ tin cậy, ước lượng chuyển động bằng visual odometry thực dụng, map matching theo route, cập nhật lại route khi lệch tuyến và vẽ các path riêng cho GNSS thật, Optical Flow assist và chế độ test dropout. \\ \hline
 \end{longtable}
 
 \section{Yêu cầu phi chức năng}

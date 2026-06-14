@@ -15,7 +15,7 @@ Bảng~\ref{table:conclusion-results} tổng hợp mức độ hoàn thành các
 \textbf{Nhóm mục tiêu} & \textbf{Kết quả đạt được} & \textbf{Mức độ} \\ \hline
 Trực quan hóa bản đồ GNSS & Hiển thị vị trí, tìm kiếm địa điểm, vẽ tuyến đường và chuyển giữa bản đồ 2D/3D. & Đạt \\ \hline
 Trực quan hóa vệ tinh & Thu nhận trạng thái vệ tinh, phân giải vị trí theo nhiều nguồn và hiển thị trên renderer. & Đạt \\ \hline
-Live routing & Theo dõi tuyến đường và hỗ trợ tạm thời bằng Optical Flow/IMU khi GNSS không đủ tin cậy. & Đạt \\ \hline
+Live routing & Theo dõi tuyến đường và hỗ trợ tạm thời bằng visual odometry thực dụng, IMU yaw rate, prior tốc độ GNSS giảm dần và map matching có confidence khi GNSS không đủ tin cậy. & Đạt \\ \hline
 Optical Flow thời gian thực & Chạy KLT/Farneback, hỗ trợ vector, heatmap, moving mode, ROI và ghi video. & Đạt \\ \hline
 Analytics & Lưu phiên so sánh, hiển thị biểu đồ FPS, process time và tracks/active vectors. & Đạt \\ \hline
 RAFT server & Tạo job xử lý video, upload/download chunk, hủy job, theo dõi progress, xử lý ROI video bằng Cutie và dọn file tạm. & Đạt \\ \hline
@@ -25,9 +25,9 @@ RAFT server & Tạo job xử lý video, upload/download chunk, hủy job, theo d
 \label{table:conclusion-results}
 \end{table}
 
-Các đóng góp nổi bật của đồ án gồm: (i) chuỗi phân giải vị trí vệ tinh theo độ ưu tiên Real GNSS PVT, IGS, CelesTrak và xấp xỉ; (ii) cơ chế live routing kết hợp GNSS, Optical Flow và IMU ở mức thử nghiệm; (iii) cơ chế analytics cho phép so sánh hai thuật toán Optical Flow cổ điển bằng các chỉ số đo trực tiếp; (iv) pipeline xử lý video RAFT bất đồng bộ có theo dõi tiến độ, upload/download chunk, hủy job và dọn file tạm; và (v) cơ chế ROI giúp người dùng giới hạn vùng phân tích Optical Flow trên camera và video. Những đóng góp này đã được tích hợp vào sản phẩm mã nguồn, không chỉ dừng ở mức mô tả lý thuyết.
+Các đóng góp nổi bật của đồ án gồm: (i) chuỗi phân giải vị trí vệ tinh theo độ ưu tiên Real GNSS PVT, IGS, CelesTrak và xấp xỉ; (ii) cơ chế LiveRouting cho xe kết hợp GNSS, Optical Flow, IMU yaw rate, độ bất định vị trí và map matching có confidence khi GNSS suy giảm; (iii) cơ chế analytics cho phép so sánh hai thuật toán Optical Flow cổ điển bằng các chỉ số đo trực tiếp; (iv) pipeline xử lý video RAFT bất đồng bộ có theo dõi tiến độ, upload/download chunk, hủy job và dọn file tạm; và (v) cơ chế ROI giúp người dùng giới hạn vùng phân tích Optical Flow trên camera và video. Những đóng góp này đã được tích hợp vào sản phẩm mã nguồn, không chỉ dừng ở mức mô tả lý thuyết.
 
-Bên cạnh kết quả đạt được, đồ án vẫn còn một số hạn chế. Thứ nhất, phần đánh giá mới tập trung vào kiểm thử chức năng và quan sát định tính, chưa có benchmark trên nhiều thiết bị, nhiều độ phân giải và nhiều điều kiện ánh sáng. Thứ hai, cơ chế live routing bằng Optical Flow/IMU mới là dead reckoning ngắn hạn dựa trên heuristic, chưa có bộ lọc sensor fusion đầy đủ hoặc ground truth để đánh giá sai số quỹ đạo. Thứ ba, mô hình RAFT server phụ thuộc vào môi trường triển khai, tốc độ mạng và tài nguyên xử lý ROI/Cutie, vì vậy trải nghiệm xử lý video có thể thay đổi theo cấu hình máy chủ. Thứ tư, màn hình AR hiện tập trung vào minh họa tương đối, chưa đạt mức hiệu chỉnh không gian chính xác như các hệ AR thương mại chuyên sâu.
+Bên cạnh kết quả đạt được, đồ án vẫn còn một số hạn chế. Thứ nhất, phần đánh giá mới tập trung vào kiểm thử chức năng và quan sát định tính, chưa có benchmark trên nhiều thiết bị, nhiều độ phân giải và nhiều điều kiện ánh sáng. Thứ hai, cơ chế LiveRouting hiện là visual odometry thực dụng dựa trên metrics Optical Flow và map matching theo route, chưa phải hệ thống khôi phục pose/depth đầy đủ và chưa có ground truth để đánh giá sai số quỹ đạo định lượng. Thứ ba, mô hình RAFT server phụ thuộc vào môi trường triển khai, tốc độ mạng và tài nguyên xử lý ROI/Cutie, vì vậy trải nghiệm xử lý video có thể thay đổi theo cấu hình máy chủ. Thứ tư, màn hình AR hiện tập trung vào minh họa tương đối, chưa đạt mức hiệu chỉnh không gian chính xác như các hệ AR thương mại chuyên sâu.
 
 \section{Bài học kinh nghiệm}
 \label{section:6.2}
@@ -41,7 +41,7 @@ Bài học thứ ba là các nguồn dữ liệu bên ngoài cần có fallback.
 \label{section:6.3}
 Hướng phát triển đầu tiên là bổ sung bộ đánh giá định lượng có kiểm soát. Hệ thống có thể ghi lại tập video chuẩn với chuyển động biết trước, chạy KLT, Farneback và RAFT trên nhiều thiết bị, sau đó so sánh FPS, process time, độ ổn định vector và mức tiêu thụ tài nguyên. Kết quả này sẽ giúp xác định rõ ngưỡng cấu hình phù hợp cho từng thuật toán.
 
-Hướng thứ hai là phát triển sensor fusion giữa Optical Flow, IMU và GNSS. Thay vì dùng dead reckoning heuristic trong live routing, hệ thống có thể sử dụng bộ lọc Kalman hoặc complementary filter để kết hợp gia tốc, con quay, chuyển động ảnh và vị trí GNSS. Nếu thực hiện tốt, ứng dụng có thể ước lượng quỹ đạo camera ổn định hơn trong các tình huống GNSS yếu hoặc camera thiếu đặc trưng.
+Hướng thứ hai là phát triển sensor fusion định lượng hơn giữa Optical Flow, IMU, GNSS và dữ liệu bản đồ. Trên nền cơ chế visual odometry thực dụng hiện tại, hệ thống có thể bổ sung bộ lọc Kalman mở rộng, particle filter hoặc factor graph để mô hình hóa trạng thái vị trí, vận tốc, heading và độ bất định một cách chặt chẽ hơn. Nếu có thêm dữ liệu ground truth hoặc tập chạy thử có kiểm soát, ứng dụng có thể đánh giá sai số quỹ đạo và hiệu chỉnh tham số map matching tốt hơn trong các tình huống GNSS yếu hoặc camera thiếu đặc trưng.
 
 Hướng thứ ba là tối ưu RAFT trên thiết bị biên. Có thể thử các mô hình nhẹ hơn, lượng tử hóa sâu hơn hoặc dùng GPU/NNAPI nếu thiết bị hỗ trợ. Khi đó, một phần xử lý video có thể chạy cục bộ, giảm phụ thuộc vào server. Hướng này cần đi kèm cơ chế fallback để vẫn dùng server khi thiết bị không đáp ứng tài nguyên.
 

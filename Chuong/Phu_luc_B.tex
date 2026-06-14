@@ -54,8 +54,8 @@
 \textbf{Tên use case} & Dẫn đường có hỗ trợ Optical Flow khi GNSS suy giảm \\ \hline
 \textbf{Tác nhân} & Người dùng \\ \hline
 \textbf{Tiền điều kiện} & Ứng dụng đã có tuyến đường, quyền vị trí và quyền camera nếu cần hỗ trợ bằng Optical Flow. \\ \hline
-\textbf{Luồng chính} & Người dùng chọn điểm đến và bắt đầu live routing, ứng dụng cập nhật marker theo GNSS, theo dõi số vệ tinh và tuổi dữ liệu, bật camera assist khi GNSS không đủ tin cậy, dùng Optical Flow và IMU để cập nhật dead reckoning ngắn hạn, đồng thời vẽ path GNSS, path assist và path test dropout để quan sát lại. \\ \hline
-\textbf{Luồng thay thế} & Nếu người dùng từ chối quyền camera, ứng dụng vẫn tiếp tục GNSS routing nhưng không bật assist camera. Nếu GNSS khả dụng trở lại, camera assist được tắt và marker quay về cập nhật theo GNSS. \\ \hline
+\textbf{Luồng chính} & Người dùng chọn điểm đến và bắt đầu live routing, ứng dụng cập nhật marker theo GNSS, theo dõi số vệ tinh và tuổi dữ liệu, bật camera assist khi GNSS không đủ tin cậy, dùng Optical Flow và IMU yaw rate để tạo visual odometry thực dụng, map matching theo route để cập nhật marker, đồng thời vẽ path GNSS, path assist và path test dropout để quan sát lại. Nếu quỹ đạo assist lệch route qua nhiều mẫu và có Internet, ứng dụng cập nhật lại tuyến đường. \\ \hline
+\textbf{Luồng thay thế} & Nếu người dùng từ chối quyền camera, ứng dụng vẫn tiếp tục GNSS routing nhưng không bật assist camera. Nếu GNSS khả dụng trở lại, camera assist được tắt và marker quay về cập nhật theo GNSS. Nếu không có Internet khi cần reroute, ứng dụng giữ route hiện tại và hiển thị thông báo offline. \\ \hline
 \textbf{Hậu điều kiện} & Người dùng thấy tuyến đường, đường GNSS và đoạn assist được phân biệt trên bản đồ. \\ \hline
 \end{tabular}
 \caption{Đặc tả use case live routing}

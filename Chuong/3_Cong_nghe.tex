@@ -15,7 +15,7 @@ Android SDK cung cấp các API nền tảng như LocationManager, GnssStatus, G
 \label{subsection:3.1.2}
 Ứng dụng sử dụng một \texttt{MainActivity} chứa \texttt{NavHostFragment}. Các chức năng chính được chia thành nhiều fragment: màn hình giới thiệu, màn hình home, GNSS viewer, live routing, GNSS AR, camera Optical Flow, danh sách media, trình phát video, danh sách analytics và chi tiết analytics. Jetpack Navigation giúp chuyển màn hình theo một graph rõ ràng, tránh việc Activity phải quản lý trực tiếp toàn bộ fragment.
 
-ViewModel được dùng để giữ trạng thái qua vòng đời giao diện. Ví dụ, \texttt{GNSSViewerViewModel} lưu chế độ 2D/3D, vị trí hiện tại, địa điểm đã chọn, tuyến đường và snapshot vệ tinh mới nhất. \texttt{LiveRoutingViewModel} lưu trạng thái tuyến đường, GNSS assist, các đoạn đường GNSS và các đoạn dead reckoning bằng Optical Flow. \texttt{CameraOpticalFlowViewModel} lưu trạng thái thuật toán, ROI, recording, analysis và moving mode. Cách thiết kế này giúp ứng dụng không mất trạng thái khi view bị tạo lại do thay đổi cấu hình hoặc điều hướng.
+ViewModel được dùng để giữ trạng thái qua vòng đời giao diện. Ví dụ, \texttt{GNSSViewerViewModel} lưu chế độ 2D/3D, vị trí hiện tại, địa điểm đã chọn, tuyến đường và snapshot vệ tinh mới nhất. \texttt{LiveRoutingViewModel} lưu trạng thái tuyến đường, GNSS assist, các đoạn đường GNSS, các đoạn Optical Flow assist, ước lượng visual odometry thực dụng và kết quả map matching theo route. \texttt{CameraOpticalFlowViewModel} lưu trạng thái thuật toán, ROI, recording, analysis và moving mode. Cách thiết kế này giúp ứng dụng không mất trạng thái khi view bị tạo lại do thay đổi cấu hình hoặc điều hướng.
 
 \subsection{CameraX}
 \label{subsection:3.1.3}
@@ -111,6 +111,14 @@ Confidence = \frac{N_{inlier}}{N_{tracked}} \times 100\%.
 \end{equation}
 
 Chỉ số này không phải là độ chính xác tuyệt đối so với ground truth, vì hệ thống không có dữ liệu ground truth của chuyển động camera. Tuy nhiên, nó giúp phát hiện các vector thiếu nhất quán và tạo cơ sở so sánh tương đối giữa KLT và Farneback trong cùng phiên chạy.
+
+\subsection{Visual odometry thực dụng và map matching}
+\label{subsection:3.4.5}
+Visual odometry là bài toán ước lượng chuyển động tương đối của camera từ chuỗi ảnh liên tiếp. Trong dạng đầy đủ, hệ thống thường cần theo dõi đặc trưng, loại outlier, ước lượng pose camera, xử lý tỉ lệ mét/pixel và kết hợp IMU hoặc bản đồ để giảm trôi. Tuy nhiên, với camera đơn trên điện thoại và không có hiệu chuẩn độ sâu hoặc chiều cao camera ổn định, Optical Flow chỉ cung cấp chuyển động biểu kiến trong ảnh; nó không trực tiếp tương đương với vận tốc thật theo mét/giây.
+
+Trong đồ án, LiveRouting dùng một phiên bản visual odometry thực dụng cho kịch bản xe. Metrics Optical Flow gồm \texttt{avgDx}, \texttt{avgDy}, \texttt{avgMagnitude} và \texttt{confidence} được quy đổi thành tốc độ tương đối, thay đổi hướng và hệ số chất lượng. Tỉ lệ chuyển đổi pixel/giây sang mét/giây được hiệu chỉnh khi GNSS còn tốt và xe có tốc độ đủ lớn. Khi GNSS mất tin cậy, tốc độ ước lượng được lấy từ Optical Flow với trọng số phụ thuộc chất lượng; tốc độ GNSS cuối cùng chỉ còn là prior và giảm dần theo thời gian để tránh giả định xe luôn giữ nguyên vận tốc.
+
+Map matching là bước ghép vị trí hoặc quỹ đạo ước lượng với hình học tuyến đường. Nếu chỉ ``snap'' cứng marker vào route, hệ thống có thể che giấu trường hợp người dùng thật sự đi sai đường. Vì vậy, đồ án dùng map matching có độ tin cậy: vị trí dự đoán chỉ được kéo về route khi khoảng cách tới route, sai khác hướng và tính liên tục theo đoạn đường đều đạt ngưỡng. Khi các điều kiện này không thỏa mãn, quỹ đạo assist được phép đi theo dự đoán camera/IMU để hệ thống có bằng chứng lệch tuyến và kích hoạt cập nhật lại đường đi.
 
 \section{RAFT, ONNX Runtime và máy chủ FastAPI}
 \label{section:3.5}
