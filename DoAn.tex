@@ -17,12 +17,11 @@
 	\renewcommand{\headrulewidth}{0pt} % Điều chỉnh độ dày của đương kẻ ngang header, ở đây mục đích là bỏ đường kẻ ngang ở header (Độ dày 0pt)
 	\renewcommand{\footrulewidth}{0pt}} % Điều chỉnh độ dày của đương kẻ ngang footer, ở đây mục đích là bỏ đường kẻ ngang ở footer (Độ dày 0pt)
 % Lệnh trên để tùy chỉnh lại định dạng trang 'plain' (thường dùng cho trang đầu chương).
-\setlength{\headheight}{15pt} % Đặt chiều cao cho vùng header để tránh lỗi cảnh báo của fancyhdr.
+\setlength{\headheight}{35pt} % Đặt chiều cao cho vùng header để tránh lỗi cảnh báo của fancyhdr khi tên chương dài.
 
 \usepackage{pdflscape} % Hỗ trợ trang ngang, giúp đưa các bảng có kích thước đặt theo chiều ngang giấy
 \usepackage{setspace} % Hỗ trợ giãn dòng
-\setstretch{1.1} % Giãn dòng 1.1
-%\onehalfspacing % Giãn dòng 1.5, theo đồ án SoICT là giãn 1.5, còn theo file quy chế chính thức ctt là giãn 1.1, sinh viên tùy chỉnh nếu muốn rộng hơn.
+\onehalfspacing % Giãn dòng 1.5 theo template đồ án SOICT.
 \usepackage{afterpage} % Hỗ trợ can thiệp ngắt trang, ví dụ để chèn một trang trống sau trang hiện tại.
 
 % =================== GÓI LỆNH HÌNH ẢNH, BẢNG, CHÚ THÍCH ===================
@@ -95,14 +94,15 @@
 \titleformat{\chapter}[hang]{\centering\bfseries}{CHƯƠNG \thechapter. }{0pt}{}
 \titlespacing*{\chapter}{0pt}{-20pt}{20pt}
 
-\titleformat{\section}[hang]{\bfseries}{\thesection}{1em}{}
-\titlespacing*{\section}{0pt}{1.5ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+\titleformat{\section}[hang]{\bfseries}{\thechapter.\arabic{section}\ \ \ \ }{0pt}{}
+\titlespacing{\section}{0pt}{\parskip}{0.5\parskip}
 
-\titleformat{\subsection}[hang]{\bfseries}{\thesubsection}{1em}{}
-\titlespacing*{\subsection}{0pt}{1.5ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+\titleformat{\subsection}[hang]{\bfseries}{\thechapter.\arabic{section}.\arabic{subsection}\ \ \ \ }{0pt}{}
+\titlespacing{\subsection}{30pt}{\parskip}{0.5\parskip}
 
-\titleformat{\subsubsection}[hang]{\itshape}{\thesubsubsection}{1em}{}
-\titlespacing*{\subsubsection}{0pt}{1.5ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+\renewcommand\thesubsubsection{\alph{subsubsection}}
+\titleformat{\subsubsection}[hang]{\bfseries}{\alph{subsubsection}, \ }{0pt}{}
+\titlespacing{\subsubsection}{50pt}{\parskip}{0.5\parskip}
 
 
 % ========== KHOẢNG CÁCH ĐOẠN & CÁC THIẾT LẬP KHÁC ==========
@@ -123,15 +123,12 @@
 
 \begin{document}
 	
+	\pagenumbering{gobble}
 	\subfile{Bia} % Phần bìa
+	\subfile{Bia_lot} % Phần bìa lót có chữ kí GVHD
 	\pagestyle{plain} % Chỉ hiển thị số trang ở cuối trang
 	
 	\newpage
-	\pagenumbering{gobble}
-	\subfile{Chuong/0_1_De_tai_TN.tex}
-	
-	\newpage
-	\pagenumbering{gobble}
 	\subfile{Chuong/0_2_Loi_cam_on.tex}
 	
 	\newpage
@@ -144,6 +141,7 @@
 	% --- CÁC TRANG DANH MỤC ---
 	% Mục lục, Danh mục hình vẽ/bảng biểu vẫn dùng số La Mã
 	\newpage
+	\pagenumbering{roman}
 	\renewcommand*\contentsname{MỤC LỤC}
 	
 	
@@ -202,7 +200,6 @@
 	%\phantomsection\addcontentsline{toc}{section}{\numberline {} DANH MỤC THUẬT NGỮ VÀ TỪ VIẾT TẮT}
 	
 	\newpage
-	\phantomsection\addcontentsline{toc}{section}{\numberline {} DANH MỤC THUẬT NGỮ VÀ TỪ VIẾT TẮT}
 	\subfile{Chuong/0_5_Danh_muc_viet_tat.tex}
 	
 	% ===================================================
@@ -233,13 +230,13 @@
 	
 	\newpage
 	%\pagestyle{fancy} % Áp dụng header và footer
-	\chapter{CÔNG NGHỆ SỬ DỤNG}
+	\chapter{NỀN TẢNG LÝ THUYẾT VÀ CÔNG NGHỆ SỬ DỤNG}
 	\label{chapter:Methodology}
 	\subfile{Chuong/3_Cong_nghe}
 	
 	\newpage
 	%\pagestyle{fancy} % Áp dụng header và footer
-	\chapter{THIẾT KẾ, TRIỂN KHAI VÀ ĐÁNH GIÁ HỆ THỐNG}
+	\chapter{PHÂN TÍCH THIẾT KẾ, TRIỂN KHAI VÀ ĐÁNH GIÁ HỆ THỐNG}
 	\label{chapter:Experiment}
 	\subfile{Chuong/4_Ket_qua_thuc_nghiem}
 	

@@ -1,200 +1,79 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-Chương này trình bày thiết kế, triển khai và đánh giá hệ thống. Nội dung đi từ kiến trúc tổng quan, thiết kế package, thiết kế dữ liệu, thiết kế các luồng xử lý chính, tới kết quả triển khai và kiểm thử. Các sơ đồ PlantUML tương ứng được đặt trong thư mục \texttt{PlantUML}; báo cáo này mô tả đầy đủ bằng chữ để không phụ thuộc vào ảnh chụp màn hình hoặc hình render.
+Chương này trình bày phần phân tích thiết kế, xây dựng, kiểm thử và triển khai hệ thống. Nội dung được tổ chức theo sườn của template SOICT, bao gồm: thiết kế kiến trúc, thiết kế chi tiết, xây dựng ứng dụng, kiểm thử và triển khai. Các sơ đồ UML tương ứng được đặt trong thư mục \texttt{PlantUML} để có thể render và đưa vào phụ lục hoặc hình minh họa khi hoàn thiện bản in cuối.
 
 \section{Thiết kế kiến trúc}
 \label{section:4.1}
-\subsection{Kiến trúc tổng quan}
+\subsection{Lựa chọn kiến trúc phần mềm}
 \label{subsection:4.1.1}
-Hệ thống gồm hai thành phần chính: ứng dụng Android \texttt{GNSSAndOpticalFlowApp} và máy chủ \texttt{OpticalFlowServer}. Ứng dụng Android đảm nhiệm tương tác người dùng, xử lý camera thời gian thực, trực quan hóa GNSS, live routing, lưu trữ phiên phân tích, xử lý video nền và phát video. Máy chủ đảm nhiệm tác vụ suy luận RAFT trên video ngoại tuyến. Hai thành phần giao tiếp qua HTTPS bằng Retrofit ở phía Android và FastAPI ở phía server.
+Hệ thống được thiết kế theo kiến trúc client-server kết hợp xử lý cục bộ trên thiết bị. Ứng dụng Android đóng vai trò client, chịu trách nhiệm tương tác người dùng, thu nhận GNSS, camera, IMU, hiển thị bản đồ, dựng mô hình 3D/AR, xử lý Optical Flow thời gian thực, lưu trữ kết quả và quản lý các tác vụ nền. Máy chủ Python đóng vai trò server xử lý video ngoại tuyến bằng RAFT, phù hợp với các tác vụ suy luận có chi phí tính toán lớn hơn khả năng xử lý ổn định của thiết bị di động.
 
-Kiến trúc Android được tổ chức theo hướng nhiều tầng nhẹ. Tầng giao diện gồm các fragment, dialog và custom view. Tầng trạng thái gồm các ViewModel. Tầng nghiệp vụ gồm các lớp xử lý GNSS, Optical Flow, analytics, video và renderer. Tầng hạ tầng gồm các lớp lưu trữ, client HTTP, encoder, shader helper và các hàm tiện ích. Cách phân chia này không áp dụng cứng một framework như Clean Architecture, nhưng vẫn đảm bảo tách trách nhiệm rõ ràng và phù hợp với quy mô đồ án.
+Ở phía Android, ứng dụng được tổ chức theo hướng MVVM nhẹ. Fragment đảm nhiệm hiển thị và nhận thao tác người dùng; ViewModel lưu trạng thái giao diện và điều phối nghiệp vụ; các lớp repository, tracker, processor và utility xử lý dữ liệu GNSS, bản đồ, camera, video và lưu trữ. Cách tổ chức này phù hợp với đặc thù Android vì các nguồn dữ liệu như camera, vị trí, cảm biến và worker nền đều phụ thuộc mạnh vào vòng đời ứng dụng.
 
-Ở phía server, kiến trúc được tách thành lớp API và lớp xử lý. File \texttt{src/main.py} định nghĩa endpoint, trạng thái job, upload session, cơ chế background task, hủy job và dọn file tạm. File \texttt{src/inference.py} định nghĩa \texttt{OpticalFlowProcessor}, bao gồm nạp model ONNX, chọn execution provider, tiền xử lý frame, lan truyền ROI bằng Cutie khi cần, chạy suy luận, hậu xử lý flow và ghi video H.264. Sự tách biệt này giúp thay đổi thuật toán RAFT hoặc cách vẽ vector mà không cần thay đổi giao thức API.
+Ở phía server, kiến trúc được chia thành lớp API và lớp xử lý thuật toán. File \texttt{src/main.py} định nghĩa FastAPI endpoint, trạng thái job, upload session, hủy job và trả kết quả. File \texttt{src/inference.py} định nghĩa \texttt{OpticalFlowProcessor}, bao gồm nạp mô hình ONNX, đọc video bằng OpenCV, xử lý ROI, chạy RAFT và ghi video đầu ra bằng ffmpeg. Sự phân tách này giúp thay đổi thuật toán xử lý video mà không cần thay đổi giao thức API phía client.
 
-\subsection{Lý do lựa chọn kiến trúc}
+\subsection{Thiết kế tổng quan}
 \label{subsection:4.1.2}
-Đồ án có nhiều luồng xử lý khác nhau: bản đồ và GNSS phụ thuộc vào location lifecycle; camera Optical Flow phụ thuộc vào CameraX và OpenCV; analytics phụ thuộc vào lưu trữ file; video server phụ thuộc vào mạng và WorkManager foreground worker; renderer phụ thuộc vào OpenGL/ARCore. Nếu gom tất cả logic vào Activity hoặc một fragment, mã nguồn sẽ khó bảo trì, khó kiểm thử và dễ lỗi vòng đời. Vì vậy, hệ thống được chia theo module chức năng.
+Kiến trúc tổng quan của hệ thống gồm bốn nhóm thành phần chính. Nhóm thứ nhất là giao diện Android, bao gồm các màn hình GNSS Viewer, GNSS AR, Camera Optical Flow, LiveRouting, Media và Analytics. Nhóm thứ hai là các module xử lý trên thiết bị, bao gồm GNSS tracking, OpenGL/AR rendering, Optical Flow realtime, IMU, video recording và analytics storage. Nhóm thứ ba là các dịch vụ bên ngoài như IGS, CelesTrak, OSRM/Nominatim và backend xử lý video ngoài. Nhóm thứ tư là OpticalFlowServer, gồm FastAPI, bộ nhớ trạng thái job/upload, OpenCV, Cutie, RAFT/ONNX Runtime và ffmpeg.
 
-Kiến trúc cũng cần xử lý các tác vụ có thời gian chạy khác nhau. Xử lý camera cần phản hồi theo frame và không được tạo hàng đợi dài. Xử lý video RAFT có thể kéo dài, vì vậy không thể gắn chặt với một fragment. GNSS cần cập nhật liên tục nhưng cũng phải dừng callback khi fragment tạm dừng. Những yêu cầu này dẫn đến việc sử dụng ViewModel để giữ trạng thái, WorkManager foreground worker cho video, callback lifecycle cho GNSS và executor riêng cho camera analysis.
+Sơ đồ component tổng quan được đặt trong nhóm file PlantUML về kiến trúc của đồ án. Trong sơ đồ này, các fragment Android giao tiếp với ViewModel và các module nghiệp vụ. Module GNSS nhận dữ liệu từ Android Location/GNSS API, đồng thời tải dữ liệu quỹ đạo từ IGS và CelesTrak. Module Optical Flow nhận frame từ CameraX, xử lý bằng KLT hoặc Farneback và có thể ghi video qua MediaCodec. Module video nền dùng WorkManager và Retrofit để gửi video tới server, theo dõi tiến độ và tải kết quả.
 
-\subsection{Mô tả kiến trúc dạng văn bản}
+\subsection{Thiết kế chi tiết gói}
 \label{subsection:4.1.3}
-Sơ đồ kiến trúc tổng quan được đặt trong \texttt{PlantUML/architecture.puml}. Nội dung sơ đồ có thể mô tả bằng lời như sau. Người dùng tương tác với các fragment của ứng dụng Android. Các fragment nhận trạng thái từ ViewModel và gọi các module nghiệp vụ. Module GNSS nhận dữ liệu từ Android Location/GNSS API và nguồn quỹ đạo bên ngoài. Module Optical Flow nhận frame từ CameraX và xử lý bằng KLT/Farneback. Module live routing kết hợp GNSS, Optical Flow và IMU để hỗ trợ di chuyển khi tín hiệu GNSS không đủ tin cậy. Module analytics lưu kết quả xuống file JSON. Module video client gửi video lên server qua worker nền. Server chạy RAFT bằng ONNX Runtime, dùng Cutie cho ROI video khi cần và trả video kết quả.
+Mã nguồn Android được chia theo các nhóm package chính. Nhóm screen chứa fragment và ViewModel. Nhóm function.gnss chứa tracker, repository, nguồn dữ liệu quỹ đạo và renderer. Nhóm function.optical flow chứa interface và các thuật toán KLT, Farneback, IMU. Nhóm function.video chứa client server, worker nền, bus trạng thái, notification và các DTO. Nhóm model chứa các data class dùng chung, còn nhóm util chứa các tiện ích về video, lưu trữ, shader, chia sẻ và logging.
 
-\section{Thiết kế package và lớp}
+Ở phía server, package \texttt{src} gồm hai module chính. Module \texttt{main.py} tập trung vào API, trạng thái job và upload. Module \texttt{inference.py} tập trung vào xử lý video, mô hình RAFT, ROI và ghi file kết quả. Các thư mục \texttt{AI\_model} và \texttt{third\_party} lần lượt chứa mô hình ONNX và thư viện phụ thuộc cho xử lý ROI. Thiết kế này chưa phải kiến trúc microservice, nhưng đủ rõ để tách trách nhiệm giữa API, thuật toán và tài nguyên mô hình.
+
+\section{Thiết kế chi tiết}
 \label{section:4.2}
-\subsection{Package giao diện và điều hướng}
+\subsection{Thiết kế giao diện}
 \label{subsection:4.2.1}
-Package \texttt{screen.fragment} chứa các màn hình chính. \texttt{HomeFragment} quản lý hai tab GNSS và Optical Flow bằng \texttt{ViewPager2}. \texttt{GNSSViewerFragment} quản lý bản đồ, tìm kiếm địa điểm, tuyến đường, mô hình 3D và điều hướng sang AR hoặc live routing. \texttt{LiveRoutingFragment} quản lý bản đồ dẫn đường, trạng thái GNSS assist và panel camera hỗ trợ Optical Flow. \texttt{GNSSARFragment} quản lý màn hình AR. \texttt{CameraOpticalFlowFragment} quản lý camera, thuật toán Optical Flow, ROI, recording và analysis. \texttt{AnalyticsListFragment}, \texttt{AnalyticsViewFragment} và \texttt{AnalyticsSampleDetailFragment} quản lý dữ liệu phân tích. \texttt{VideoOpticalFlowFragment} phát video kết quả.
+Giao diện chính gồm hai nhóm chức năng: GNSS và Optical Flow. Nhóm GNSS hiển thị bản đồ hai chiều, thanh tìm kiếm, marker vị trí người dùng, tuyến đường và các nút chuyển sang 3D, AR hoặc LiveRouting. Khi chuyển sang 3D, bản đồ được thay bằng \texttt{GLSurfaceView}; người dùng có thể kéo để quay Trái Đất, phóng to/thu nhỏ và chọn vệ tinh để xem thông tin. Màn hình AR dùng camera làm nền và phủ thông tin vệ tinh lên hướng nhìn của thiết bị.
 
-Package \texttt{screen.viewmodel} chứa các ViewModel theo nhóm màn hình. \texttt{GNSSViewerViewModel} lưu trạng thái bản đồ/GNSS và quản lý repository tìm kiếm/tuyến đường. \texttt{LiveRoutingViewModel} lưu tuyến đường, trạng thái GNSS assist, các đoạn đường GNSS, các đoạn Optical Flow assist, mode Optical Flow đang dùng, ước lượng visual odometry, độ bất định vị trí và kết quả map matching theo route. \texttt{CameraOpticalFlowViewModel} lưu trạng thái camera, ROI, moving mode và phiên analysis. \texttt{VideoProcessOptionsViewModel} lưu cấu hình xử lý video. \texttt{MainViewModel} đóng vai trò chia sẻ trạng thái cấp Activity như tab hiện tại, đường dẫn video đang chọn, trạng thái xử lý video và cập nhật thư viện.
+Nhóm Optical Flow hiển thị preview camera, ảnh phủ vector hoặc heatmap, vùng ROI và các điều khiển thuật toán. Người dùng có thể chọn thuật toán, điều chỉnh độ nhạy, chọn moving mode, bật ROI, ghi video hoặc chạy phiên analytics. Màn hình analytics trình bày danh sách phiên đo, biểu đồ FPS, thời gian xử lý và số điểm hoặc vector hoạt động. Trình phát video dùng Media3 để mở video đầu vào hoặc video đã xử lý.
 
-\subsection{Package GNSS}
+\subsection{Thiết kế lớp}
 \label{subsection:4.2.2}
-Package \texttt{gnss} chứa các repository và tracker. \texttt{MapPlaceRepository} xử lý tìm kiếm địa điểm bằng Nominatim và lưu lịch sử tìm kiếm. \texttt{MapRouteRepository} xử lý truy vấn tuyến đường bằng OSRM. \texttt{GnssSatelliteTracker} là lớp trung tâm của module vệ tinh, chịu trách nhiệm nhận measurements, cache PVT, refresh dữ liệu IGS/CelesTrak và xây dựng \texttt{SatelliteInfo}.
+Các lớp chủ đạo của hệ thống được thiết kế quanh các luồng dữ liệu chính. \texttt{GnssSatelliteTracker} là lớp trung tâm của module GNSS, nhận dữ liệu đo, cache PVT, tải IGS/CelesTrak và tạo \texttt{SatelliteInfo}. \texttt{EarthRenderer} và \texttt{GNSSARRenderer} nhận danh sách vệ tinh để hiển thị trên mô hình 3D hoặc AR. \texttt{KLT} và \texttt{Farneback} cùng thực thi interface \texttt{OpticalFlow}, nhờ đó màn hình camera có thể thay đổi thuật toán mà không phụ thuộc vào chi tiết triển khai.
 
-Các package con \texttt{gnss\_source} được chia theo nguồn dữ liệu. \texttt{pvt} chứa \texttt{GnssSatellitePVTResolver}, dùng reflection để thử trích xuất PVT. \texttt{igs} chứa repository và propagator cho broadcast ephemeris. \texttt{celes\_trak} chứa repository CelesTrak và SGP4 propagator. \texttt{approximation} chứa \texttt{SatelliteCalculator}, dùng cho chuyển đổi tọa độ và fallback hình học.
+Đối với xử lý video, worker nền trên Android là lớp điều phối chính. Worker nhận tùy chọn xử lý, gọi bộ xử lý video tương ứng, cập nhật tiến độ và lưu file kết quả. Client và API của Optical Flow Server định nghĩa giao tiếp HTTP với server. Ở phía Python, các lớp trạng thái job và upload biểu diễn tiến trình xử lý; bộ xử lý Optical Flow thực hiện xử lý frame và ghi video đầu ra.
 
-\subsection{Package Optical Flow}
+Các sơ đồ lớp và trình tự liên quan được đặt trong nhóm file PlantUML của đồ án. Các sơ đồ này tập trung vào quan hệ giữa lớp, luồng thông điệp và trách nhiệm của từng thành phần, không đưa toàn bộ thuộc tính/phương thức phụ để tránh làm sơ đồ quá tải.
+
+\subsection{Thiết kế cơ sở dữ liệu}
 \label{subsection:4.2.3}
-Package \texttt{optical\_flow.interfaces} định nghĩa interface \texttt{OpticalFlow}. Interface này gồm các hàm \texttt{run}, \texttt{setSensitivity}, \texttt{setMovingMode}, \texttt{updateFeatures} và \texttt{resetMotionVector}. KLT và Farneback đều triển khai interface này, nhờ đó fragment có thể thay đổi thuật toán thời gian thực mà không cần biết chi tiết nội bộ. RAFT không còn chạy cục bộ trong Android mà được tách sang máy chủ.
+Hệ thống không sử dụng cơ sở dữ liệu quan hệ tập trung. Dữ liệu được lưu theo đặc thù từng nhóm chức năng. Trên Android, các video và ảnh kết quả được lưu qua MediaStore; các phiên analytics được lưu dưới dạng file JSON; các trạng thái runtime như job video, vị trí hiện tại, route và dữ liệu vệ tinh được giữ trong ViewModel hoặc bộ nhớ tiến trình. Cách lưu này phù hợp với phạm vi đồ án vì dữ liệu chủ yếu phục vụ quan sát và kiểm thử trên thiết bị.
 
-Package \texttt{optical\_flow.classes} chứa các thuật toán và lớp phụ trợ. \texttt{KLT} triển khai sparse optical flow. \texttt{Farneback} triển khai dense optical flow và heatmap. \texttt{IMUEstimator} đọc gia tốc, con quay và từ kế để hỗ trợ moving mode và live routing. \texttt{MotionVectorViz} vẽ vector chuyển động trung bình cho màn hình camera.
+Ở phía server, trạng thái job và upload được lưu trong các cấu trúc dữ liệu trong bộ nhớ, còn input/output video được lưu trong thư mục tạm. Mỗi job có \texttt{job\_id}, trạng thái, progress, đường dẫn input/output, tùy chọn xử lý, lỗi nếu có và cờ yêu cầu hủy. Thiết kế này đơn giản và phù hợp cho nguyên mẫu, nhưng khi triển khai nhiều người dùng cần chuyển job state sang Redis, SQLite hoặc PostgreSQL để tránh mất trạng thái khi server restart.
 
-\subsection{Package video và server}
-\label{subsection:4.2.4}
-Package \texttt{video} ở Android được chia thành các nhóm nhỏ. Nhóm client gồm \texttt{OpticalFlowServerApi}, \texttt{OpticalFlowServerClient} và \texttt{ServerVideoProcessor} cho máy chủ RAFT. Nhóm xử lý nền gồm \texttt{VideoProcessingWorker}, \texttt{VideoProcessingNotifier}, \texttt{VideoProcessingBus} và các lớp mô tả tiến độ. \texttt{VideoProcessingWorker} là \texttt{CoroutineWorker} chạy foreground để upload, polling, download, hủy job và dọn file tạm ngay cả khi fragment hiện tại thay đổi. \texttt{GnssBackendVideoProcessor} là luồng \texttt{OUTER\_SERVER}, gửi video tới backend ngoài qua upload URL, chờ kết quả qua MQTT và tải video đã xử lý.
-
-Ở phía Python, server có \texttt{VideoJob} để lưu trạng thái job và \texttt{VideoUpload} để lưu trạng thái upload theo chunk. Job gồm \texttt{job\_id}, trạng thái, đường dẫn input/output, chế độ xử lý, cờ moving, ROI, progress, error và cờ yêu cầu hủy. Server dùng lock để bảo vệ map job/upload vì background task và request trạng thái có thể truy cập đồng thời. Số job xử lý đồng thời mặc định là 1 và số job chờ mặc định là 8 để tránh quá tải bộ nhớ/GPU.
-
-\section{Thiết kế dữ liệu}
+\section{Xây dựng ứng dụng}
 \label{section:4.3}
-\subsection{Dữ liệu GNSS}
+\subsection{Thư viện và công cụ sử dụng}
 \label{subsection:4.3.1}
-Dữ liệu hiển thị chính của module GNSS là \texttt{SatelliteInfo}. Lớp này chứa SVID, loại chòm vệ tinh, elevation, azimuth, C/N0, trạng thái used-in-fix, carrier frequency, tọa độ, tốc độ, nguồn vị trí và nguồn ephemeris. Việc gom các trường này vào một model duy nhất giúp renderer, dialog và log sử dụng cùng một dữ liệu.
-
-Các dữ liệu trung gian được tách rõ. \texttt{SatellitePvtSnapshot} lưu tọa độ ECEF, vận tốc và thời điểm capture. \texttt{BroadcastEphemerisRecord} lưu dữ liệu IGS. \texttt{OrbitRecord} lưu dữ liệu CelesTrak. \texttt{ResolvedSatellitePosition} là kết quả sau khi phân giải từ bất kỳ nguồn nào. Thiết kế này giúp \texttt{GnssSatelliteTracker} không trả trực tiếp kiểu dữ liệu của từng nguồn, mà luôn trả về một kết quả thống nhất.
-
-\subsection{Dữ liệu Optical Flow}
-\label{subsection:4.3.2}
-Kết quả của mỗi thuật toán Optical Flow được đóng gói trong \texttt{OFOutput}. Đối tượng này chứa frame đã vẽ, vị trí motion vector trung bình và \texttt{OpticalFlowMetrics}. Metrics gồm tên thuật toán, số thứ tự frame, thời gian xử lý, FPS tức thời, số điểm hoặc sample, số vector hoạt động, dịch chuyển trung bình theo $x$ và $y$, độ lớn trung bình, confidence, threshold và sensitivity.
-
-Khi chạy analysis, các metrics của KLT và Farneback được chuyển thành \texttt{AnalyticsSample}. Nhiều sample tạo thành \texttt{AnalyticsSession}. Session lưu thời điểm bắt đầu, kết thúc, thời lượng, độ nhạy, moving mode và danh sách sample. Dữ liệu summary dùng cho danh sách analytics được tách thành \texttt{AnalyticsSessionSummary} để màn hình danh sách không cần đọc toàn bộ sample khi chỉ hiển thị thông tin tổng quan.
-
-\subsection{Dữ liệu video server}
-\label{subsection:4.3.3}
-Ở phía Android, phản hồi server được biểu diễn bằng \texttt{ServerVideoJobResponse}, \texttt{ServerVideoUploadResponse} và \texttt{ServerVideoResultInfoResponse}. \texttt{ServerVideoJobResponse} có \texttt{jobId}, \texttt{status}, \texttt{progress} và \texttt{error}. \texttt{ServerVideoUploadResponse} mô tả upload session và số chunk đã nhận. \texttt{ServerVideoResultInfoResponse} mô tả kích thước file kết quả và số chunk cần tải. Ở phía server, \texttt{VideoJob} giữ thêm đường dẫn input/output nội bộ. Khi trả trạng thái cho client, server loại bỏ đường dẫn file để không lộ thông tin hệ thống file.
-
-Bảng~\ref{table:data-models} tổng hợp các nhóm dữ liệu chính.
+Bảng~\ref{table:build-tools} tổng hợp các công cụ và thư viện chính được sử dụng khi xây dựng hệ thống. Các phiên bản được lấy từ cấu hình Gradle của ứng dụng Android và các file requirements của server tại thời điểm viết báo cáo.
 
 \begin{table}[H]
 \centering
-\begin{tabular}{|p{3.2cm}|p{4.5cm}|p{5.6cm}|}
+\begin{tabular}{|p{3.4cm}|p{4.2cm}|p{5.2cm}|}
 \hline
-\textbf{Nhóm dữ liệu} & \textbf{Lớp tiêu biểu} & \textbf{Vai trò} \\ \hline
-Vệ tinh GNSS & \texttt{SatelliteInfo}, \texttt{SatelliteKey}, \texttt{ResolvedSatellitePosition} & Biểu diễn vệ tinh quan sát được, khóa theo chòm/SVID và kết quả phân giải vị trí. \\ \hline
-Dữ liệu quỹ đạo & \texttt{BroadcastEphemerisRecord}, \texttt{OrbitRecord} & Lưu thông tin từ IGS và CelesTrak để lan truyền quỹ đạo. \\ \hline
-Optical Flow & \texttt{OFOutput}, \texttt{OpticalFlowMetrics} & Trả kết quả thuật toán và thông số đo cho từng frame. \\ \hline
-Live routing & \texttt{VisualOdometry}, \texttt{RouteProjection}, \texttt{MapMatchResult}, \texttt{NavigationSnapshot} & Biểu diễn chuyển động camera/IMU, phép chiếu lên route, độ tin cậy map matching và trạng thái điều hướng hiện tại. \\ \hline
-Analytics & \texttt{AnalyticsSample}, \texttt{AnalyticsSession}, \texttt{AnalyticsSessionSummary} & Lưu phiên so sánh KLT/Farneback và tổng hợp biểu đồ. \\ \hline
-Video server & Các DTO server, \texttt{VideoJob}, \texttt{VideoUpload} & Đồng bộ trạng thái upload, job, kết quả và cleanup giữa Android và FastAPI. \\ \hline
+\textbf{Mục đích} & \textbf{Công cụ/thư viện} & \textbf{Vai trò} \\ \hline
+Ứng dụng Android & Kotlin, Android SDK 37 & Xây dựng giao diện, lifecycle, quyền hệ thống và tích hợp cảm biến. \\ \hline
+Camera và xử lý ảnh & CameraX, OpenCV 4.12.0 & Thu frame camera, chạy KLT/Farneback, ROI và vẽ kết quả. \\ \hline
+Bản đồ và GNSS & osmdroid, OSRM, Orekit & Hiển thị bản đồ, route geometry, dữ liệu thời gian và quỹ đạo. \\ \hline
+Xử lý nền và HTTP & WorkManager, Retrofit, OkHttp & Upload video, poll job, tải kết quả và chạy foreground worker. \\ \hline
+Máy chủ & FastAPI, Uvicorn, ONNX Runtime, ffmpeg & Cung cấp API, chạy RAFT ONNX và xuất video MP4. \\ \hline
+ROI video & Cutie, PyTorch & Lan truyền mask đối tượng khi xử lý video có ROI. \\ \hline
 \end{tabular}
-\caption{Các nhóm dữ liệu chính trong hệ thống}
-\label{table:data-models}
+\caption{Danh sách thư viện và công cụ sử dụng}
+\label{table:build-tools}
 \end{table}
 
-\section{Thiết kế luồng GNSS}
-\label{section:4.4}
-\subsection{Thu nhận dữ liệu}
-\label{subsection:4.4.1}
-Khi \texttt{GNSSViewerFragment} bắt đầu, ứng dụng kiểm tra GPS và quyền vị trí. Nếu điều kiện hợp lệ, ứng dụng đăng ký location update, \texttt{GnssStatus.Callback} và \texttt{GnssMeasurementsEvent.Callback}. Location update được dùng để cập nhật vị trí người dùng và tuyến đường. GnssStatus callback cung cấp danh sách vệ tinh hiện tại. Measurements callback được đưa vào \texttt{GnssSatelliteTracker.updateMeasurements} để thử trích xuất PVT.
+\subsection{Kết quả đạt được}
+\label{subsection:4.3.2}
+Sản phẩm Android đã hiện thực các màn hình chính gồm intro, home, GNSS viewer, live routing, GNSS AR, camera Optical Flow, danh sách media, trình phát video, danh sách analytics, chi tiết analytics và chi tiết sample. Ứng dụng hỗ trợ bản đồ 2D, chuyển sang mô hình 3D, tìm kiếm địa điểm, vẽ tuyến đường, quan sát vệ tinh, chạy live routing, chạy camera Optical Flow, chọn ROI, ghi video, chạy phân tích so sánh và mở video đã xử lý.
 
-Ứng dụng cũng có job refresh dữ liệu quỹ đạo bên ngoài. Khi bắt đầu nhận vị trí, ViewModel yêu cầu tracker refresh IGS và CelesTrak nếu cần. Nếu refresh thất bại, hệ thống thử lại một số lần với khoảng chờ. Cơ chế này tránh việc renderer phụ thuộc ngay vào dữ liệu mạng tại thời điểm mở màn hình.
-
-\subsection{Phân giải vị trí vệ tinh}
-\label{subsection:4.4.2}
-Với mỗi vệ tinh trong \texttt{GnssStatus}, tracker xây dựng \texttt{SatelliteKey} từ chòm vệ tinh và SVID. Hàm \texttt{resolvePosition} kiểm tra theo thứ tự: PVT còn hạn, broadcast ephemeris gần thời điểm hiện tại, CelesTrak orbit và cuối cùng là xấp xỉ. Nếu một bước trả kết quả hợp lệ, các bước sau không chạy. Điều này vừa giảm chi phí xử lý, vừa đảm bảo nguồn ưu tiên cao hơn không bị ghi đè.
-
-PVT được xem là hết hạn sau 10 giây để tránh dùng tọa độ cũ. Broadcast ephemeris được chọn theo epoch gần thời điểm quan sát và chỉ dùng trong ngưỡng 12 giờ. CelesTrak chỉ được dùng cho các chòm được hỗ trợ. Fallback xấp xỉ sử dụng vị trí người quan sát, azimuth, elevation và bán kính quỹ đạo giả định. Chuỗi xử lý này được mô tả bằng PlantUML trong \texttt{PlantUML/gnss\_sequence.puml}.
-
-\subsection{Hiển thị dữ liệu}
-\label{subsection:4.4.3}
-Kết quả GNSS được sử dụng ở ba bề mặt giao diện. Bản đồ hai chiều dùng osmdroid để hiển thị người dùng, địa điểm và tuyến đường. Mô hình ba chiều dùng \texttt{EarthRenderer} để đặt vệ tinh quanh Trái Đất, đồng thời vẽ texture ngày/đêm, Mặt Trời, Mặt Trăng, hiệu ứng khí quyển và nhãn quốc gia. Màn hình AR dùng \texttt{GNSSARRenderer} để phủ dữ liệu vệ tinh lên camera theo hướng nhìn của thiết bị. Việc dùng cùng một model dữ liệu cho ba bề mặt này giảm lặp logic và đảm bảo thông tin vệ tinh nhất quán.
-
-\section{Thiết kế luồng Optical Flow thời gian thực}
-\label{section:4.5}
-\subsection{Tiền xử lý frame}
-\label{subsection:4.5.1}
-CameraX cung cấp \texttt{ImageProxy} ở định dạng RGBA. Ứng dụng đọc buffer, xử lý row stride và pixel stride để tạo mảng byte RGBA, sau đó đưa vào \texttt{Mat}. Do thiết bị có thể xoay camera theo các góc khác nhau, frame được xoay bằng \texttt{Core.rotate} trước khi đưa vào thuật toán. Cách làm này đảm bảo vector hiển thị đúng hướng trên màn hình.
-
-Nếu người dùng bật ROI trong camera thời gian thực, ứng dụng ánh xạ vùng chọn hình chữ nhật từ tọa độ view sang tọa độ frame. Live camera sử dụng tracker CSRT của OpenCV để bám ROI theo thời gian và có cơ chế tái bắt bằng template matching khi tracker mất đối tượng. Sau khi thuật toán chạy, phần ngoài ROI được khôi phục từ frame gốc để tránh vẽ vector ngoài vùng người dùng quan tâm. Nếu ROI quá nhỏ, ứng dụng yêu cầu người dùng chọn lại.
-
-\subsection{KLT}
-\label{subsection:4.5.2}
-KLT sử dụng ảnh grayscale của frame trước và frame hiện tại. Khi chưa có frame trước, thuật toán khởi tạo tập điểm đặc trưng bằng Shi-Tomasi. Ở các frame sau, thuật toán chạy Lucas-Kanade Pyramid để theo dõi điểm. Đồng thời thuật toán chạy chiều ngược để tính Forward-Backward Error. Các điểm không vượt qua kiểm tra tiến-lùi bị loại khỏi tính toán motion vector.
-
-Độ nhạy ảnh hưởng tới số điểm tối đa, chất lượng điểm, khoảng cách tối thiểu và ngưỡng chuyển động nhỏ. Khi độ nhạy tăng, thuật toán cho phép nhiều điểm hơn và giảm ngưỡng lọc, đổi lại có thể tốn thời gian xử lý hơn và nhạy với nhiễu hơn. Motion vector cuối cùng dùng median của các vector hợp lệ, sau đó được làm mượt bằng exponential smoothing.
-
-\subsection{Farneback}
-\label{subsection:4.5.3}
-Farneback chuyển frame sang grayscale và resize theo \texttt{frameScale}. Việc resize giúp giảm số pixel cần xử lý và phù hợp với thiết bị di động. Thuật toán chạy flow tiến và flow lùi. Kết quả flow được lấy mẫu trên một lưới có bước \texttt{drawStep}. Với mỗi sample, hệ thống kiểm tra độ lớn vector và Forward-Backward Error trước khi đưa vào thống kê.
-
-Ở chế độ vector, hệ thống vẽ đường và điểm bắt đầu của vector lên frame. Ở chế độ heatmap, hệ thống tính magnitude của trường flow, làm mượt, chuẩn hóa và áp dụng colormap Turbo. Heatmap được blend với frame gốc để người dùng vẫn thấy ngữ cảnh ảnh. Cách biểu diễn này phù hợp khi chuyển động phân bố rộng trên ảnh và vector riêng lẻ trở nên khó quan sát.
-
-\subsection{IMU và moving mode}
-\label{subsection:4.5.4}
-Ứng dụng dùng \texttt{IMUEstimator} để đọc gia tốc tuyến tính, con quay hồi chuyển và từ kế. Trong camera Optical Flow, IMU hỗ trợ phát hiện trạng thái di chuyển tự động. Nếu độ lớn gia tốc vượt ngưỡng, ứng dụng chuyển sang moving mode; nếu thấp hơn ngưỡng trong một khoảng thời gian, ứng dụng trở về still mode. Người dùng cũng có thể chọn thủ công still hoặc moving.
-
-Moving mode ảnh hưởng tới cách diễn giải chiều vector và cách lọc chuyển động nền. Khi thiết bị đứng yên, các vector nhỏ có thể là nhiễu hoặc chuyển động nền không mong muốn. Khi thiết bị đang di chuyển, cùng các vector đó lại có thể phản ánh chuyển động camera. Do đó, việc có moving mode giúp giao diện và thuật toán phản ứng hợp lý hơn với bối cảnh sử dụng.
-
-\subsection{Live routing và hỗ trợ GNSS}
-\label{subsection:4.5.5}
-\texttt{LiveRoutingFragment} dùng vị trí GNSS làm nguồn chính để cập nhật marker trên tuyến đường. \texttt{LiveRoutingViewModel} đánh giá GNSS theo tuổi dữ liệu, số vệ tinh và độ chính xác. Khi GNSS không còn đủ tin cậy, hệ thống bật trạng thái assist, hiển thị panel camera và chạy KLT hoặc Farneback với độ nhạy cao để lấy metrics chuyển động ảnh. Ticker điều hướng vẫn chạy trong thời gian mất GNSS để cập nhật marker theo ước lượng camera/IMU và kiểm tra lệch route định kỳ.
-
-Trong trạng thái assist, ViewModel tạo một ước lượng \texttt{VisualOdometry} từ Optical Flow và yaw rate của IMU. Độ lớn chuyển động ảnh được đổi sang tốc độ xe bằng hệ số đã hiệu chỉnh khi GNSS còn tốt; \texttt{avgDx} kết hợp với yaw rate để cập nhật hướng; \texttt{confidence} và cường độ flow tạo thành hệ số chất lượng. Tốc độ GNSS cuối cùng không còn được giữ cố định mà chỉ đóng vai trò prior giảm dần theo thời gian. Tốc độ assist được giới hạn bởi ngưỡng tăng tốc, phanh và coast để tránh nhảy vận tốc phi thực tế.
-
-Sau bước dự đoán, hệ thống thực hiện map matching theo tuyến đường hiện tại. Vị trí dự đoán được chiếu lên các đoạn route để lấy khoảng cách ngang, heading của đoạn đường và khoảng cách đã đi dọc tuyến. Hệ thống tính confidence từ bốn thành phần: khoảng cách tới route, sai khác heading, tính liên tục với projection trước đó và chất lượng visual odometry. Nếu confidence đủ lớn, vị trí dự đoán chỉ được blend một phần về route; nếu không đủ lớn, hệ thống giữ quỹ đạo dự đoán thay vì snap cứng. Cách này giúp path assist vẫn có thể lệch khỏi route khi người dùng thật sự đi sai đường.
-
-Độ bất định vị trí được duy trì trong ViewModel và tăng theo thời gian mất GNSS. Khi camera có chất lượng tốt, tốc độ tăng bất định thấp hơn; khi không có flow tin cậy, bất định tăng nhanh hơn và prior GNSS giảm dần. Nếu quỹ đạo hiện tại lệch route qua nhiều mẫu liên tiếp, \texttt{LiveRoutingFragment} gọi \texttt{MapRouteRepository} để lấy route mới khi có Internet; nếu mất mạng, ứng dụng giữ route hiện tại và hiển thị thông báo offline. Kết quả được vẽ thành đoạn đường assist riêng để phân biệt với đoạn đường GNSS thật, đồng thời chế độ test GNSS dropout theo chu kỳ 10 giây vẫn được giữ để kiểm thử.
-
-\section{Thiết kế analytics}
-\label{section:4.6}
-\subsection{Chạy phiên phân tích}
-\label{subsection:4.6.1}
-Chức năng analytics được thiết kế để so sánh KLT và Farneback trên cùng điều kiện đầu vào. Khi bắt đầu phân tích, ứng dụng khóa độ nhạy hai thuật toán về cùng một giá trị, vô hiệu hóa ghi video và thay đổi mode, sau đó xử lý mỗi frame thành hai bản sao. Kết quả được ghép trái-phải để người dùng quan sát trực tiếp, đồng thời metrics được ghi vào ViewModel.
-
-Việc chạy hai thuật toán trên cùng frame giúp giảm sai lệch do cảnh thay đổi. Nếu người dùng chạy KLT trước rồi Farneback sau, các điều kiện ánh sáng, chuyển động tay và cảnh nền có thể khác nhau. Cách ghép trái-phải cũng giúp người dùng quan sát trực quan sự khác biệt trong cùng thời điểm.
-
-\subsection{Lưu trữ và hiển thị phiên đo}
-\label{subsection:4.6.2}
-Khi dừng phân tích, ứng dụng tạo \texttt{AnalyticsSession} gồm thời gian bắt đầu, kết thúc, thời lượng, trạng thái moving mode, độ nhạy và danh sách sample. \texttt{AnalyticsStorageUtil} lưu session ra file JSON. Màn hình danh sách analytics đọc summary để hiển thị nhanh, còn màn hình chi tiết vẽ các biểu đồ FPS, process time và tracks/active vectors.
-
-Các thông số được chia thành hai nhóm. Nhóm đo trực tiếp gồm FPS, thời gian xử lý và số điểm/vector hoạt động. Nhóm suy diễn gồm confidence, average displacement và threshold. Báo cáo và giao diện ưu tiên biểu đồ nhóm đo trực tiếp để tránh diễn giải quá mức các chỉ số phụ thuộc định nghĩa thuật toán.
-
-\section{Thiết kế xử lý video bằng server RAFT}
-\label{section:4.7}
-\subsection{API server}
-\label{subsection:4.7.1}
-Server cung cấp các nhóm endpoint chính sau:
-
-\begin{itemize}
-    \item \texttt{/health}: kiểm tra trạng thái server, model và runtime.
-    \item \texttt{/process-video}: xử lý đồng bộ cho trường hợp đơn giản.
-    \item \texttt{/process-video/jobs}: tạo job xử lý bất đồng bộ.
-    \item \texttt{/process-video/uploads}: tạo upload session và nhận các chunk video lớn.
-    \item \texttt{/process-video/jobs/\{jobId\}}: lấy trạng thái job.
-    \item \texttt{/process-video/jobs/\{jobId\}/cancel}: hủy job đang chờ hoặc đang xử lý.
-    \item \texttt{/process-video/jobs/\{jobId\}/result}: tải kết quả dạng file.
-    \item \texttt{/process-video/jobs/\{jobId\}/result/info}: lấy metadata kết quả để tải theo chunk.
-    \item \texttt{/process-video/jobs/\{jobId\}/result/chunks/\{chunkIndex\}}: tải từng chunk kết quả.
-    \item \texttt{/process-video/jobs/\{jobId\}/result}: cleanup kết quả khi gọi bằng phương thức \texttt{DELETE}.
-\end{itemize}
-
-Ứng dụng Android sử dụng chủ yếu luồng bất đồng bộ vì phù hợp với video dài và mạng không ổn định.
-
-Khi tạo job, server lưu video input vào file tạm, tạo file output tạm, sinh job id và đưa job vào map \texttt{video\_jobs}. Với file lớn, server nhận từng chunk vào \texttt{VideoUpload}, kiểm tra kích thước/checksum nếu client gửi, sau đó ghép lại thành file input khi upload hoàn tất. Background task gọi \texttt{run\_video\_job}. Khi job hoàn tất, trạng thái được cập nhật thành \texttt{completed} và progress thành 100. Nếu lỗi hoặc hủy xảy ra, server xóa input/output tạm phù hợp và chuyển trạng thái thành \texttt{failed} hoặc \texttt{cancelled}. Output của job thành công được giữ cho tới khi client tải hoặc gọi cleanup.
-
-\subsection{Xử lý video}
-\label{subsection:4.7.2}
-\texttt{OpticalFlowProcessor} nạp mô hình ONNX bằng \texttt{InferenceSession}. Khi xử lý video, server đọc metadata FPS, width, height và total frames. Mỗi frame được đưa vào buffer để lấy cặp frame cách nhau một khoảng \texttt{flow\_frame\_offset}. Cách này giúp vector hiển thị rõ hơn khi chuyển động giữa hai frame liền kề quá nhỏ. Nếu request có ROI và backend ROI là Cutie, server tạo prompt mask từ hình chữ nhật hoặc đường chọn của người dùng tại thời điểm video được chọn, lan truyền mask qua các frame và chỉ chạy/vẽ flow trong vùng mask đang hoạt động. Sau khi suy luận, server vẽ vector hoặc heatmap lên source frame và ghi ra MP4 H.264 bằng writer dựa trên ffmpeg.
-
-Chế độ vector lấy mẫu lưới trên frame, lọc vector yếu bằng percentile, chuẩn hóa chiều dài hiển thị và tô màu theo độ mạnh chuyển động. Chế độ heatmap tính magnitude của flow, làm mượt bằng Gaussian blur, chuẩn hóa theo percentile và blend colormap với frame gốc. Sau khi xử lý xong, server release \texttt{VideoCapture}, đóng tiến trình ffmpeg writer và gọi callback progress 100.
-
-\section{Thiết kế giao diện}
-\label{section:4.8}
-Do báo cáo không sử dụng ảnh chụp màn hình, phần này mô tả giao diện bằng chữ. Màn hình chính gồm hai tab chức năng: GNSS và Optical Flow. Tab GNSS hiển thị bản đồ hai chiều, thanh tìm kiếm, nút căn vị trí, nút chuyển AR và các bubble điều khiển. Khi chuyển sang 3D, bản đồ được thay bằng \texttt{GLSurfaceView}; người dùng có thể kéo để quay Trái Đất, pinch để zoom và chạm vệ tinh để xem thông tin. Khi chọn điểm đến, người dùng có thể mở live routing để theo dõi tuyến đường và quan sát trạng thái hỗ trợ camera khi GNSS suy giảm.
-
-Tab Optical Flow hiển thị preview camera, overlay kết quả, motion vector viewer và các điều khiển thuật toán. Người dùng có thể chọn KLT hoặc Farneback, chọn vector/heatmap, điều chỉnh độ nhạy, chọn moving mode, chọn ROI, ghi video hoặc chạy analysis. Trong analysis, màn hình kết quả được chia đôi, bên trái KLT và bên phải Farneback. Overlay nhỏ trên mỗi nửa hiển thị FPS, số điểm/vector, confidence và magnitude.
-
-Màn hình analytics hiển thị thông tin phiên đo, thời lượng, số sample và các biểu đồ. Người dùng có thể chạm vào biểu đồ để xem chi tiết một sample. Màn hình video player phát video đã xử lý, có thanh tiến độ, nút play/pause và hỗ trợ xoay video ngang khi cần. Overlay xử lý video nằm ở cấp Activity, có thể thu gọn thành bubble để không cản trở thao tác khác; các job đang chạy có thể hủy từ overlay hoặc notification.
-
-\section{Kết quả triển khai}
-\label{section:4.9}
-Sản phẩm Android đã hiện thực các màn hình chính gồm intro, home, GNSS viewer, live routing, GNSS AR, camera Optical Flow, danh sách media, trình phát video, danh sách analytics, chi tiết analytics và chi tiết sample. Ứng dụng hỗ trợ bản đồ 2D, chuyển sang mô hình 3D bằng thao tác zoom hoặc double tap, tìm kiếm địa điểm, vẽ tuyến đường, quan sát vệ tinh cùng Trái Đất ngày/đêm, Mặt Trời, Mặt Trăng, chạy live routing cho xe với visual odometry thực dụng và map matching, chạy camera Optical Flow, chọn ROI, ghi video, chạy phân tích so sánh và mở video đã xử lý.
-
-Máy chủ đã hiện thực các nhóm endpoint kiểm tra sức khỏe, xử lý đồng bộ, tạo job, upload theo chunk, hủy job, lấy trạng thái, tải kết quả theo file/chunk và cleanup. Endpoint job bất đồng bộ là luồng chính cho Android vì hỗ trợ tiến độ và tránh timeout. Bảng~\ref{table:source-stats} trình bày thống kê mã nguồn tại thời điểm viết báo cáo.
+Máy chủ đã hiện thực các endpoint kiểm tra sức khỏe, xử lý video đồng bộ cho kiểm thử, tạo job bất đồng bộ, upload theo chunk, hủy job, lấy trạng thái, tải kết quả theo file/chunk và cleanup. Endpoint job bất đồng bộ là luồng chính cho Android vì hỗ trợ tiến độ và tránh timeout. Bảng~\ref{table:source-stats} trình bày thống kê mã nguồn tại thời điểm viết báo cáo.
 
 \begin{table}[H]
 \centering
@@ -209,46 +88,34 @@ Python server trong \texttt{src} & 2 & 2612 dòng \\ \hline
 \label{table:source-stats}
 \end{table}
 
+\subsection{Minh họa các chức năng chính}
+\label{subsection:4.3.3}
+Các chức năng chính của hệ thống gồm GNSS Viewer, GNSS 3D/AR, Camera Optical Flow, Analytics, LiveRouting và Video RAFT Server. Với GNSS Viewer, người dùng có thể quan sát vị trí hiện tại, tìm kiếm địa điểm, vẽ tuyến đường và xem danh sách vệ tinh. Với mô hình 3D/AR, người dùng quan sát vệ tinh theo không gian trực quan hơn, đồng thời xem nguồn dữ liệu vị trí vệ tinh. Với Camera Optical Flow, người dùng chạy KLT/Farneback, chọn ROI và ghi video kết quả. Với Analytics, người dùng xem lại phiên so sánh thuật toán qua các biểu đồ. Với Video RAFT Server, người dùng gửi video lên server, theo dõi tiến độ và mở video đầu ra.
+
 \section{Kiểm thử}
-\label{section:4.10}
-\subsection{Chiến lược kiểm thử}
-\label{subsection:4.10.1}
-Do hệ thống phụ thuộc vào phần cứng, cảm biến và server, kiểm thử được thực hiện chủ yếu ở mức chức năng và tích hợp. Kiểm thử hộp đen được dùng cho các luồng người dùng: mở bản đồ, chạy camera, lưu analytics và xử lý video. Kiểm thử quan sát log được dùng cho các luồng khó kiểm chứng trực tiếp như nguồn phân giải vệ tinh, refresh CelesTrak/IGS, trạng thái job server và lỗi model.
+\label{section:4.4}
+Do hệ thống phụ thuộc vào phần cứng, cảm biến và server, kiểm thử được thực hiện chủ yếu ở mức chức năng và tích hợp. Kiểm thử hộp đen được dùng cho các luồng người dùng như mở bản đồ, chạy camera, lưu analytics và xử lý video. Kiểm thử quan sát log được dùng cho các luồng khó kiểm chứng trực tiếp như nguồn phân giải vệ tinh, refresh CelesTrak/IGS, trạng thái job server và lỗi model.
 
-Các ca kiểm thử tập trung vào những rủi ro chính: thiếu quyền, GPS tắt, không có vệ tinh, camera không mở được, thuật toán xử lý frame lỗi, ROI không hợp lệ, GNSS suy giảm trong live routing, server không sẵn sàng, model không nạp được, video xử lý lâu, upload/download file lớn, hủy job và người dùng rời màn hình giữa chừng.
-
-\subsection{Các trường hợp kiểm thử chính}
-\label{subsection:4.10.2}
-Bảng~\ref{table:test-cases} mô tả các trường hợp kiểm thử chính. Các trường hợp này có thể được mở rộng thành test case chi tiết hơn nếu cần đưa vào phụ lục.
+Bảng~\ref{table:test-cases} mô tả các trường hợp kiểm thử chính.
 
 \begin{longtable}{|p{3.4cm}|p{4.7cm}|p{5.2cm}|}
 \caption{Các trường hợp kiểm thử chức năng chính}
 \label{table:test-cases}\\
 \hline
 \textbf{Nhóm kiểm thử} & \textbf{Điều kiện/thao tác} & \textbf{Kết quả mong đợi} \\ \hline
-Quyền vị trí và GPS & Mở ứng dụng khi chưa cấp quyền hoặc GPS tắt. & Ứng dụng hiển thị dialog hướng dẫn, không crash và tiếp tục khi điều kiện được thỏa mãn. \\ \hline
-GNSS viewer & Bật bản đồ, chuyển 2D/3D, chọn vệ tinh. & Bản đồ và renderer cập nhật vị trí; thông tin vệ tinh hiển thị đúng theo dữ liệu có sẵn. \\ \hline
-Nguồn vệ tinh & Chạy ứng dụng trong điều kiện có/không có PVT hoặc mạng. & Tracker dùng đúng chuỗi ưu tiên và log nguồn vị trí tương ứng. \\ \hline
-Live routing & Bắt đầu tuyến đường rồi mô phỏng GNSS yếu/dropout, di chuyển lệch route hoặc tắt kết nối mạng. & Camera assist được bật; visual odometry và map matching cập nhật marker; đường assist được vẽ riêng; hệ thống yêu cầu route mới khi lệch tuyến và giữ route hiện tại kèm thông báo khi offline. \\ \hline
+Quyền vị trí và GPS & Mở ứng dụng khi chưa cấp quyền hoặc GPS tắt. & Ứng dụng hiển thị hướng dẫn, không crash và tiếp tục khi điều kiện được thỏa mãn. \\ \hline
+GNSS viewer & Bật bản đồ, chuyển 2D/3D, chọn vệ tinh. & Bản đồ và renderer cập nhật vị trí; thông tin vệ tinh hiển thị theo dữ liệu có sẵn. \\ \hline
+LiveRouting & Bắt đầu tuyến đường rồi mô phỏng GNSS yếu hoặc dropout. & Camera assist được bật; visual odometry và map matching cập nhật marker/path assist. \\ \hline
 Camera Optical Flow & Chạy KLT/Farneback, đổi độ nhạy, chọn ROI. & Frame được phủ vector/heatmap; đổi thuật toán không làm gián đoạn camera; ROI giới hạn vùng xử lý. \\ \hline
-Recording & Ghi video khi camera Optical Flow đang chạy. & File video được tạo và có thể mở lại trong trình phát. \\ \hline
 Analytics & Bắt đầu và dừng phiên phân tích. & Ứng dụng lưu JSON session, hiển thị danh sách và biểu đồ chi tiết. \\ \hline
-Video server & Gửi video nhỏ/lớn, theo dõi job, tải kết quả và hủy job. & Overlay tiến độ cập nhật; upload/download theo chunk hoạt động với file lớn; khi job hoàn tất ứng dụng mở video kết quả hoặc hiển thị trạng thái hủy. \\ \hline
+Video server & Gửi video nhỏ/lớn, theo dõi job, tải kết quả và hủy job. & Overlay tiến độ cập nhật; upload/download theo chunk hoạt động; video kết quả mở được khi job thành công. \\ \hline
 Lỗi server/model & Server không nạp được model hoặc trả lỗi. & Ứng dụng hiển thị thông báo lỗi và không tạo file kết quả sai. \\ \hline
 \end{longtable}
 
-\section{Đánh giá hệ thống}
-\label{section:4.11}
-Kết quả đánh giá cho thấy hệ thống đáp ứng các yêu cầu cốt lõi của đồ án. Ở nhóm GNSS, ứng dụng có khả năng hiển thị dữ liệu vệ tinh bằng nhiều nguồn và có fallback khi thiết bị không cung cấp PVT. Việc gắn nhãn nguồn dữ liệu giúp người dùng không nhầm lẫn giữa tọa độ thật và tọa độ xấp xỉ. Mô hình 3D và AR giúp dữ liệu vệ tinh dễ quan sát hơn so với bảng thông số thuần túy.
+\section{Triển khai}
+\label{section:4.5}
+Ứng dụng Android được triển khai thử nghiệm trên thiết bị Android thật để có thể truy cập GNSS, camera và IMU. Khi kiểm thử, thiết bị cần cấp quyền vị trí chính xác, camera, thông báo và foreground service. Máy chủ Optical Flow được chạy bằng Uvicorn từ module \texttt{src.main:app}. Nếu thiết bị Android và server không nằm cùng mạng HTTPS công khai, có thể dùng Cloudflare Tunnel để tạo URL HTTPS và cấu hình URL này trong \texttt{local.properties} của ứng dụng Android.
 
-Ở nhóm Optical Flow, KLT có lợi thế về tốc độ do chỉ xử lý điểm đặc trưng, trong khi Farneback cung cấp trường chuyển động chi tiết hơn và phù hợp với heatmap. Cơ chế analysis giúp so sánh hai thuật toán trên cùng frame, tránh đánh giá cảm tính. Các biểu đồ FPS, process time và active vectors cho phép quan sát biến thiên theo thời gian thay vì chỉ nhìn một giá trị trung bình.
-
-Ở nhóm video, việc đưa RAFT sang server làm giảm tải cho thiết bị Android, đồng thời job bất đồng bộ giúp trải nghiệm ổn định hơn so với request đồng bộ dài. Overlay, notification và WorkManager foreground worker giúp người dùng vẫn theo dõi được tiến độ khi chuyển màn hình. Server cũng có cơ chế cleanup file tạm, hủy job và tải kết quả theo chunk để giảm rủi ro tích tụ dữ liệu sau nhiều lần xử lý.
-
-Hạn chế chính là báo cáo chưa có bộ benchmark định lượng trên nhiều thiết bị và nhiều môi trường. Các đánh giá hiện tại chủ yếu dựa trên kiểm thử chức năng, quan sát log và kiểm tra luồng xử lý. Ngoài ra, chất lượng GNSS phụ thuộc mạnh vào thiết bị và môi trường quan sát, còn chất lượng Optical Flow phụ thuộc vào ánh sáng, texture, tốc độ chuyển động và độ phân giải camera.
-
-\section{Kết chương}
-\label{section:4.12}
-Chương này đã trình bày thiết kế và triển khai hệ thống ở mức chi tiết. Các module chính gồm GNSS, live routing, Optical Flow, analytics và server RAFT đã được phân tích về kiến trúc, dữ liệu, luồng xử lý và kiểm thử. Kết quả cho thấy hệ thống đã đáp ứng các yêu cầu chức năng chính, đồng thời còn một số hạn chế cần cải thiện trong hướng phát triển. Các đóng góp kỹ thuật nổi bật sẽ được phân tích tập trung hơn trong Chương 5.
+Mô hình triển khai tổng quan được mô tả bằng sơ đồ deployment PlantUML. Ứng dụng Android giao tiếp với server qua HTTPS/REST, giao tiếp với backend ngoài qua các giao thức tương ứng, đồng thời truy vấn IGS, CelesTrak và OSRM/Nominatim khi cần dữ liệu bản đồ hoặc quỹ đạo. Server lưu video tạm trong thư mục làm việc, xử lý bằng RAFT/ONNX Runtime và trả video MP4 cho client tải về. Cấu hình này phù hợp cho môi trường thử nghiệm và demo đồ án; khi triển khai thực tế cần bổ sung xác thực API, giới hạn upload, queue bền vững và cơ chế giám sát tài nguyên.
 
 \end{document}

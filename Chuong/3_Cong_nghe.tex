@@ -15,7 +15,7 @@ Android SDK cung cấp các API nền tảng như LocationManager, GnssStatus, G
 \label{subsection:3.1.2}
 Ứng dụng sử dụng một \texttt{MainActivity} chứa \texttt{NavHostFragment}. Các chức năng chính được chia thành nhiều fragment: màn hình giới thiệu, màn hình home, GNSS viewer, live routing, GNSS AR, camera Optical Flow, danh sách media, trình phát video, danh sách analytics và chi tiết analytics. Jetpack Navigation giúp chuyển màn hình theo một graph rõ ràng, tránh việc Activity phải quản lý trực tiếp toàn bộ fragment.
 
-ViewModel được dùng để giữ trạng thái qua vòng đời giao diện. Ví dụ, \texttt{GNSSViewerViewModel} lưu chế độ 2D/3D, vị trí hiện tại, địa điểm đã chọn, tuyến đường và snapshot vệ tinh mới nhất. \texttt{LiveRoutingViewModel} lưu trạng thái tuyến đường, GNSS assist, các đoạn đường GNSS, các đoạn Optical Flow assist, ước lượng visual odometry thực dụng và kết quả map matching theo route. \texttt{CameraOpticalFlowViewModel} lưu trạng thái thuật toán, ROI, recording, analysis và moving mode. Cách thiết kế này giúp ứng dụng không mất trạng thái khi view bị tạo lại do thay đổi cấu hình hoặc điều hướng.
+ViewModel được dùng để giữ trạng thái qua vòng đời giao diện. ViewModel của GNSS Viewer lưu chế độ 2D/3D, vị trí hiện tại, địa điểm đã chọn, tuyến đường và snapshot vệ tinh mới nhất. ViewModel của LiveRouting lưu trạng thái tuyến đường, GNSS assist, các đoạn đường GNSS, các đoạn Optical Flow assist, ước lượng visual odometry thực dụng và kết quả map matching theo route. ViewModel của Camera Optical Flow lưu trạng thái thuật toán, ROI, recording, analysis và moving mode. Cách thiết kế này giúp ứng dụng không mất trạng thái khi view bị tạo lại do thay đổi cấu hình hoặc điều hướng.
 
 \subsection{CameraX}
 \label{subsection:3.1.3}
@@ -126,7 +126,7 @@ RAFT là mô hình học sâu cho Optical Flow, xây dựng volume tương quan 
 
 Mô hình RAFT được đóng gói ở dạng ONNX. ONNX Runtime cung cấp lớp \texttt{InferenceSession} để nạp mô hình và chạy suy luận, đồng thời hỗ trợ chọn execution provider như CPU hoặc CUDA khi môi trường có sẵn \cite{onnxruntime-python-api}. Máy chủ \texttt{OpticalFlowServer} dùng ONNX Runtime thay vì OpenCV DNN cho pipeline Python vì cần xử lý mô hình ONNX quantized ổn định hơn trong bối cảnh server.
 
-FastAPI được chọn vì hỗ trợ tốt multipart upload, background task và kiểu dữ liệu rõ ràng cho API \cite{fastapi-upload,fastapi-background}. Trong đồ án, endpoint đồng bộ \texttt{/process-video} được giữ cho trường hợp đơn giản, còn endpoint \texttt{/process-video/jobs} được dùng chính để tạo job bất đồng bộ. Cách tổ chức này tránh việc thiết bị Android phải giữ một kết nối HTTP dài trong toàn bộ thời gian xử lý video.
+FastAPI được chọn vì hỗ trợ tốt multipart upload, background task và kiểu dữ liệu rõ ràng cho API \cite{fastapi-upload,fastapi-background}. Trong đồ án, endpoint xử lý đồng bộ được giữ cho trường hợp đơn giản, còn endpoint tạo job được dùng làm luồng chính cho xử lý bất đồng bộ. Cách tổ chức này tránh việc thiết bị Android phải giữ một kết nối HTTP dài trong toàn bộ thời gian xử lý video.
 
 Máy chủ cũng dùng \texttt{imageio-ffmpeg} hoặc ffmpeg trong PATH để ghi MP4 H.264 tương thích Android, thay cho việc phụ thuộc vào \texttt{VideoWriter} của OpenCV cho container đầu ra. Khi người dùng chọn ROI trên video, backend mặc định dùng Cutie để lan truyền mask đối tượng từ frame được chọn, sau đó chỉ vẽ vector hoặc heatmap trong mask này. Nếu cần triển khai đơn giản hơn, backend có thể chuyển về ROI tĩnh bằng biến môi trường.
 
@@ -155,9 +155,5 @@ ROI video & Cutie, PyTorch & Lan truyền mask đối tượng trong video khi n
 \caption{Danh sách công nghệ và thư viện chính}
 \label{table:tech-stack}
 \end{table}
-
-\section{Kết chương}
-\label{section:3.7}
-Chương này đã trình bày các công nghệ và cơ sở lý thuyết được sử dụng trong đồ án. Các lựa chọn công nghệ đều gắn với yêu cầu đã phân tích: Android và CameraX phục vụ ứng dụng di động thời gian thực, GNSS API và nguồn quỹ đạo phục vụ trực quan hóa vệ tinh, OpenGL/AR phục vụ biểu diễn không gian, OpenCV phục vụ KLT/Farneback, còn FastAPI và ONNX Runtime phục vụ pipeline RAFT. Những nội dung này là nền tảng cho thiết kế chi tiết ở Chương 4.
 
 \end{document}
