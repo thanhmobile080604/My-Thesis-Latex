@@ -28,7 +28,7 @@ package "External Data" {
   component "IGS Broadcast" as IGS
   component "CelesTrak TLE" as CelesTrak
   component "Map/Route Data" as MapData
-  component "GNSS Backend/MQTT" as Outer
+  component "Outer Video Backend" as OuterVideo
 }
 
 package "OpticalFlowServer" {
@@ -58,7 +58,7 @@ Routing --> CameraX
 Routing --> Sensors
 Video --> WorkManager
 Video --> API
-Video --> Outer
+Video --> OuterVideo
 API --> Job
 API --> Upload
 API --> RAFT

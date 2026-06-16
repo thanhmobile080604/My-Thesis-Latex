@@ -4,7 +4,8 @@ title Use case tong quat
 left to right direction
 
 actor "Nguoi dung" as User
-actor "May chu Optical Flow" as Server
+actor "My Server (Python/FastAPI)" as MyServer
+actor "Outer Server" as OuterServer
 actor "Dich vu du lieu ngoai" as External
 
 rectangle "GNSSAndOpticalFlowApp" {
@@ -17,7 +18,7 @@ rectangle "GNSSAndOpticalFlowApp" {
   usecase "Chon ROI" as UC7
   usecase "Ghi video ket qua" as UC8
   usecase "Chay phien analytics" as UC9
-  usecase "Xu ly video bang RAFT server" as UC10
+  usecase "Upload va xu ly video bang RAFT backend" as UC10
 }
 
 User --> UC1
@@ -34,7 +35,8 @@ User --> UC10
 External --> UC1
 External --> UC2
 External --> UC3
-Server --> UC10
+MyServer --> UC10
+OuterServer --> UC10
 
 UC5 ..> UC6 : include
 UC6 ..> UC7 : include

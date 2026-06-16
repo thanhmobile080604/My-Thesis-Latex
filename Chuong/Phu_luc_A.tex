@@ -33,7 +33,7 @@ python third_party\Cutie\cutie\utils\download_models.py
 gradlew.bat assembleDebug
 \end{lstlisting}
 
-Ứng dụng yêu cầu quyền camera, vị trí, internet, foreground service và thông báo. Khi kiểm thử trên thiết bị thật, nên bật GPS, cấp quyền vị trí chính xác và kiểm tra server bằng endpoint \texttt{/health} trước khi xử lý video. Nếu dùng luồng xử lý video qua backend ngoài, cần cấu hình thêm các khóa \texttt{GNSS\_API\_*} và \texttt{MQTT\_*} trong \texttt{local.properties} hoặc Gradle property.
+Ứng dụng yêu cầu quyền camera, vị trí, internet, foreground service và thông báo. Khi kiểm thử trên thiết bị thật, nên bật GPS, cấp quyền vị trí chính xác và kiểm tra My Server bằng endpoint \texttt{/health} trước khi xử lý video. Nếu dùng luồng xử lý video qua backend ngoài, cần cấu hình thêm các khóa \texttt{GNSS\_API\_*} và \texttt{MQTT\_*} trong \texttt{local.properties} hoặc Gradle property.
 
 \section{Các bước sử dụng chính}
 Sau khi cài ứng dụng, người dùng đi qua màn hình giới thiệu và vào màn hình chính. Tab GNSS cho phép xem bản đồ, tìm kiếm địa điểm, mở live routing và chuyển sang mô hình 3D hoặc AR. Tab Optical Flow cho phép mở camera, chọn thuật toán KLT hoặc Farneback, chọn ROI, ghi video, chạy analysis và mở thư viện kết quả. Với xử lý video RAFT, người dùng chọn video, chọn chế độ vector/heatmap, chọn My Server hoặc Outer Server, gửi video, theo dõi overlay tiến độ, hủy job nếu cần và mở video kết quả khi job hoàn tất.

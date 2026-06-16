@@ -1,18 +1,24 @@
 @startuml
-title Luong xu ly video RAFT bat dong bo
+title Luong upload va xu ly video RAFT tren backend
 
 actor "Nguoi dung" as User
 participant "Android App" as App
 participant "VideoProcessingWorker" as Worker
-participant "OpticalFlowServerApi" as Client
-participant "FastAPI Server" as API
+participant "VideoBackendClient" as Client
+participant "My Server (FastAPI)" as API
+participant "Outer Server" as Outer
 participant "VideoJob Store" as Store
 participant "VideoUpload Store" as Upload
 participant "OpticalFlowProcessor" as Processor
 participant "ONNX Runtime" as ONNX
 
-User -> App : Chon video va che do xu ly
+User -> App : Chon video, backend va che do xu ly
 App -> Worker : enqueue WorkManager job
+note over Worker,Outer
+  Neu chon Outer Server, worker goi client rieng
+  de upload video va nhan trang thai/ket qua theo backend do.
+  Luong chi tiet duoi day mo ta My Server.
+end note
 alt File nho
   Worker -> Client : createProcessVideoJob(file, fields)
   Client -> API : POST /process-video/jobs

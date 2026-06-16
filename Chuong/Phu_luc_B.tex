@@ -66,14 +66,14 @@
 \centering
 \begin{tabular}{|p{4cm}|p{9cm}|}
 \hline
-\textbf{Tên use case} & Xử lý video bằng RAFT trên máy chủ \\ \hline
-\textbf{Tác nhân} & Người dùng, máy chủ Optical Flow \\ \hline
-\textbf{Tiền điều kiện} & URL server HTTPS đã được cấu hình; server nạp được mô hình ONNX; thiết bị có kết nối mạng. \\ \hline
-\textbf{Luồng chính} & Người dùng chọn video, ứng dụng gửi multipart request hoặc upload theo chunk, server tạo job và xử lý background, ứng dụng thăm dò progress, tải file/chunk kết quả, gọi cleanup và mở trình phát video. \\ \hline
-\textbf{Luồng thay thế} & Nếu server không sẵn sàng hoặc model lỗi, job chuyển sang failed và ứng dụng hiển thị thông báo. Nếu người dùng thoát màn hình, WorkManager foreground worker tiếp tục quản lý tiến độ. Nếu người dùng hủy, client hủy upload đang dở hoặc gửi yêu cầu hủy job. \\ \hline
+\textbf{Tên use case} & Xử lý video bằng RAFT trên backend \\ \hline
+\textbf{Tác nhân} & Người dùng, My Server, Outer Server \\ \hline
+\textbf{Tiền điều kiện} & Cấu hình backend HTTPS đã được thiết lập; thiết bị có kết nối mạng. \\ \hline
+\textbf{Luồng chính} & Người dùng chọn video, chọn My Server hoặc Outer Server, ứng dụng gửi multipart request hoặc upload theo chunk khi backend hỗ trợ, backend tạo job và xử lý background, ứng dụng thăm dò progress, tải file/chunk kết quả, gọi cleanup nếu có và mở trình phát video. \\ \hline
+\textbf{Luồng thay thế} & Nếu backend không sẵn sàng hoặc model lỗi, job chuyển sang failed và ứng dụng hiển thị thông báo. Nếu người dùng thoát màn hình, WorkManager foreground worker tiếp tục quản lý tiến độ. Nếu người dùng hủy, client hủy upload đang dở hoặc gửi yêu cầu hủy job khi backend hỗ trợ. \\ \hline
 \textbf{Hậu điều kiện} & File video kết quả được lưu vào thư viện ứng dụng hoặc thông báo lỗi được trả về rõ ràng. \\ \hline
 \end{tabular}
-\caption{Đặc tả use case xử lý video RAFT}
+\caption{Đặc tả use case xử lý video RAFT trên backend}
 \end{table}
 
 \end{document}
