@@ -1,9 +1,9 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-Chương này trình bày phần phân tích thiết kế, xây dựng, kiểm thử và triển khai hệ thống. Nội dung được tổ chức theo sườn của template SOICT, bao gồm: thiết kế kiến trúc, thiết kế chi tiết, xây dựng ứng dụng, kiểm thử và triển khai. Các sơ đồ UML tương ứng được đặt trong thư mục \texttt{PlantUML} để có thể render và đưa vào phụ lục hoặc hình minh họa khi hoàn thiện bản in cuối.
+Chương này trình bày phần thiết kế, xây dựng, kiểm thử và triển khai hệ thống. Nội dung được tổ chức theo sườn của template SOICT, bao gồm: thiết kế kiến trúc phần mềm, thiết kế chi tiết, xây dựng ứng dụng, kiểm thử và triển khai. Các sơ đồ UML tương ứng được đặt trong thư mục \texttt{PlantUML} để có thể render và đưa vào phụ lục hoặc hình minh họa khi hoàn thiện bản in cuối.
 
-\section{Thiết kế kiến trúc}
+\section{Thiết kế kiến trúc phần mềm}
 \label{section:4.1}
 \subsection{Lựa chọn kiến trúc phần mềm}
 \label{subsection:4.1.1}
@@ -19,7 +19,7 @@ Kiến trúc tổng quan của hệ thống gồm bốn nhóm thành phần chí
 
 Sơ đồ component tổng quan được đặt trong nhóm file PlantUML về kiến trúc của đồ án. Trong sơ đồ này, các fragment Android giao tiếp với ViewModel và các module nghiệp vụ. Module GNSS nhận dữ liệu từ Android Location/GNSS API, đồng thời tải dữ liệu quỹ đạo từ IGS và CelesTrak. Module Optical Flow nhận frame từ CameraX, xử lý bằng KLT hoặc Farneback và có thể ghi video qua MediaCodec. Module video nền dùng WorkManager và Retrofit để gửi video tới server, theo dõi tiến độ và tải kết quả.
 
-\subsection{Thiết kế chi tiết gói}
+\subsection{Thiết kế chi tiết các gói chức năng}
 \label{subsection:4.1.3}
 Mã nguồn Android được chia theo các nhóm package chính. Nhóm screen chứa fragment và ViewModel. Nhóm function.gnss chứa tracker, repository, nguồn dữ liệu quỹ đạo và renderer. Nhóm function.optical flow chứa interface và các thuật toán KLT, Farneback, IMU. Nhóm function.video chứa client server, worker nền, bus trạng thái, notification và các DTO. Nhóm model chứa các data class dùng chung, còn nhóm util chứa các tiện ích về video, lưu trữ, shader, chia sẻ và logging.
 
@@ -92,7 +92,7 @@ Python server trong \texttt{src} & 2 & 2612 dòng \\ \hline
 \label{subsection:4.3.3}
 Các chức năng chính của hệ thống gồm GNSS Viewer, GNSS 3D/AR, Camera Optical Flow, Analytics, LiveRouting và Video RAFT Server. Với GNSS Viewer, người dùng có thể quan sát vị trí hiện tại, tìm kiếm địa điểm, vẽ tuyến đường và xem danh sách vệ tinh. Với mô hình 3D/AR, người dùng quan sát vệ tinh theo không gian trực quan hơn, đồng thời xem nguồn dữ liệu vị trí vệ tinh. Với Camera Optical Flow, người dùng chạy KLT/Farneback, chọn ROI và ghi video kết quả. Với Analytics, người dùng xem lại phiên so sánh thuật toán qua các biểu đồ. Với Video RAFT Server, người dùng gửi video lên server, theo dõi tiến độ và mở video đầu ra.
 
-\section{Kiểm thử}
+\section{Kiểm thử và đánh giá}
 \label{section:4.4}
 Do hệ thống phụ thuộc vào phần cứng, cảm biến và server, kiểm thử được thực hiện chủ yếu ở mức chức năng và tích hợp. Kiểm thử hộp đen được dùng cho các luồng người dùng như mở bản đồ, chạy camera, lưu analytics và xử lý video. Kiểm thử quan sát log được dùng cho các luồng khó kiểm chứng trực tiếp như nguồn phân giải vệ tinh, refresh CelesTrak/IGS, trạng thái job server và lỗi model.
 

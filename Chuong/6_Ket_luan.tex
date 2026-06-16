@@ -2,10 +2,24 @@
 \begin{document}
 \section{Kết luận}
 \label{section:6.1}
+\subsection{Tổng kết công việc đã thực hiện}
+\label{subsection:6.1.1}
 Đồ án đã xây dựng một hệ thống gồm ứng dụng Android và máy chủ xử lý video nhằm hỗ trợ bài toán trực quan hóa GNSS và phân tích chuyển động camera bằng Optical Flow. Hệ thống được hiện thực thành ba nhóm chức năng liên kết: GNSS Viewer, Optical Flow View và LiveRouting. Ứng dụng Android đã hiện thực các chức năng chính như hiển thị bản đồ hai chiều, tìm kiếm địa điểm, vẽ tuyến đường, chuyển sang mô hình Trái Đất ba chiều, quan sát vệ tinh bằng AR, chạy KLT và Farneback trên camera, chọn ROI, ghi video, lưu phiên phân tích và xem biểu đồ so sánh. Máy chủ FastAPI đã hiện thực pipeline nhận video, chạy mô hình RAFT dạng ONNX, cập nhật tiến độ job, hỗ trợ upload/download theo chunk, hủy job, ROI Cutie và trả video kết quả.
 
+\subsection{So sánh với các hệ thống tương tự}
+\label{subsection:6.1.2}
 So với các ứng dụng bản đồ phổ thông, hệ thống cung cấp thêm lớp quan sát vệ tinh, nguồn dữ liệu quỹ đạo và thử nghiệm hỗ trợ dẫn đường khi GNSS suy giảm. So với các demo Optical Flow đơn lẻ, hệ thống có cơ chế so sánh KLT/Farneback trên cùng luồng camera, lưu phiên đo và trình bày biểu đồ. So với việc chạy AI trực tiếp trên thiết bị, giải pháp server giúp đưa RAFT vào quy trình xử lý video mà không phụ thuộc hoàn toàn vào tài nguyên của điện thoại.
 
+\subsection{Các đóng góp nổi bật}
+\label{subsection:6.1.3}
+Các đóng góp nổi bật của đồ án gồm chuỗi phân giải vị trí vệ tinh theo độ ưu tiên Real GNSS PVT, IGS, CelesTrak và xấp xỉ; cơ chế LiveRouting cho xe kết hợp GNSS, Optical Flow, IMU, độ bất định vị trí và map matching khi GNSS suy giảm; cơ chế analytics cho phép so sánh hai thuật toán Optical Flow cổ điển bằng các chỉ số đo trực tiếp; pipeline xử lý video RAFT bất đồng bộ có theo dõi tiến độ, upload/download chunk, hủy job và dọn file tạm; và cơ chế ROI giúp người dùng giới hạn vùng phân tích Optical Flow trên camera và video.
+
+\subsection{Hạn chế và bài học kinh nghiệm}
+\label{subsection:6.1.4}
+Bên cạnh kết quả đạt được, đồ án vẫn còn một số hạn chế. Phần đánh giá mới tập trung vào kiểm thử chức năng và quan sát định tính, chưa có benchmark trên nhiều thiết bị, nhiều độ phân giải và nhiều điều kiện ánh sáng. Cơ chế LiveRouting hiện là visual odometry thực dụng dựa trên metrics Optical Flow và map matching theo route, chưa phải hệ thống khôi phục pose/depth đầy đủ và chưa có ground truth để đánh giá sai số quỹ đạo định lượng. Mô hình RAFT server phụ thuộc vào môi trường triển khai, tốc độ mạng và tài nguyên xử lý ROI/Cutie, vì vậy trải nghiệm xử lý video có thể thay đổi theo cấu hình máy chủ. Màn hình AR hiện tập trung vào minh họa tương đối, chưa đạt mức hiệu chỉnh không gian chính xác như các hệ AR thương mại chuyên sâu.
+
+\subsection{Đánh giá chung}
+\label{subsection:6.1.5}
 Bảng~\ref{table:conclusion-results} tổng hợp mức độ hoàn thành các nhóm mục tiêu chính.
 
 \begin{table}[H]
@@ -25,20 +39,18 @@ RAFT server & Tạo job xử lý video, upload/download chunk, hủy job, theo d
 \label{table:conclusion-results}
 \end{table}
 
-Các đóng góp nổi bật của đồ án gồm chuỗi phân giải vị trí vệ tinh theo độ ưu tiên Real GNSS PVT, IGS, CelesTrak và xấp xỉ; cơ chế LiveRouting cho xe kết hợp GNSS, Optical Flow, IMU, độ bất định vị trí và map matching khi GNSS suy giảm; cơ chế analytics cho phép so sánh hai thuật toán Optical Flow cổ điển bằng các chỉ số đo trực tiếp; pipeline xử lý video RAFT bất đồng bộ có theo dõi tiến độ, upload/download chunk, hủy job và dọn file tạm; và cơ chế ROI giúp người dùng giới hạn vùng phân tích Optical Flow trên camera và video.
-
-Bên cạnh kết quả đạt được, đồ án vẫn còn một số hạn chế. Phần đánh giá mới tập trung vào kiểm thử chức năng và quan sát định tính, chưa có benchmark trên nhiều thiết bị, nhiều độ phân giải và nhiều điều kiện ánh sáng. Cơ chế LiveRouting hiện là visual odometry thực dụng dựa trên metrics Optical Flow và map matching theo route, chưa phải hệ thống khôi phục pose/depth đầy đủ và chưa có ground truth để đánh giá sai số quỹ đạo định lượng. Mô hình RAFT server phụ thuộc vào môi trường triển khai, tốc độ mạng và tài nguyên xử lý ROI/Cutie, vì vậy trải nghiệm xử lý video có thể thay đổi theo cấu hình máy chủ. Màn hình AR hiện tập trung vào minh họa tương đối, chưa đạt mức hiệu chỉnh không gian chính xác như các hệ AR thương mại chuyên sâu.
-
 \section{Hướng phát triển}
 \label{section:6.2}
-Hướng phát triển đầu tiên là bổ sung bộ đánh giá định lượng có kiểm soát. Hệ thống có thể ghi lại tập video chuẩn với chuyển động biết trước, chạy KLT, Farneback và RAFT trên nhiều thiết bị, sau đó so sánh FPS, process time, độ ổn định vector và mức tiêu thụ tài nguyên. Kết quả này sẽ giúp xác định rõ ngưỡng cấu hình phù hợp cho từng thuật toán.
+\subsection{Hoàn thiện các chức năng hiện có}
+\label{subsection:6.2.1}
+Hệ thống cần bổ sung bộ đánh giá định lượng có kiểm soát. Ứng dụng có thể ghi lại tập video chuẩn với chuyển động biết trước, chạy KLT, Farneback và RAFT trên nhiều thiết bị, sau đó so sánh FPS, process time, độ ổn định vector và mức tiêu thụ tài nguyên. Kết quả này sẽ giúp xác định rõ ngưỡng cấu hình phù hợp cho từng thuật toán.
 
-Hướng thứ hai là phát triển sensor fusion định lượng hơn giữa Optical Flow, IMU, GNSS và dữ liệu bản đồ. Trên nền cơ chế visual odometry thực dụng hiện tại, hệ thống có thể bổ sung bộ lọc Kalman mở rộng, particle filter hoặc factor graph để mô hình hóa trạng thái vị trí, vận tốc, heading và độ bất định một cách chặt chẽ hơn. Nếu có thêm dữ liệu ground truth hoặc tập chạy thử có kiểm soát, ứng dụng có thể đánh giá sai số quỹ đạo và hiệu chỉnh tham số map matching tốt hơn trong các tình huống GNSS yếu hoặc camera thiếu đặc trưng.
+Màn hình AR và GNSS cũng cần được hoàn thiện thêm. Màn hình AR có thể kết hợp hiệu chỉnh hướng nhìn, bộ lọc làm mượt orientation và cảnh báo độ tin cậy theo C/N0 hoặc số vệ tinh used-in-fix. Phần bản đồ 3D có thể bổ sung timeline quỹ đạo, phân loại vệ tinh theo chòm và chế độ phát lại dữ liệu đã ghi. Server có thể được container hóa bằng Docker, kèm health check, chính sách timeout, theo dõi tài nguyên GPU/CPU và cơ chế tự dọn job cũ để ổn định hơn khi sử dụng ngoài môi trường phát triển.
 
-Hướng thứ ba là tối ưu RAFT trên thiết bị biên. Có thể thử các mô hình nhẹ hơn, lượng tử hóa sâu hơn hoặc dùng GPU/NNAPI nếu thiết bị hỗ trợ. Khi đó, một phần xử lý video có thể chạy cục bộ, giảm phụ thuộc vào server. Hướng này cần đi kèm cơ chế fallback để vẫn dùng server khi thiết bị không đáp ứng tài nguyên.
+\subsection{Phát triển tính năng mới}
+\label{subsection:6.2.2}
+Một hướng phát triển quan trọng là xây dựng sensor fusion định lượng hơn giữa Optical Flow, IMU, GNSS và dữ liệu bản đồ. Trên nền cơ chế visual odometry thực dụng hiện tại, hệ thống có thể bổ sung bộ lọc Kalman mở rộng, particle filter hoặc factor graph để mô hình hóa trạng thái vị trí, vận tốc, heading và độ bất định một cách chặt chẽ hơn. Nếu có thêm dữ liệu ground truth hoặc tập chạy thử có kiểm soát, ứng dụng có thể đánh giá sai số quỹ đạo và hiệu chỉnh tham số map matching tốt hơn trong các tình huống GNSS yếu hoặc camera thiếu đặc trưng.
 
-Hướng thứ tư là hoàn thiện trải nghiệm AR và GNSS. Màn hình AR có thể kết hợp hiệu chỉnh hướng nhìn, bộ lọc làm mượt orientation và cảnh báo độ tin cậy theo C/N0 hoặc số vệ tinh used-in-fix. Phần bản đồ 3D có thể bổ sung timeline quỹ đạo, phân loại vệ tinh theo chòm và chế độ phát lại dữ liệu đã ghi. Những cải tiến này sẽ biến hệ thống thành một công cụ học tập và thử nghiệm hoàn chỉnh hơn cho định vị vệ tinh và thị giác máy tính trên thiết bị di động.
-
-Hướng thứ năm là hoàn thiện đóng gói và triển khai. Server có thể được container hóa bằng Docker, kèm health check, chính sách timeout, theo dõi tài nguyên GPU/CPU và cơ chế tự dọn job cũ. Ứng dụng Android có thể bổ sung màn hình cấu hình server, kiểm tra kết nối trước khi upload, hiển thị rõ giới hạn chunk/job của server và cơ chế retry có giới hạn. Các cải tiến này sẽ giúp hệ thống ổn định hơn khi sử dụng ngoài môi trường phát triển.
+Một hướng khác là tối ưu RAFT trên thiết bị biên. Hệ thống có thể thử các mô hình nhẹ hơn, lượng tử hóa sâu hơn hoặc dùng GPU/NNAPI nếu thiết bị hỗ trợ. Khi đó, một phần xử lý video có thể chạy cục bộ, giảm phụ thuộc vào server. Hướng này cần đi kèm cơ chế fallback để vẫn dùng server khi thiết bị không đáp ứng tài nguyên.
 
 \end{document}
