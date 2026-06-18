@@ -1,0 +1,27 @@
+﻿@startuml usecase_camera_optical_flow
+skinparam defaultFontName "Times New Roman"
+title Use case phan ra: Camera Optical Flow
+left to right direction
+
+actor "Nguoi dung" as User
+
+rectangle "Camera Optical Flow" {
+  usecase "Chon thuat toan KLT/Farneback" as U1
+  usecase "Chon che do hien thi" as U2
+  usecase "Dieu chinh do nhay" as U3
+  usecase "Chon ROI" as U4
+  usecase "Bam doi tuong trong ROI" as U5
+  usecase "Ghi video ket qua" as U6
+  usecase "Chup anh ket qua" as U7
+  usecase "Bat/dung phien analytics" as U8
+}
+
+User --> U1
+User --> U2
+User --> U3
+User --> U4
+User --> U6
+User --> U7
+User --> U8
+U4 ..> U5 : include
+@enduml

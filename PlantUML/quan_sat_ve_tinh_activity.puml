@@ -1,0 +1,34 @@
+﻿@startuml activity_quan_sat_ve_tinh
+' Render: tao anh figures/activity_quan_sat_ve_tinh.png cho muc 2.3.1
+skinparam defaultFontName "Times New Roman"
+title Bieu do hoat dong: Quan sat ve tinh
+
+|Nguoi dung|
+start
+:Mo man hinh Quan sat ve tinh;
+|He thong|
+:Khoi tao ban do osmdroid;
+:Dang ky LocationManager va GnssStatus.Callback;
+:Hien thi marker vi tri nguoi dung;
+while (Con cap nhat GNSS?) is (co)
+  :Nhan GnssStatus;
+  :Phan giai vi tri ve tinh theo chuoi uu tien\n(PVT -> IGS -> CelesTrak -> Xap xi);
+  :Cap nhat danh sach ve tinh;
+endwhile (khong)
+|Nguoi dung|
+:Chon thao tac;
+if (Tim dia diem?) then (dung)
+  |He thong|
+  :Goi Nominatim, ve tuyen duong OSRM;
+elseif (Xem mo hinh 3D?) then (dung)
+  |He thong|
+  :Dung Trai Dat 3D, dat ve tinh theo nguon du lieu;
+elseif (Xem AR?) then (dung)
+  |He thong|
+  :Phu thong tin ve tinh len luong camera;
+else (Xem chi tiet)
+  |He thong|
+  :Hien thi chi tiet ve tinh va nguon phan giai vi tri;
+endif
+stop
+@enduml

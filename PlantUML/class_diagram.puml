@@ -1,0 +1,72 @@
+﻿@startuml class_diagram
+skinparam defaultFontName "Times New Roman"
+title Bieu do lop (rut gon)
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "Android (GNSSAndOpticalFlowApp)" {
+  interface OpticalFlow {
+    +run(frame): OpticalFlowResult
+    +setSensitivity(value)
+  }
+  class KLT
+  class Farneback
+  class OpticalFlowMetrics
+
+  class GnssSatelliteTracker {
+    -pvtCache
+    -igsCache
+    -celestrakCache
+    +resolvePosition(key): ResolvedSatellitePosition
+    +getSatellites(): List<SatelliteInfo>
+  }
+  class SatelliteInfo
+  class ResolvedSatellitePosition
+  class SatelliteKey
+  class EarthRenderer
+  class GNSSARRenderer
+
+  class GnssViewModel
+  class LiveRoutingViewModel {
+    +updateVisualOdometry()
+    +mapMatching()
+  }
+  class CameraOpticalFlowViewModel
+  class AnalyticsSession
+  class AnalyticsSample
+
+  class VideoProcessingManager
+  class VideoProcessingWorker
+  interface OpticalFlowServerApi
+}
+
+package "OpticalFlowServer (Python)" {
+  class OpticalFlowProcessor {
+    +process_video()
+  }
+  class VideoJob
+  class UploadSession
+}
+
+KLT ..|> OpticalFlow
+Farneback ..|> OpticalFlow
+KLT --> OpticalFlowMetrics
+Farneback --> OpticalFlowMetrics
+
+CameraOpticalFlowViewModel --> OpticalFlow
+CameraOpticalFlowViewModel --> AnalyticsSession
+AnalyticsSession "1" *-- "*" AnalyticsSample
+
+GnssViewModel --> GnssSatelliteTracker
+GnssSatelliteTracker --> SatelliteInfo
+GnssSatelliteTracker ..> SatelliteKey
+SatelliteInfo --> ResolvedSatellitePosition
+EarthRenderer --> SatelliteInfo
+GNSSARRenderer --> SatelliteInfo
+
+VideoProcessingManager --> VideoProcessingWorker
+VideoProcessingWorker --> OpticalFlowServerApi
+OpticalFlowServerApi ..> VideoJob
+OpticalFlowProcessor --> VideoJob
+OpticalFlowProcessor ..> UploadSession
+@enduml

@@ -1,0 +1,30 @@
+﻿@startuml activity_chi_duong_truc_tiep
+' Render: tao anh figures/activity_chi_duong_truc_tiep.png cho muc 2.3.2
+skinparam defaultFontName "Times New Roman"
+title Bieu do hoat dong: Chi duong truc tiep
+
+|Nguoi dung|
+start
+:Chon diem den va bat dau dan duong;
+|He thong|
+:Tai tuyen duong, cap nhat marker theo GNSS;
+:Ve doan duong GNSS (path den);
+while (Dang dan duong?) is (co)
+  :Danh gia chat luong GNSS\n(so ve tinh, tuoi tin, do chinh xac);
+  if (GNSS con tin cay?) then (co)
+    :Bam GNSS;
+    :Hieu chinh pixel/giay -> met/giay cho Optical Flow;
+  else (khong)
+    :Bat camera assist;
+    :Uoc luong toc do tu Optical Flow + yaw rate IMU (ZUPT);
+    :Map matching co dieu kien (route-lock);
+    :Ve doan ho tro (path do), danh dau mat/khoi phuc GNSS;
+    if (Lech tuyen nhieu mau va co Internet?) then (co)
+      :Goi lai OSRM cap nhat tuyen;
+    else (khong)
+      :Giu tuyen hien tai, thong bao offline neu mat mang;
+    endif
+  endif
+endwhile (khong)
+stop
+@enduml

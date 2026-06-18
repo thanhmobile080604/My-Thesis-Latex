@@ -1,0 +1,30 @@
+﻿@startuml usecase_chi_duong_truc_tiep
+skinparam defaultFontName "Times New Roman"
+title Use case phan ra: Chi duong truc tiep
+left to right direction
+
+actor "Nguoi dung" as User
+actor "Dich vu dinh tuyen OSRM" as OSRM
+
+rectangle "Chi duong truc tiep" {
+  usecase "Chon diem den" as U1
+  usecase "Bat dau dan duong" as U2
+  usecase "Danh gia chat luong GNSS" as U3
+  usecase "Bat camera assist" as U4
+  usecase "Uoc luong chuyen dong\nbang Optical Flow/IMU" as U5
+  usecase "Map matching theo route" as U6
+  usecase "Cap nhat lai tuyen khi lech duong" as U7
+  usecase "Hien thi path GNSS va path assist" as U8
+}
+
+User --> U1
+User --> U2
+User --> U8
+U2 ..> U3 : include
+U3 ..> U4 : extend
+U4 ..> U5 : include
+U5 ..> U6 : include
+U7 ..> U6 : extend
+OSRM --> U2
+OSRM --> U7
+@enduml

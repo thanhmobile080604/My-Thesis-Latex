@@ -1,37 +1,25 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-Chương này trình bày các công nghệ, nền tảng và cơ sở lý thuyết được sử dụng trong đồ án. Mỗi công nghệ được giới thiệu theo vai trò cụ thể trong hệ thống, đồng thời nêu lý do lựa chọn so với các phương án thay thế. Nội dung chương này là cầu nối giữa yêu cầu đã phân tích ở Chương 2 và thiết kế triển khai ở Chương 4.
+Chương này trình bày các công nghệ, nền tảng và cơ sở lý thuyết được sử dụng trong đồ án. Mỗi công nghệ được giới thiệu theo vai trò cụ thể trong hệ thống, đồng thời nêu lý do lựa chọn so với các phương án thay thế. Các công nghệ được tổ chức theo nhóm chức năng: nền tảng Android và kiến trúc ứng dụng, công nghệ định vị GNSS, công nghệ hiển thị bản đồ/3D/AR, Optical Flow và xử lý ảnh, backend xử lý video bằng AI, cơ chế kết hợp GNSS--Optical Flow--IMU cho LiveRouting và cuối cùng là quy trình phát triển phần mềm. Nội dung chương này là cầu nối giữa yêu cầu đã phân tích ở Chương 2 và thiết kế triển khai ở Chương 4.
 
-\section{Nền tảng Android}
+\section{Nền tảng Android và kiến trúc ứng dụng}
 \label{section:3.1}
-\subsection{Kotlin và Android SDK}
+\subsection{Ngôn ngữ lập trình Kotlin}
 \label{subsection:3.1.1}
-Ứng dụng được phát triển bằng Kotlin trên nền Android. Kotlin được chọn vì đây là ngôn ngữ hiện đại, được hỗ trợ tốt trong hệ sinh thái Android, có cú pháp ngắn gọn và phù hợp với lập trình bất đồng bộ bằng coroutine. So với Java, Kotlin giúp giảm mã lặp trong các lớp UI, data class và callback. Điều này đặc biệt hữu ích với đồ án vì hệ thống có nhiều màn hình và nhiều luồng dữ liệu cảm biến.
+Ứng dụng được phát triển bằng Kotlin trên nền Android. Kotlin được chọn vì đây là ngôn ngữ chính thức và hiện đại của hệ sinh thái Android, có cú pháp ngắn gọn, hỗ trợ null-safety và phù hợp với lập trình bất đồng bộ bằng coroutine. So với Java, Kotlin giúp giảm mã lặp trong các lớp UI, data class và callback. Điều này đặc biệt hữu ích với đồ án vì hệ thống có nhiều màn hình và nhiều luồng dữ liệu cảm biến chạy song song như vị trí, vệ tinh, camera và IMU.
 
-Android SDK cung cấp các API nền tảng như LocationManager, GnssStatus, GnssMeasurementsEvent, SensorManager, permission system, foreground service và storage. Đây là các thành phần bắt buộc để ứng dụng truy cập vị trí, vệ tinh, camera, cảm biến và dịch vụ chạy nền. Đồ án sử dụng compile SDK 37, min SDK 24 và target SDK 37 theo cấu hình Gradle của dự án.
+Android SDK cung cấp các API nền tảng như \texttt{LocationManager}, \texttt{GnssStatus}, \texttt{GnssMeasurementsEvent}, \texttt{SensorManager}, hệ thống quyền, foreground service và lưu trữ. Đây là các thành phần bắt buộc để ứng dụng truy cập vị trí, vệ tinh, camera, cảm biến và dịch vụ chạy nền. Đồ án sử dụng compile SDK 37, min SDK 24 và target SDK 37 theo cấu hình Gradle của dự án, nhằm cân bằng giữa khả năng tương thích với nhiều thiết bị và việc sử dụng các API mới.
 
-\subsection{Fragment, Navigation và ViewModel}
+\subsection{Kiến trúc giao diện XML Modern Android}
 \label{subsection:3.1.2}
-Ứng dụng sử dụng một \texttt{MainActivity} chứa \texttt{NavHostFragment}. Các chức năng chính được chia thành nhiều fragment: màn hình giới thiệu, màn hình home, GNSS viewer, live routing, GNSS AR, camera Optical Flow, danh sách media, trình phát video, danh sách analytics và chi tiết analytics. Jetpack Navigation giúp chuyển màn hình theo một graph rõ ràng, tránh việc Activity phải quản lý trực tiếp toàn bộ fragment.
+Giao diện ứng dụng được xây dựng theo hướng Modern Android dựa trên layout XML kết hợp các thành phần Jetpack, thay vì dùng Jetpack Compose. Cách tiếp cận này phù hợp với phạm vi đồ án vì nhiều thành phần như \texttt{GLSurfaceView} cho mô hình 3D, preview camera và bản đồ osmdroid đều làm việc tự nhiên với hệ thống \texttt{View} truyền thống. Ứng dụng sử dụng một \texttt{MainActivity} chứa \texttt{NavHostFragment}; các chức năng chính được chia thành nhiều fragment: màn hình giới thiệu, home, GNSS viewer, live routing, GNSS AR, camera Optical Flow, danh sách media, trình phát video, danh sách analytics và chi tiết analytics. Jetpack Navigation điều phối việc chuyển màn hình theo một graph rõ ràng, tránh để Activity phải quản lý trực tiếp toàn bộ fragment.
 
-ViewModel được dùng để giữ trạng thái qua vòng đời giao diện. ViewModel của GNSS Viewer lưu chế độ 2D/3D, vị trí hiện tại, địa điểm đã chọn, tuyến đường và snapshot vệ tinh mới nhất. ViewModel của LiveRouting lưu trạng thái tuyến đường, GNSS assist, các đoạn đường GNSS, các đoạn Optical Flow assist, ước lượng visual odometry thực dụng và kết quả map matching theo route. ViewModel của Camera Optical Flow lưu trạng thái thuật toán, ROI, recording, analysis và moving mode. Cách thiết kế này giúp ứng dụng không mất trạng thái khi view bị tạo lại do thay đổi cấu hình hoặc điều hướng.
+ViewModel được dùng để giữ trạng thái qua vòng đời giao diện. ViewModel của GNSS Viewer lưu chế độ 2D/3D, vị trí hiện tại, địa điểm đã chọn, tuyến đường và snapshot vệ tinh mới nhất. ViewModel của LiveRouting lưu trạng thái tuyến đường, GNSS assist, các đoạn đường GNSS, các đoạn Optical Flow assist, ước lượng visual odometry thực dụng và kết quả map matching theo route. ViewModel của Camera Optical Flow lưu trạng thái thuật toán, ROI, recording, analysis và moving mode. Cách thiết kế này giúp ứng dụng không mất trạng thái khi view bị tạo lại do thay đổi cấu hình hoặc điều hướng, đồng thời tách rõ phần hiển thị (fragment, layout XML) khỏi phần trạng thái và nghiệp vụ (ViewModel).
 
-\subsection{CameraX}
-\label{subsection:3.1.3}
-CameraX được chọn cho luồng camera vì thư viện này gắn trực tiếp với lifecycle của Android và cung cấp use case \texttt{ImageAnalysis} cho xử lý ảnh CPU-accessible \cite{android-camerax-imageanalysis}. Trong đồ án, CameraX tạo hai use case: \texttt{Preview} để hiển thị camera gốc và \texttt{ImageAnalysis} để đưa frame vào OpenCV. Chiến lược backpressure \texttt{STRATEGY\_KEEP\_ONLY\_LATEST} được sử dụng để tránh tích tụ frame khi thuật toán xử lý chậm.
-
-Phương án thay thế là dùng Camera2 API trực tiếp. Camera2 linh hoạt hơn nhưng phức tạp hơn đáng kể, nhất là khi cần quản lý session, surface và lifecycle. Với mục tiêu đồ án là xử lý ảnh và tích hợp hệ thống, CameraX là lựa chọn phù hợp vì giảm mã nền tảng và giúp tập trung vào thuật toán.
-
-\subsection{Retrofit và Media3}
-\label{subsection:3.1.4}
-Retrofit được sử dụng cho giao tiếp HTTP giữa ứng dụng và backend xử lý video. Lý do lựa chọn Retrofit là khả năng khai báo API bằng interface Kotlin/Java, hỗ trợ multipart request, streaming response và kết hợp tốt với coroutine trong Android \cite{retrofit-docs}. Với máy chủ Python tự triển khai, \texttt{OpticalFlowServerApi} định nghĩa các endpoint tạo job, tạo upload session, gửi chunk, hoàn tất upload, lấy trạng thái job, hủy job, lấy thông tin kết quả, tải kết quả theo file hoặc chunk và dọn kết quả. Với backend ngoài, ứng dụng dùng cấu hình riêng để gửi video tới dịch vụ tương ứng.
-
-Media3 được sử dụng để phát video đầu vào và video đã xử lý. So với việc dùng \texttt{VideoView} mặc định, Media3/ExoPlayer cung cấp khả năng điều khiển phát linh hoạt hơn, xử lý tốt hơn các định dạng media hiện đại và cho phép tùy biến giao diện phát video trong fragment.
-
-\section{GNSS và dữ liệu quỹ đạo}
+\section{Công nghệ định vị GNSS}
 \label{section:3.2}
-\subsection{GNSS trên Android}
+\subsection{GNSS trên thiết bị Android}
 \label{subsection:3.2.1}
 GNSS là nhóm hệ thống vệ tinh dẫn đường toàn cầu, bao gồm GPS, Galileo, BeiDou, GLONASS và một số hệ thống khác. Trên Android, \texttt{GnssStatus} cung cấp thông tin quan sát như SVID, chòm vệ tinh, azimuth, elevation, C/N0 và trạng thái used-in-fix. \texttt{GnssMeasurementsEvent} cung cấp dữ liệu đo thô hơn từ GNSS engine, trong đó một số thiết bị có thể cung cấp thông tin PVT của vệ tinh thông qua các API bị ẩn hoặc khác biệt theo phiên bản \cite{android-gnss-event,android-gnss-measurement}.
 
@@ -53,7 +41,7 @@ p &= \sqrt{X^2 + Y^2},\quad
 
 Trong đó $(X,Y,Z)$ là tọa độ ECEF, $\varphi$ là vĩ độ và $\lambda$ là kinh độ. Sau khi có vĩ độ và kinh độ, độ cao được tính từ bán kính cong pháp tuyến tại vĩ độ tương ứng. Trong mã nguồn, logic này được đặt trong \texttt{SatelliteCalculator.kt}.
 
-\subsection{IGS, CelesTrak và SGP4}
+\subsection{Dữ liệu quỹ đạo vệ tinh: IGS, CelesTrak và SGP4}
 \label{subsection:3.2.3}
 Nguồn dữ liệu vệ tinh được tổ chức theo chuỗi ưu tiên. Nguồn thứ nhất là PVT thật từ thiết bị, nếu trích xuất được. Nguồn thứ hai là broadcast ephemeris từ IGS, một tổ chức cung cấp dữ liệu và sản phẩm GNSS công khai \cite{igs-products}. Nguồn thứ ba là dữ liệu TLE từ CelesTrak GP, trong đó ứng dụng tải các nhóm GPS, Galileo và BeiDou rồi ánh xạ tên vệ tinh về SVID Android \cite{celestrak-gp-data}. TLE phù hợp với bài toán trực quan hóa vì có thể lan truyền bằng SGP4 và kích thước dữ liệu nhỏ.
 
@@ -61,8 +49,16 @@ SGP4 là mô hình lan truyền quỹ đạo từ phần tử trung bình. Trong
 
 Các phép tính quỹ đạo cần xử lý đúng hệ thời gian. Ứng dụng khởi tạo Orekit bằng cách chép file \texttt{tai-utc.dat} từ assets vào thư mục cache và đăng ký với \texttt{DataProvidersManager}. File này cung cấp dữ liệu chênh lệch TAI-UTC/leap second, giúp \texttt{AbsoluteDate} và \texttt{TimeScalesFactory.getUTC()} làm việc ổn định khi lan truyền broadcast ephemeris hoặc TLE theo thời điểm quan sát.
 
-\section{OpenGL ES và thực tế tăng cường}
+\section{Công nghệ hiển thị bản đồ, 3D và thực tế tăng cường}
 \label{section:3.3}
+\subsection{Hiển thị vị trí và vệ tinh trên bản đồ}
+\label{subsection:3.3.1}
+Bản đồ hai chiều được dựng bằng thư viện osmdroid trên nền dữ liệu OpenStreetMap. osmdroid được chọn vì là thư viện mã nguồn mở, không yêu cầu khóa API thương mại và cho phép tùy biến trực tiếp các lớp marker, overlay và polyline. Trên bản đồ, ứng dụng hiển thị marker vị trí người dùng, kết quả tìm kiếm địa điểm và tuyến đường vẽ từ hình học route. Dịch vụ Nominatim được dùng cho tìm kiếm địa điểm, còn OSRM cung cấp hình học tuyến đường giữa hai điểm.
+
+Ngoài vị trí người dùng, bản đồ còn là một trong các kênh trực quan hóa vệ tinh. Từ azimuth và elevation trong \texttt{GnssStatus}, ứng dụng có thể biểu diễn hướng và độ cao của vệ tinh so với người quan sát, giúp đối chiếu nhanh với mô hình 3D và màn hình AR. Khi vị trí vệ tinh được phân giải từ PVT, IGS hoặc CelesTrak (xem Mục~\ref{subsection:3.2.3}), thông tin nguồn dữ liệu cũng được gắn kèm để người dùng biết độ tin cậy tương đối của từng điểm hiển thị.
+
+\subsection{OpenGL ES trong mô phỏng không gian 3D}
+\label{subsection:3.3.2}
 Mô hình Trái Đất ba chiều được dựng bằng OpenGL ES. Hệ tọa độ của renderer đặt gốc tại tâm Trái Đất, trục $Y$ hướng Bắc, trục $Z$ trùng kinh tuyến gốc và trục $X$ hướng kinh độ $90^\circ$ Đông. Với vĩ độ $\varphi$, kinh độ $\lambda$ và bán kính hiển thị $r$, tọa độ cầu được đưa lên hệ Descartes theo Phương trình~\ref{eq:spherical-cartesian}.
 
 \begin{equation}
@@ -74,11 +70,13 @@ z = r \cos\varphi \cos\lambda.
 
 OpenGL ES được chọn vì cho phép vẽ mô hình 3D hiệu quả trên thiết bị Android, kiểm soát camera ảo, phép quay, zoom và tương tác chạm. Trong \texttt{EarthRenderer}, Trái Đất dùng texture ban ngày và ban đêm, shader tính hướng chiếu sáng từ Mặt Trời để tạo vùng sáng/tối và đường chuyển tiếp ngày-đêm. Renderer cũng tính vị trí tương đối của Mặt Trời và Mặt Trăng theo UTC để vẽ các thiên thể này trong cùng cảnh 3D. Phương án thay thế là sử dụng một engine 3D hoàn chỉnh như Unity hoặc Sceneform. Tuy nhiên, các engine này làm tăng kích thước dự án và phụ thuộc runtime. Với phạm vi đồ án, OpenGL ES trực tiếp đủ để dựng Trái Đất, vệ tinh, Mặt Trời, Mặt Trăng và các tương tác cơ bản.
 
-Ở màn hình AR, ứng dụng dùng ARCore để lấy frame camera, pose và projection matrix, đồng thời dùng cảm biến hướng thiết bị để hiệu chỉnh yaw theo hướng nhìn của camera sau. Cách tiếp cận này không nhằm tạo một hệ AR định vị chính xác tuyệt đối như các SDK chuyên sâu, mà nhằm minh họa vị trí tương đối của vệ tinh trên hướng nhìn của người dùng. Việc giữ module AR tách khỏi module bản đồ giúp hệ thống có thể dùng chung dữ liệu vệ tinh nhưng thay đổi cách biểu diễn.
+\subsection{Thực tế tăng cường trong quan sát vệ tinh}
+\label{subsection:3.3.3}
+Ở màn hình AR, ứng dụng dùng ARCore để lấy frame camera, pose và projection matrix, đồng thời dùng cảm biến hướng thiết bị để hiệu chỉnh yaw theo hướng nhìn của camera sau. Cách tiếp cận này không nhằm tạo một hệ AR định vị chính xác tuyệt đối như các SDK chuyên sâu, mà nhằm minh họa vị trí tương đối của vệ tinh trên hướng nhìn của người dùng. Việc giữ module AR tách khỏi module bản đồ giúp hệ thống có thể dùng chung dữ liệu vệ tinh nhưng thay đổi cách biểu diễn, từ bản đồ phẳng sang mô hình 3D và sang khung nhìn AR.
 
-\section{Optical Flow cổ điển}
+\section{Công nghệ Optical Flow và xử lý ảnh}
 \label{section:3.4}
-\subsection{Cơ sở Optical Flow}
+\subsection{Cơ sở lý thuyết Optical Flow}
 \label{subsection:3.4.1}
 Optical Flow ước lượng chuyển động biểu kiến của điểm ảnh giữa hai khung hình liên tiếp. Giả thiết cơ bản là độ sáng của một điểm không đổi trong khoảng thời gian ngắn, được mô tả bởi $I(x,y,t)=I(x+\Delta x,y+\Delta y,t+\Delta t)$. Khai triển Taylor bậc nhất dẫn tới ràng buộc gradient trong Phương trình~\ref{eq:brightness-constancy}.
 
@@ -89,71 +87,79 @@ I_x u + I_y v + I_t = 0.
 
 Phương trình trên có hai ẩn $u$ và $v$ nhưng chỉ có một ràng buộc tại mỗi điểm ảnh, nên cần thêm giả thiết hoặc mô hình cục bộ để giải. Các thuật toán Optical Flow khác nhau chủ yếu ở cách bổ sung giả thiết này, cách lấy mẫu điểm ảnh và cách tối ưu kết quả.
 
-\subsection{KLT}
+\subsection{Thư viện OpenCV}
 \label{subsection:3.4.2}
-KLT trong đồ án kết hợp phát hiện đặc trưng Shi-Tomasi và theo dõi Lucas-Kanade dạng kim tự tháp. Shi-Tomasi chọn các điểm có cấu trúc gradient đủ tốt để theo dõi \cite{shi-tomasi1994}, còn Lucas-Kanade giả định chuyển động cục bộ gần như không đổi trong một cửa sổ nhỏ và giải hệ bình phương tối thiểu \cite{lucas-kanade1981}. Cách tiếp cận này xử lý ít điểm nên phù hợp với yêu cầu thời gian thực trên thiết bị di động.
+OpenCV là thư viện thị giác máy tính mã nguồn mở được dùng làm nền tảng xử lý ảnh trong đồ án. Trên Android, OpenCV cung cấp kiểu dữ liệu \texttt{Mat} để biểu diễn ảnh và một tập hàm Optical Flow sẵn có như \texttt{goodFeaturesToTrack}, \texttt{calcOpticalFlowPyrLK} và \texttt{calcOpticalFlowFarneback} \cite{opencv-optical-flow,opencv-video-tracking}. Nhờ vậy, ứng dụng có thể tập trung vào việc thiết kế luồng xử lý và hiển thị thay vì hiện thực lại các thuật toán nền tảng.
 
-Trong mã nguồn, lớp \texttt{KLT} chuyển frame sang grayscale, phát hiện điểm bằng \texttt{goodFeaturesToTrack}, theo dõi bằng \texttt{calcOpticalFlowPyrLK} và lọc kết quả bằng kiểm tra tiến-lùi. Các vector quá nhỏ bị xem là nhiễu và không được đưa vào motion vector. Kết quả dịch chuyển được làm mượt bằng exponential smoothing để giảm rung khi hiển thị.
+OpenCV được chọn vì có hiệu năng tốt, được kiểm chứng rộng rãi và có cùng bộ thuật toán trên cả thiết bị Android lẫn máy chủ Python, giúp giữ tính nhất quán giữa Optical Flow chạy trên thiết bị và pipeline xử lý video phía server. Trong ứng dụng, mỗi frame camera được chuyển sang \texttt{Mat}, xử lý bằng KLT hoặc Farneback rồi phủ kết quả lên khung hình hiển thị.
 
-\subsection{Farneback}
+\subsection{Thuật toán KLT và Farneback}
 \label{subsection:3.4.3}
-Farneback thuộc nhóm dense optical flow. Thuật toán xấp xỉ vùng lân cận của ảnh bằng đa thức bậc hai và suy ra dịch chuyển từ sự biến đổi của các hệ số đa thức giữa hai khung hình \cite{farneback2003}. Trong đồ án, Farneback được chạy trên ảnh giảm kích thước để giảm chi phí xử lý, sau đó vector được lấy mẫu theo lưới để vẽ lên khung hình. Chế độ heatmap dùng độ lớn vector để tạo bản đồ màu, phù hợp khi người dùng muốn quan sát phân bố chuyển động thay vì từng mũi tên riêng lẻ.
+KLT trong đồ án kết hợp phát hiện đặc trưng Shi-Tomasi và theo dõi Lucas-Kanade dạng kim tự tháp. Shi-Tomasi chọn các điểm có cấu trúc gradient đủ tốt để theo dõi \cite{shi-tomasi1994}, còn Lucas-Kanade giả định chuyển động cục bộ gần như không đổi trong một cửa sổ nhỏ và giải hệ bình phương tối thiểu \cite{lucas-kanade1981}. Cách tiếp cận này xử lý ít điểm nên phù hợp với yêu cầu thời gian thực trên thiết bị di động. Trong mã nguồn, lớp \texttt{KLT} chuyển frame sang grayscale, phát hiện điểm bằng \texttt{goodFeaturesToTrack}, theo dõi bằng \texttt{calcOpticalFlowPyrLK} và lọc kết quả bằng kiểm tra tiến-lùi. Các vector quá nhỏ bị xem là nhiễu và không được đưa vào motion vector. Kết quả dịch chuyển được làm mượt bằng exponential smoothing để giảm rung khi hiển thị.
 
-Farneback có chi phí cao hơn KLT vì phải tính trường chuyển động dày đặc. Đổi lại, thuật toán này không phụ thuộc hoàn toàn vào một số điểm đặc trưng rời rạc. Vì vậy, Farneback phù hợp để minh họa chuyển động tổng thể của ảnh, đặc biệt khi cần heatmap. Trong đồ án, người dùng có thể chuyển giữa vector và heatmap để quan sát hai kiểu biểu diễn khác nhau.
+Farneback thuộc nhóm dense optical flow. Thuật toán xấp xỉ vùng lân cận của ảnh bằng đa thức bậc hai và suy ra dịch chuyển từ sự biến đổi của các hệ số đa thức giữa hai khung hình \cite{farneback2003}. Trong đồ án, Farneback được chạy trên ảnh giảm kích thước để giảm chi phí xử lý, sau đó vector được lấy mẫu theo lưới để vẽ lên khung hình. Chế độ heatmap dùng độ lớn vector để tạo bản đồ màu, phù hợp khi người dùng muốn quan sát phân bố chuyển động thay vì từng mũi tên riêng lẻ. Farneback có chi phí cao hơn KLT vì phải tính trường chuyển động dày đặc, đổi lại không phụ thuộc hoàn toàn vào một số điểm đặc trưng rời rạc. Vì vậy, hai thuật toán bổ trợ cho nhau: KLT phù hợp môi trường nhiều đặc trưng rõ và cần tốc độ, còn Farneback phù hợp để minh họa chuyển động tổng thể của ảnh. Trong đồ án, người dùng có thể chuyển giữa vector và heatmap để quan sát hai kiểu biểu diễn khác nhau.
 
-\subsection{Forward-Backward Error}
+\subsection{Phân tích chuyển động từ camera thời gian thực}
 \label{subsection:3.4.4}
-Để đánh giá độ tin cậy tương đối của vector, đồ án sử dụng Forward-Backward Error. Thuật toán chạy flow từ frame trước sang frame sau, sau đó chạy ngược từ frame sau về frame trước. Nếu điểm quay về cách điểm ban đầu dưới ngưỡng $1.5$ pixel, vector được xem là inlier. Độ tin cậy được tính theo Phương trình~\ref{eq:fbe-confidence}.
+Luồng camera thời gian thực được cung cấp bởi CameraX, thư viện gắn trực tiếp với lifecycle của Android và cung cấp use case \texttt{ImageAnalysis} cho xử lý ảnh truy cập được trên CPU \cite{android-camerax-imageanalysis}. Trong đồ án, CameraX tạo hai use case: \texttt{Preview} để hiển thị camera gốc và \texttt{ImageAnalysis} để đưa frame vào OpenCV. Chiến lược backpressure \texttt{STRATEGY\_KEEP\_ONLY\_LATEST} được sử dụng để tránh tích tụ frame khi thuật toán xử lý chậm. Phương án thay thế là dùng Camera2 API trực tiếp; tuy linh hoạt hơn nhưng Camera2 phức tạp đáng kể khi quản lý session, surface và lifecycle, nên CameraX phù hợp hơn với mục tiêu tập trung vào thuật toán của đồ án.
+
+Để đánh giá độ tin cậy tương đối của vector trong thời gian thực, đồ án sử dụng Forward-Backward Error. Thuật toán chạy flow từ frame trước sang frame sau, sau đó chạy ngược từ frame sau về frame trước. Nếu điểm quay về cách điểm ban đầu dưới ngưỡng $1.5$ pixel, vector được xem là inlier. Độ tin cậy được tính theo Phương trình~\ref{eq:fbe-confidence}.
 
 \begin{equation}
 \label{eq:fbe-confidence}
-Confidence = \frac{N_{inlier}}{N_{tracked}} \times 100\%.
+\text{Confidence} = \frac{N_{\text{inlier}}}{N_{\text{tracked}}} \times 100\%.
 \end{equation}
 
-Chỉ số này không phải là độ chính xác tuyệt đối so với ground truth, vì hệ thống không có dữ liệu ground truth của chuyển động camera. Tuy nhiên, nó giúp phát hiện các vector thiếu nhất quán và tạo cơ sở so sánh tương đối giữa KLT và Farneback trong cùng phiên chạy.
+Chỉ số này không phải là độ chính xác tuyệt đối so với ground truth, vì hệ thống không có dữ liệu ground truth của chuyển động camera. Tuy nhiên, nó giúp phát hiện các vector thiếu nhất quán và tạo cơ sở so sánh tương đối giữa KLT và Farneback trong cùng phiên chạy, phục vụ cho cơ chế phân tích hiệu năng được trình bày ở Chương~\ref{chapter:SolutionAndContribution}.
 
-\subsection{Visual odometry thực dụng và map matching}
-\label{subsection:3.4.5}
+\section{Backend xử lý Optical Flow bằng AI}
+\label{section:3.5}
+\subsection{FastAPI trong xây dựng server xử lý video}
+\label{subsection:3.5.1}
+FastAPI được chọn cho máy chủ Python tự triển khai vì hỗ trợ tốt multipart upload, background task và kiểu dữ liệu rõ ràng cho API \cite{fastapi-upload,fastapi-background}. Trong đồ án, endpoint tạo job được dùng làm luồng chính cho xử lý bất đồng bộ; các endpoint kiểm thử chỉ phục vụ phát triển server. Cách tổ chức này tránh việc thiết bị Android phải giữ một kết nối HTTP dài trong toàn bộ thời gian xử lý video. Máy chủ được chạy bằng Uvicorn, một ASGI server nhẹ, phù hợp cho cả môi trường phát triển và demo.
+
+\subsection{Mô hình RAFT và ONNX Runtime}
+\label{subsection:3.5.2}
+RAFT là mô hình học sâu cho Optical Flow, xây dựng volume tương quan toàn cặp giữa hai ảnh và cập nhật trường flow lặp bằng một đơn vị recurrent \cite{raft2020}. So với KLT và Farneback, RAFT có khả năng biểu diễn chuyển động dày đặc và phức tạp hơn, nhưng yêu cầu suy luận nặng hơn. Vì vậy, đồ án triển khai RAFT theo hướng backend server cho xử lý video ngoại tuyến.
+
+Mô hình RAFT được đóng gói ở dạng ONNX. ONNX Runtime cung cấp lớp \texttt{InferenceSession} để nạp mô hình và chạy suy luận, đồng thời hỗ trợ chọn execution provider như CPU, CUDA hoặc DirectML khi môi trường có sẵn \cite{onnxruntime-python-api}. Máy chủ \texttt{OpticalFlowServer} dùng ONNX Runtime thay vì OpenCV DNN cho pipeline Python vì cần xử lý mô hình ONNX quantized ổn định hơn trong bối cảnh server.
+
+\subsection{Thư viện Cutie trong xử lý ROI đối tượng}
+\label{subsection:3.5.3}
+Khi người dùng chọn vùng quan tâm (ROI) trên video, backend mặc định dùng Cutie để lan truyền mask đối tượng. Cutie là mô hình phân vùng và theo dõi đối tượng trong video: từ một mask khởi tạo tại frame được chọn, mô hình lan truyền mask qua các frame khác để bám đối tượng ngay cả khi nó dịch chuyển hoặc biến dạng. Trong pipeline, Optical Flow sau đó chỉ được vẽ trong vùng mask đang hoạt động, giúp tập trung vào đối tượng và giảm nhiễu nền. Nếu cần triển khai đơn giản hơn hoặc môi trường không đủ tài nguyên, backend có thể chuyển về chế độ ROI tĩnh bằng biến môi trường.
+
+\subsection{Cơ chế xử lý video theo job và chunk}
+\label{subsection:3.5.4}
+Vì video là file lớn và RAFT có thời gian suy luận cao, việc gửi video qua một request đồng bộ duy nhất dễ gây timeout và không cho biết tiến độ. Do đó, backend được thiết kế theo cơ chế job bất đồng bộ: mỗi yêu cầu xử lý sinh ra một \texttt{job\_id}, video được đưa vào hàng xử lý nền và client thăm dò trạng thái theo chu kỳ. Với file lớn, ứng dụng tạo upload session và gửi video theo từng chunk (kèm kiểm tra toàn vẹn rồi ráp lại ở máy chủ); kết quả cũng có thể tải về theo chunk khi file đầu ra lớn.
+
+Phía Android, Retrofit được dùng cho giao tiếp HTTP với backend vì cho phép khai báo API bằng interface, hỗ trợ multipart request và streaming response, đồng thời kết hợp tốt với coroutine \cite{retrofit-docs}. \texttt{OpticalFlowServerApi} định nghĩa các endpoint tạo job, tạo upload session, gửi chunk, hoàn tất upload, lấy trạng thái job, hủy job, lấy thông tin kết quả, tải kết quả và dọn kết quả. Tác vụ upload, polling và download được thực thi bởi một foreground worker dựa trên WorkManager, nhờ đó tiến trình không bị dừng khi người dùng rời màn hình. Ở phía server, kết quả được ghi ra MP4 H.264 bằng \texttt{imageio-ffmpeg} hoặc ffmpeg trong PATH để Android phát ổn định, thay cho việc phụ thuộc vào \texttt{VideoWriter} của OpenCV cho container đầu ra. Khi tải về, video được mở bằng Media3/ExoPlayer, vốn xử lý tốt các định dạng media hiện đại và cho phép tùy biến giao diện phát video trong fragment.
+
+\section{Kết hợp GNSS, Optical Flow và IMU trong LiveRouting}
+\label{section:3.6}
+\subsection{Cảm biến IMU trên thiết bị Android}
+\label{subsection:3.6.1}
+IMU (Inertial Measurement Unit) trên điện thoại gồm gia tốc kế và con quay hồi chuyển, được truy cập qua \texttt{SensorManager} của Android. Trong đồ án, dữ liệu IMU phục vụ hai mục đích chính. Thứ nhất, tốc độ quay quanh trục đứng (yaw rate) từ con quay hồi chuyển được dùng để ước lượng thay đổi hướng của thiết bị khi GNSS không cập nhật kịp. Thứ hai, gia tốc kế giúp nhận biết trạng thái tĩnh hay đang di chuyển; khi phát hiện thiết bị gần như đứng yên, hệ thống áp dụng cơ chế ZUPT (Zero-velocity Update) để khử trôi vận tốc tích lũy. IMU có ưu điểm là tần số cao và không phụ thuộc tín hiệu ngoài, nhưng dễ tích lũy sai số theo thời gian, nên chỉ phù hợp để hỗ trợ ngắn hạn và cần được ràng buộc bởi GNSS hoặc Optical Flow.
+
+\subsection{Visual Odometry thực dụng}
+\label{subsection:3.6.2}
 Visual odometry là bài toán ước lượng chuyển động tương đối của camera từ chuỗi ảnh liên tiếp. Trong dạng đầy đủ, hệ thống thường cần theo dõi đặc trưng, loại outlier, ước lượng pose camera, xử lý tỉ lệ mét/pixel và kết hợp IMU hoặc bản đồ để giảm trôi. Tuy nhiên, với camera đơn trên điện thoại và không có hiệu chuẩn độ sâu hoặc chiều cao camera ổn định, Optical Flow chỉ cung cấp chuyển động biểu kiến trong ảnh; nó không trực tiếp tương đương với vận tốc thật theo mét/giây.
 
 Trong đồ án, LiveRouting dùng một phiên bản visual odometry thực dụng cho kịch bản xe. Metrics Optical Flow gồm \texttt{avgDx}, \texttt{avgDy}, \texttt{avgMagnitude} và \texttt{confidence} được quy đổi thành tốc độ tương đối, thay đổi hướng và hệ số chất lượng. Tỉ lệ chuyển đổi pixel/giây sang mét/giây được hiệu chỉnh khi GNSS còn tốt và xe có tốc độ đủ lớn. Khi GNSS mất tin cậy, tốc độ ước lượng được lấy từ Optical Flow với trọng số phụ thuộc chất lượng; tốc độ GNSS cuối cùng chỉ còn là prior và giảm dần theo thời gian để tránh giả định xe luôn giữ nguyên vận tốc.
 
+\subsection{Map Matching theo tuyến đường}
+\label{subsection:3.6.3}
 Map matching là bước ghép vị trí hoặc quỹ đạo ước lượng với hình học tuyến đường. Nếu chỉ ``snap'' cứng marker vào route, hệ thống có thể che giấu trường hợp người dùng thật sự đi sai đường. Vì vậy, đồ án dùng map matching có độ tin cậy: vị trí dự đoán chỉ được kéo về route khi khoảng cách tới route, sai khác hướng và tính liên tục theo đoạn đường đều đạt ngưỡng. Khi các điều kiện này không thỏa mãn, quỹ đạo assist được phép đi theo dự đoán camera/IMU để hệ thống có bằng chứng lệch tuyến và kích hoạt cập nhật lại đường đi.
 
-\section{RAFT, ONNX Runtime và backend xử lý video}
-\label{section:3.5}
-RAFT là mô hình học sâu cho Optical Flow, xây dựng volume tương quan toàn cặp giữa hai ảnh và cập nhật trường flow lặp bằng một đơn vị recurrent \cite{raft2020}. So với KLT và Farneback, RAFT có khả năng biểu diễn chuyển động dày đặc và phức tạp hơn, nhưng yêu cầu suy luận nặng hơn. Vì vậy, đồ án triển khai RAFT theo hướng backend server cho xử lý video ngoại tuyến.
+\subsection{Cơ chế hỗ trợ định vị khi GNSS suy giảm}
+\label{subsection:3.6.4}
+Ba nguồn dữ liệu trên được kết hợp thành một cơ chế hỗ trợ định vị ngắn hạn cho LiveRouting. Khi GNSS còn tin cậy (đủ số vệ tinh used-in-fix, độ chính xác tốt và dữ liệu mới), vị trí và tốc độ từ Android Location API là nguồn chính, đồng thời hệ thống tranh thủ hiệu chỉnh hệ số chuyển đổi pixel/giây sang mét/giây cho Optical Flow. Khi GNSS suy giảm, camera assist được bật: tốc độ lấy từ visual odometry, hướng được cập nhật bằng yaw rate của IMU, và vị trí dự đoán được giới hạn bởi các ngưỡng tăng tốc, phanh và coast để tránh biến động phi thực tế. Sau đó, vị trí dự đoán được đưa qua map matching có điều kiện để bám tuyến khi đủ tin cậy, hoặc giữ nguyên dự đoán khi nghi ngờ lệch tuyến. Sự kết hợp này nhằm duy trì marker liên tục trong các khoảng mất GNSS ngắn, nhưng vẫn được trình bày đúng bản chất là một cơ chế hỗ trợ thực dụng, không phải hệ visual-inertial odometry đầy đủ. Chi tiết thuật toán fusion được trình bày ở Chương~\ref{chapter:SolutionAndContribution}.
 
-Mô hình RAFT được đóng gói ở dạng ONNX. ONNX Runtime cung cấp lớp \texttt{InferenceSession} để nạp mô hình và chạy suy luận, đồng thời hỗ trợ chọn execution provider như CPU hoặc CUDA khi môi trường có sẵn \cite{onnxruntime-python-api}. Máy chủ \texttt{OpticalFlowServer} dùng ONNX Runtime thay vì OpenCV DNN cho pipeline Python vì cần xử lý mô hình ONNX quantized ổn định hơn trong bối cảnh server.
+\section{Quy trình phát triển phần mềm}
+\label{section:3.7}
+Đồ án được phát triển theo hướng linh hoạt (Agile), cụ thể là mô hình lặp ngắn theo tinh thần Scrum được điều chỉnh cho quy mô một sinh viên thực hiện. Toàn bộ công việc được tổ chức thành một product backlog gồm các hạng mục chức năng tương ứng với các module đã phân rã ở Chương 2: quan sát vệ tinh, chỉ đường trực tiếp, camera Optical Flow, phân tích hiệu năng và xử lý video bằng AI. Backlog được sắp xếp theo độ ưu tiên và độ phụ thuộc kỹ thuật, ví dụ module GNSS và Optical Flow thời gian thực được làm trước vì là nền tảng cho LiveRouting và phân tích hiệu năng.
 
-FastAPI được chọn cho máy chủ Python tự triển khai vì hỗ trợ tốt multipart upload, background task và kiểu dữ liệu rõ ràng cho API \cite{fastapi-upload,fastapi-background}. Trong đồ án, endpoint tạo job được dùng làm luồng chính cho xử lý bất đồng bộ; các endpoint kiểm thử chỉ phục vụ phát triển server. Cách tổ chức này tránh việc thiết bị Android phải giữ một kết nối HTTP dài trong toàn bộ thời gian xử lý video.
+Công việc được chia thành các sprint ngắn, mỗi sprint tập trung hoàn thiện một hoặc một vài hạng mục theo vòng lặp: phân tích yêu cầu, thiết kế, hiện thực, kiểm thử trên thiết bị thật và tinh chỉnh dựa trên kết quả quan sát. Cuối mỗi sprint, sản phẩm được demo và rà soát với giảng viên hướng dẫn để điều chỉnh backlog cho sprint tiếp theo. Cách làm này phù hợp với đặc thù đồ án vì nhiều yêu cầu chỉ bộc lộ rõ sau khi chạy thử trên phần cứng thật, chẳng hạn chất lượng GNSS theo môi trường hay hành vi Optical Flow theo điều kiện ánh sáng.
 
-Máy chủ cũng dùng \texttt{imageio-ffmpeg} hoặc ffmpeg trong PATH để ghi MP4 H.264 tương thích Android, thay cho việc phụ thuộc vào \texttt{VideoWriter} của OpenCV cho container đầu ra. Khi người dùng chọn ROI trên video, backend mặc định dùng Cutie để lan truyền mask đối tượng từ frame được chọn, sau đó chỉ vẽ vector hoặc heatmap trong mask này. Nếu cần triển khai đơn giản hơn, backend có thể chuyển về ROI tĩnh bằng biến môi trường.
-
-\section{Công cụ và thư viện sử dụng}
-\label{section:3.6}
-Bảng~\ref{table:tech-stack} tổng hợp các công nghệ chính được sử dụng trong đồ án. Các phiên bản được lấy từ cấu hình Gradle của ứng dụng và các file requirements trong \texttt{docs/docs\_to\_set\_up} của máy chủ tại thời điểm viết báo cáo.
-
-\begin{table}[H]
-\centering
-\begin{tabular}{|p{3.3cm}|p{3.8cm}|p{6.0cm}|}
-\hline
-\textbf{Mục đích} & \textbf{Công nghệ/phiên bản} & \textbf{Vai trò trong hệ thống} \\ \hline
-Ứng dụng Android & Kotlin, Android SDK 37 & Xây dựng giao diện, lifecycle, quyền hệ thống và tích hợp cảm biến. \\ \hline
-Xử lý ảnh & OpenCV 4.12.0 & Chạy KLT, Farneback, vẽ vector, heatmap và xử lý frame. \\ \hline
-Camera & CameraX 1.4.1 & Cung cấp luồng ảnh cho phân tích thời gian thực. \\ \hline
-Bản đồ & osmdroid 6.1.18 & Hiển thị bản đồ hai chiều, marker và tuyến đường. \\ \hline
-Quỹ đạo & Orekit 12.2.1 & Hỗ trợ dữ liệu thời gian và bài toán quỹ đạo trong module GNSS. \\ \hline
-AR & ARCore 1.54.0 & Cung cấp session camera, projection và pose cho màn hình GNSS AR. \\ \hline
-Xử lý nền & WorkManager 2.11.2 & Chạy worker foreground cho upload lên backend, polling, download và hủy xử lý video. \\ \hline
-HTTP client & Retrofit 3.0.0, OkHttp & Kết nối ứng dụng Android với máy chủ xử lý video và tải kết quả streaming. \\ \hline
-Phát video & Media3 1.4.1 & Phát video đầu vào và video đã xử lý. \\ \hline
-Máy chủ & FastAPI 0.110.0, Uvicorn 0.27.1 & Cung cấp API xử lý video và background job. \\ \hline
-Suy luận AI trên server & ONNX Runtime 1.26.0 hoặc DirectML 1.24.4 & Chạy mô hình RAFT dạng ONNX trên máy chủ với CPU, CUDA hoặc DirectML. \\ \hline
-ROI video & Cutie, PyTorch & Lan truyền mask đối tượng trong video khi người dùng chọn ROI. \\ \hline
-\end{tabular}
-\caption{Danh sách công nghệ và thư viện chính}
-\label{table:tech-stack}
-\end{table}
+Về công cụ hỗ trợ quy trình, mã nguồn được quản lý bằng Git để theo dõi lịch sử thay đổi và cô lập các tính năng đang phát triển. Android Studio và Gradle được dùng cho build và chạy ứng dụng, còn máy chủ Python được chạy thử cục bộ bằng Uvicorn. Việc kiểm thử chủ yếu là kiểm thử chức năng và tích hợp trên thiết bị thật kết hợp quan sát log, do hệ thống phụ thuộc nhiều vào phần cứng, cảm biến và server (chi tiết ở Chương~\ref{chapter:Experiment}).
 
 \end{document}

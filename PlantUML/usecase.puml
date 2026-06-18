@@ -1,24 +1,20 @@
-@startuml
+﻿@startuml usecase_tong_quat
+skinparam defaultFontName "Times New Roman"
 title Use case tong quat
-
 left to right direction
+skinparam packageStyle rectangle
 
 actor "Nguoi dung" as User
-actor "My Server (Python/FastAPI)" as MyServer
-actor "Outer Server" as OuterServer
-actor "Dich vu du lieu ngoai" as External
+actor "Backend xu ly video\n(My/Outer Server)" as Backend
+actor "Dich vu du lieu ngoai\n(Nominatim/OSRM, IGS, CelesTrak)" as External
 
 rectangle "GNSSAndOpticalFlowApp" {
-  usecase "Xem ban do GNSS 2D" as UC1
-  usecase "Tim dia diem va xem tuyen duong" as UC2
-  usecase "Xem ve tinh tren mo hinh 3D" as UC3
-  usecase "Xem ve tinh bang AR" as UC4
-  usecase "Live routing voi Optical Flow assist" as UC5
-  usecase "Phan tich camera bang KLT/Farneback" as UC6
-  usecase "Chon ROI" as UC7
-  usecase "Ghi video ket qua" as UC8
-  usecase "Chay phien analytics" as UC9
-  usecase "Upload va xu ly video bang RAFT backend" as UC10
+  usecase "Xem ban do GNSS hai chieu" as UC1
+  usecase "Xem ve tinh tren mo hinh 3D/AR" as UC2
+  usecase "Chi duong truc tiep co ho tro Optical Flow" as UC3
+  usecase "Phan tich camera bang Optical Flow" as UC4
+  usecase "Phan tich hieu nang KLT/Farneback" as UC5
+  usecase "Xu ly video bang RAFT" as UC6
 }
 
 User --> UC1
@@ -27,20 +23,12 @@ User --> UC3
 User --> UC4
 User --> UC5
 User --> UC6
-User --> UC7
-User --> UC8
-User --> UC9
-User --> UC10
 
 External --> UC1
 External --> UC2
 External --> UC3
-MyServer --> UC10
-OuterServer --> UC10
+Backend --> UC6
 
-UC5 ..> UC6 : include
-UC6 ..> UC7 : include
-UC9 ..> UC6 : include
-UC10 ..> UC7 : include
-
+UC3 ..> UC4 : include
+UC5 ..> UC4 : include
 @enduml

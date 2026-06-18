@@ -1,0 +1,33 @@
+﻿@startuml usecase_quan_sat_ve_tinh
+skinparam defaultFontName "Times New Roman"
+title Use case phan ra: Quan sat ve tinh
+left to right direction
+
+actor "Nguoi dung" as User
+actor "Dich vu du lieu ngoai" as Ext
+
+rectangle "Quan sat ve tinh" {
+  usecase "Xem vi tri hien tai" as U1
+  usecase "Tim kiem dia diem" as U2
+  usecase "Ve tuyen duong" as U3
+  usecase "Xem danh sach ve tinh" as U4
+  usecase "Xem ve tinh tren mo hinh 3D" as U5
+  usecase "Xem ve tinh bang AR" as U6
+  usecase "Cap nhat du lieu quy dao" as U7
+  usecase "Xem chi tiet ve tinh" as U8
+}
+
+User --> U1
+User --> U2
+User --> U3
+User --> U4
+User --> U5
+User --> U6
+User --> U7
+User --> U8
+
+U3 ..> U2 : include
+Ext --> U2
+Ext --> U3
+Ext --> U7
+@enduml

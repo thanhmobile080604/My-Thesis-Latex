@@ -22,11 +22,44 @@
 \usepackage{pdflscape} % Hỗ trợ trang ngang, giúp đưa các bảng có kích thước đặt theo chiều ngang giấy
 \usepackage{setspace} % Hỗ trợ giãn dòng
 \onehalfspacing % Giãn dòng 1.5 theo template đồ án SOICT.
+\usepackage{etoolbox} % Cho phép gắn hook vào môi trường
+\AtBeginEnvironment{table}{\setstretch{1.0}} % Bảng dùng giãn dòng đơn để gọn hơn, giảm khoảng trắng thừa
 \usepackage{afterpage} % Hỗ trợ can thiệp ngắt trang, ví dụ để chèn một trang trống sau trang hiện tại.
 
 % =================== GÓI LỆNH HÌNH ẢNH, BẢNG, CHÚ THÍCH ===================
 \usepackage{graphicx} %Cho phép chèn hình ảnh với lệnh \includegraphics.
 \graphicspath{{figures/}{../figures/}} % Thư mục chứa các hình ảnh, tùy chọn đường dẫn dựa vào người dùng
+% Macro chèn biểu đồ hoạt động (activity). Nếu đã render ảnh từ PlantUML thì hiển thị ảnh;
+% nếu chưa có ảnh thì hiển thị khung giữ chỗ để tài liệu vẫn biên dịch được.
+% Cú pháp: \activitydiagram{đường-dẫn-ảnh}{caption}{label}
+\newcommand{\activitydiagram}[3]{%
+	\begin{figure}[H]
+		\centering
+		\IfFileExists{#1}{%
+			\includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{#1}%
+		}{%
+			\setlength{\fboxsep}{12pt}%
+			\fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering Biểu đồ hoạt động của chức năng này sẽ được chèn tại đây sau khi render tệp nguồn PlantUML tương ứng trong thư mục \texttt{PlantUML/}.}}%
+		}
+		\caption{#2}
+		\label{#3}
+	\end{figure}%
+}
+% Macro chung cho các sơ đồ PlantUML khác (use case, lớp...). Cùng cơ chế giữ chỗ an toàn.
+% Cú pháp: \pumlfig{đường-dẫn-ảnh}{caption}{label}
+\newcommand{\pumlfig}[3]{%
+	\begin{figure}[H]
+		\centering
+		\IfFileExists{#1}{%
+			\includegraphics[width=0.85\textwidth,height=0.38\textheight,keepaspectratio]{#1}%
+		}{%
+			\setlength{\fboxsep}{12pt}%
+			\fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering Sơ đồ sẽ được chèn tại đây sau khi render tệp nguồn PlantUML tương ứng trong thư mục \texttt{PlantUML/}.}}%
+		}
+		\caption{#2}
+		\label{#3}
+	\end{figure}%
+}
 \usepackage{array} % Tạo bảng, mở rộng khả năng tùy biến các cột trong môi trường bảng (tabular).
 \usepackage{longtable}
 \usepackage{multirow} % Hợp nhất các ô trong bảng.
@@ -48,11 +81,14 @@
 \counterwithin{equation}{chapter} % Đánh số phương trình theo chương
 \renewcommand{\theequation}{PT \thechapter.\arabic{equation}} % Đổi định dạng số phương trình (ví dụ: "PT 1.1").
 \usepackage[ruled,vlined]{algorithm2e} % Hỗ trợ viết các giải thuật, mã giả (pseudocode).
+\SetArgSty{textnormal} % Điều kiện trong if/while của thuật toán dùng chữ thẳng (mặc định algorithm2e là italic).
+\renewcommand{\algorithmcfname}{Thuật toán} % Việt hóa nhãn "Algorithm" thành "Thuật toán".
 
 % =================== GÓI LỆNH NGÔN NGỮ & FONT ===================
 \usepackage[utf8]{vietnam}  % Kích hoạt bộ gõ tiếng Việt và các quy tắc soạn thảo tiếng Việt.
 %\usepackage{newtxtext, newtxmath} % Thay thế cho \usepackage{times}, tuy nhiên không nên xài khi download sử dụng offline/local do gói lệnh này dễ không tương thích.
-\usepackage{times} % Sử dụng font chữ Times New Roman cho văn bản.
+\usepackage{mathptmx} % Times New Roman cho cả văn bản lẫn công thức toán (đồng bộ một font).
+\renewcommand{\ttdefault}{\rmdefault} % Ép \texttt dùng Times (chữ thẳng), không dùng font đẳng khoảng Courier.
 \usepackage{indentfirst} % Thụt đầu dòng ở dòng đầu tiên trong đoạn
 
 % =================== GÓI LỆNH MỤC LỤC & TIÊU ĐỀ ===================
@@ -253,29 +289,5 @@
 	% ===================================================
 	
 	\printbibliography[heading=bibintoc] % Tùy chọn [heading=bibintoc] để thêm mục này vào Mục lục
-	
-	\appendixpage % (*) Lệnh này tạo ra một trang bìa riêng cho phần Phụ lục.
-	\appendices % (*) Lệnh này báo cho LaTeX biết rằng tất cả các \chapter sau đó sẽ được coi là Phụ lục.
-	\addappheadtotoc % (*) Lệnh này thêm một dòng tiêu đề chung cho phần Phụ lục vào Bảng Mục lục, giúp phân tách rõ ràng phần nội dung chính và phần phụ lục.
-	
-	\titleformat{\chapter}[hang]{\centering\bfseries}{ \thechapter.\ }{0pt}{}[]
-	\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
-	
-	\titlecontents{chapter}
-	[0.0cm]             % left margin
-	{\bfseries\vspace{0.3cm}}                  % above code
-	{{\bfseries{\scshape} \thecontentslabel.\ }} % numbered format
-	{}         % unnumbered format
-	{\titlerule*[0.3pc]{.}\contentspage}         % filler-page-format, e.g dots
-	
-	% \chapter*{PHỤ LỤC} %Kết luận và hướng phát triển}
-	
-	\chapter{HƯỚNG DẪN TRIỂN KHAI VÀ SỬ DỤNG}
-	\subfile{Chuong/Phu_luc_A}
-	
-	\newpage
-	
-	\chapter{ĐẶC TẢ USE CASE}
-	\subfile{Chuong/Phu_luc_B}
-	
+
 \end{document}

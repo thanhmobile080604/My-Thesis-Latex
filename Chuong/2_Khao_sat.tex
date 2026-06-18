@@ -9,7 +9,7 @@ Chương này trình bày khảo sát hiện trạng và phân tích yêu cầu 
 \label{subsection:2.1.1}
 Các ứng dụng bản đồ phổ thông như Google Maps, Apple Maps hoặc các ứng dụng dựa trên OpenStreetMap đã giải quyết tốt nhu cầu tìm kiếm địa điểm, hiển thị vị trí hiện tại và dẫn đường. Điểm mạnh của nhóm ứng dụng này là dữ liệu bản đồ phong phú, giao diện dễ dùng và khả năng tối ưu tuyến đường. Tuy nhiên, các ứng dụng này thường chỉ trình bày kết quả định vị cuối cùng mà không biểu diễn quá trình GNSS phía sau. Người dùng ít thấy được vệ tinh đang được quan sát, cường độ tín hiệu, chòm vệ tinh hoặc nguồn dữ liệu quỹ đạo. Vì vậy, nhóm ứng dụng này chưa đáp ứng tốt nhu cầu học tập và kiểm tra kỹ thuật liên quan đến GNSS.
 
-Một số ứng dụng chuyên GNSS có thể hiển thị sky plot, danh sách vệ tinh, C/N0, azimuth và elevation. Các ứng dụng này phù hợp với việc kiểm tra tín hiệu vệ tinh nhưng thường tách khỏi trải nghiệm bản đồ hoặc không tích hợp với xử lý ảnh. Ngoài ra, nhiều ứng dụng chỉ hiển thị vệ tinh theo góc nhìn tương đối, chưa cung cấp một mô hình trực quan ba chiều hoặc AR kết hợp dữ liệu vị trí vệ tinh từ nhiều nguồn. Khoảng trống này là cơ sở để đồ án thiết kế module GNSS vừa có bản đồ, vừa có mô hình 3D/AR, vừa có thông tin nguồn dữ liệu.
+Một số ứng dụng chuyên GNSS như GPSTest có thể hiển thị sky plot, danh sách vệ tinh, C/N0, azimuth và elevation. Các ứng dụng này phù hợp với việc kiểm tra tín hiệu vệ tinh nhưng thường tách khỏi trải nghiệm bản đồ hoặc không tích hợp với xử lý ảnh. Ngoài ra, nhiều ứng dụng chỉ hiển thị vệ tinh theo góc nhìn tương đối, chưa cung cấp một mô hình trực quan ba chiều hoặc AR kết hợp dữ liệu vị trí vệ tinh từ nhiều nguồn. Khoảng trống này là cơ sở để đồ án thiết kế module GNSS vừa có bản đồ, vừa có mô hình 3D/AR, vừa có thông tin nguồn dữ liệu.
 
 \subsection{Nhóm ứng dụng xử lý ảnh và Optical Flow}
 \label{subsection:2.1.2}
@@ -17,13 +17,13 @@ Trong lĩnh vực xử lý ảnh, Optical Flow thường được trình diễn 
 
 KLT và Farneback là hai thuật toán có tính chất khác nhau. KLT phù hợp với môi trường có nhiều điểm đặc trưng rõ, trong khi Farneback có khả năng mô tả chuyển động dày đặc hơn trên toàn ảnh. Nếu chỉ chọn một thuật toán, hệ thống sẽ khó giúp người dùng hiểu các đánh đổi về hiệu năng và chất lượng hiển thị. Vì vậy, đồ án cần một cơ chế so sánh trực tiếp giữa hai thuật toán, kèm các chỉ số đo được trong quá trình chạy.
 
-\subsection{Nhóm giải pháp xử lý video bằng AI}
+\subsection{Nhóm giải pháp xử lý video bằng trí tuệ nhân tạo}
 \label{subsection:2.1.3}
 Các mô hình học sâu cho Optical Flow như RAFT có khả năng biểu diễn trường chuyển động dày đặc và phức tạp hơn các thuật toán cổ điển \cite{raft2020}. Trong phạm vi đồ án, RAFT được đặt ở phía backend server; ứng dụng di động chỉ gửi video, theo dõi tiến độ và tải kết quả.
 
 Với hướng tiếp cận client-server, vấn đề không chỉ nằm ở thuật toán mà còn ở trải nghiệm xử lý video. Nếu một video dài được gửi qua một request đồng bộ, người dùng có thể gặp timeout hoặc không biết tiến độ. Do đó, backend xử lý video cần cơ chế job bất đồng bộ, upload theo chunk cho file lớn, hủy job khi người dùng dừng thao tác và tải kết quả theo chunk khi file đầu ra lớn. Ứng dụng cần một worker chạy nền ở chế độ foreground, thông báo hệ thống và overlay để giữ thông tin tiến độ ngay cả khi người dùng rời màn hình hiện tại.
 
-\subsection{Tổng hợp khảo sát}
+\subsection{So sánh và đánh giá tổng hợp}
 \label{subsection:2.1.4}
 Bảng~\ref{table:survey} tóm tắt các nhóm giải pháp liên quan và khoảng trống mà đồ án hướng tới. Qua khảo sát, có thể thấy chưa có nhiều ứng dụng kết hợp đồng thời GNSS, bản đồ 3D/AR, Optical Flow thời gian thực, analytics và xử lý video RAFT trong một hệ thống thử nghiệm thống nhất.
 
@@ -45,7 +45,7 @@ Máy chủ suy luận AI & Có thể chạy mô hình lớn như RAFT trên CPU/
 \label{section:2.2}
 \subsection{Biểu đồ use case tổng quát}
 \label{subsection:2.2.1}
-Các use case tổng quát được mô tả trong Bảng~\ref{table:usecase-overview}. Sơ đồ use case PlantUML tương ứng được đặt trong thư mục sơ đồ của đồ án. Các tác nhân chính của hệ thống gồm người dùng Android, thiết bị Android cung cấp dữ liệu GNSS, camera và IMU, máy chủ Optical Flow và các dịch vụ dữ liệu bên ngoài như IGS, CelesTrak, OSRM/Nominatim.
+Các use case tổng quát được mô tả trong Bảng~\ref{table:usecase-overview} và minh họa bằng biểu đồ use case ở Hình~\ref{fig:usecase-tong-quat}. Các tác nhân chính của hệ thống gồm người dùng Android, thiết bị Android cung cấp dữ liệu GNSS, camera và IMU, máy chủ Optical Flow và các dịch vụ dữ liệu bên ngoài như IGS, CelesTrak, OSRM/Nominatim.
 
 \begin{table}[H]
 \centering
@@ -65,9 +65,11 @@ Dịch vụ dữ liệu ngoài & Cung cấp bản đồ, tuyến đường và q
 \label{table:usecase-overview}
 \end{table}
 
-\subsection{Biểu đồ use case phân rã GNSS Viewer}
+\pumlfig{figures/usecase_tong_quat.png}{Biểu đồ use case tổng quát của hệ thống}{fig:usecase-tong-quat}
+
+\subsection{Biểu đồ use case phân rã module Quan sát vệ tinh}
 \label{subsection:2.2.2}
-Use case GNSS Viewer mô tả nhóm thao tác liên quan đến bản đồ, vị trí hiện tại, tuyến đường và dữ liệu vệ tinh. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-gnss-viewer}.
+Module Quan sát vệ tinh (GNSS Viewer) mô tả nhóm thao tác liên quan đến bản đồ, vị trí hiện tại, tuyến đường và dữ liệu vệ tinh. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-gnss-viewer} và biểu đồ use case ở Hình~\ref{fig:usecase-quan-sat-ve-tinh}.
 
 \begin{table}[H]
 \centering
@@ -83,13 +85,15 @@ UC-GNSS-06 & Xem vệ tinh bằng AR & Phủ thông tin vệ tinh lên luồng c
 UC-GNSS-07 & Cập nhật dữ liệu quỹ đạo & Tải hoặc làm mới dữ liệu IGS, CelesTrak/TLE và dữ liệu thời gian phục vụ phân giải vệ tinh. \\ \hline
 UC-GNSS-08 & Xem chi tiết vệ tinh & Hiển thị nguồn vị trí, thông số tín hiệu và trạng thái của vệ tinh được chọn. \\ \hline
 \end{tabular}
-\caption{Phân rã use case GNSS Viewer}
+\caption{Phân rã use case module Quan sát vệ tinh}
 \label{table:usecase-gnss-viewer}
 \end{table}
 
-\subsection{Biểu đồ use case phân rã LiveRouting}
+\pumlfig{figures/usecase_quan_sat_ve_tinh.png}{Biểu đồ use case phân rã module Quan sát vệ tinh}{fig:usecase-quan-sat-ve-tinh}
+
+\subsection{Biểu đồ use case phân rã module Chỉ đường trực tiếp}
 \label{subsection:2.2.3}
-Use case LiveRouting mô tả luồng dẫn đường có hỗ trợ camera và IMU khi GNSS suy giảm. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-live-routing}.
+Module Chỉ đường trực tiếp (LiveRouting) mô tả luồng dẫn đường có hỗ trợ camera và IMU khi GNSS suy giảm. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-live-routing} và biểu đồ use case ở Hình~\ref{fig:usecase-chi-duong-truc-tiep}.
 
 \begin{table}[H]
 \centering
@@ -105,13 +109,15 @@ UC-LR-06 & Map matching theo route & Ghép vị trí ước lượng về tuyế
 UC-LR-07 & Cập nhật lại tuyến khi lệch đường & Gọi lại dịch vụ route khi quỹ đạo ước lượng lệch khỏi tuyến hiện tại. \\ \hline
 UC-LR-08 & Hiển thị path GNSS và path assist & Vẽ riêng đoạn đường GNSS, đoạn hỗ trợ bằng camera và đoạn kiểm thử dropout để quan sát lại. \\ \hline
 \end{tabular}
-\caption{Phân rã use case LiveRouting}
+\caption{Phân rã use case module Chỉ đường trực tiếp}
 \label{table:usecase-live-routing}
 \end{table}
 
-\subsection{Biểu đồ use case phân rã Camera Optical Flow}
+\pumlfig{figures/usecase_chi_duong_truc_tiep.png}{Biểu đồ use case phân rã module Chỉ đường trực tiếp}{fig:usecase-chi-duong-truc-tiep}
+
+\subsection{Biểu đồ use case phân rã module Camera Optical Flow}
 \label{subsection:2.2.4}
-Use case Camera Optical Flow mô tả nhóm thao tác phân tích chuyển động camera thời gian thực. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-camera-optical-flow}.
+Module Camera Optical Flow mô tả nhóm thao tác phân tích chuyển động camera thời gian thực. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-camera-optical-flow} và biểu đồ use case ở Hình~\ref{fig:usecase-camera-optical-flow}.
 
 \begin{table}[H]
 \centering
@@ -127,13 +133,15 @@ UC-OF-06 & Ghi video kết quả & Lưu video đã phủ vector hoặc heatmap v
 UC-OF-07 & Chụp ảnh kết quả & Lưu một frame kết quả để phục vụ minh họa hoặc kiểm tra. \\ \hline
 UC-OF-08 & Bắt đầu/dừng phiên analytics & Chạy phiên đo để thu FPS, thời gian xử lý và số điểm/vector hoạt động. \\ \hline
 \end{tabular}
-\caption{Phân rã use case Camera Optical Flow}
+\caption{Phân rã use case module Camera Optical Flow}
 \label{table:usecase-camera-optical-flow}
 \end{table}
 
-\subsection{Biểu đồ use case phân rã Analytics}
+\pumlfig{figures/usecase_camera_optical_flow.png}{Biểu đồ use case phân rã module Camera Optical Flow}{fig:usecase-camera-optical-flow}
+
+\subsection{Biểu đồ use case phân rã module Phân tích hiệu năng Optical Flow}
 \label{subsection:2.2.5}
-Use case Analytics mô tả nhóm chức năng lưu, mở lại và so sánh kết quả phân tích Optical Flow. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-analytics}.
+Module Phân tích hiệu năng Optical Flow (Analytics) mô tả nhóm chức năng lưu, mở lại và so sánh kết quả phân tích Optical Flow. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-analytics} và biểu đồ use case ở Hình~\ref{fig:usecase-phan-tich-hieu-nang}.
 
 \begin{table}[H]
 \centering
@@ -147,13 +155,15 @@ UC-AN-04 & Xem biểu đồ thời gian xử lý & Trực quan hóa process time
 UC-AN-05 & Xem số điểm/vector hoạt động & So sánh số track KLT hoặc vector Farneback theo từng sample. \\ \hline
 UC-AN-06 & Xóa phiên phân tích & Xóa phiên đo không còn cần sử dụng khỏi bộ nhớ ứng dụng. \\ \hline
 \end{tabular}
-\caption{Phân rã use case Analytics}
+\caption{Phân rã use case module Phân tích hiệu năng Optical Flow}
 \label{table:usecase-analytics}
 \end{table}
 
-\subsection{Biểu đồ use case phân rã Video RAFT Backend}
+\pumlfig{figures/usecase_phan_tich_hieu_nang.png}{Biểu đồ use case phân rã module Phân tích hiệu năng Optical Flow}{fig:usecase-phan-tich-hieu-nang}
+
+\subsection{Biểu đồ use case phân rã module Xử lý video Optical Flow bằng AI}
 \label{subsection:2.2.6}
-Use case Video RAFT Backend mô tả luồng xử lý video ngoại tuyến bằng máy chủ Python tự triển khai hoặc backend ngoài. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-video-raft}.
+Module Xử lý video Optical Flow bằng AI (Video RAFT Backend) mô tả luồng xử lý video ngoại tuyến bằng máy chủ Python tự triển khai hoặc backend ngoài. Nhóm này được phân rã thành các use case cụ thể trong Bảng~\ref{table:usecase-video-raft} và biểu đồ use case ở Hình~\ref{fig:usecase-xu-ly-video-ai}.
 
 \begin{table}[H]
 \centering
@@ -171,55 +181,313 @@ UC-RFT-08 & Tải video kết quả & Tải file đầu ra hoặc tải theo chu
 UC-RFT-09 & Mở video đã xử lý & Mở video kết quả trong trình phát để kiểm tra vector hoặc heatmap. \\ \hline
 UC-RFT-10 & Cleanup tài nguyên server & Gọi endpoint hoặc thao tác dọn file tạm sau khi tải xong, job lỗi hoặc job bị hủy. \\ \hline
 \end{tabular}
-\caption{Phân rã use case Video RAFT Backend}
+\caption{Phân rã use case module Xử lý video Optical Flow bằng AI}
 \label{table:usecase-video-raft}
 \end{table}
 
+\pumlfig{figures/usecase_xu_ly_video_ai.png}{Biểu đồ use case phân rã module Xử lý video Optical Flow bằng AI}{fig:usecase-xu-ly-video-ai}
+
 \section{Đặc tả chức năng chi tiết}
 \label{section:2.3}
-\subsection{Xem và tương tác với bản đồ GNSS}
+Phần này lựa chọn năm use case quan trọng nhất của đồ án, tương ứng với năm module đã phân rã ở Mục~\ref{section:2.2}, để đặc tả chi tiết: Quan sát vệ tinh, Chỉ đường trực tiếp, Camera Optical Flow, Phân tích hiệu năng Optical Flow và Xử lý video Optical Flow bằng AI. Mỗi đặc tả trình bày các thông tin: tên use case, tác nhân, mô tả, tiền điều kiện, luồng sự kiện chính, luồng sự kiện phát sinh và hậu điều kiện. Với những use case có nhiều rẽ nhánh, luồng chính được trình bày kèm các điểm rẽ nhánh và bổ sung một biểu đồ hoạt động (activity) để minh họa trực quan luồng xử lý giữa người dùng và hệ thống.
+
+\subsection{Đặc tả chức năng Quan sát vệ tinh}
 \label{subsection:2.3.1}
-Chức năng này cho phép người dùng xem vị trí hiện tại trên bản đồ hai chiều, tìm kiếm địa điểm, xem khoảng cách và tuyến đường tới điểm đích. Tiền điều kiện là thiết bị đã cấp quyền vị trí hoặc ứng dụng đang chạy ở chế độ vị trí giả lập phục vụ thử nghiệm. Luồng chính gồm các bước: ứng dụng khởi tạo osmdroid, nhận vị trí hiện tại, hiển thị marker người dùng, người dùng nhập từ khóa, ứng dụng gọi repository tìm địa điểm, người dùng chọn kết quả và ứng dụng vẽ tuyến đường. Hậu điều kiện là giao diện hiển thị được vị trí, điểm đích và thông tin tuyến đường nếu truy vấn thành công.
+\textbf{Tên use case:} Quan sát vệ tinh GNSS trên bản đồ, mô hình 3D và AR.
 
-\subsection{Trực quan hóa vệ tinh GNSS}
+\textbf{Tác nhân:} Người dùng (tác nhân chính); thiết bị Android cung cấp vị trí và trạng thái GNSS, các dịch vụ dữ liệu ngoài Nominatim/OSRM cho bản đồ, IGS và CelesTrak cho dữ liệu quỹ đạo (tác nhân phụ).
+
+\textbf{Mô tả:} Use case cho phép người dùng quan sát vị trí hiện tại trên bản đồ hai chiều, tìm kiếm địa điểm, vẽ tuyến đường, đồng thời quan sát vệ tinh trên mô hình Trái Đất ba chiều và màn hình thực tế tăng cường. Mỗi vệ tinh được hiển thị kèm nguồn phân giải vị trí để người dùng biết được độ tin cậy của dữ liệu.
+
+\textbf{Tiền điều kiện:}
+\begin{itemize}
+    \item Người dùng đã cấp quyền vị trí hoặc đang chạy ở chế độ vị trí giả lập.
+    \item GPS được bật; chế độ ba chiều yêu cầu thiết bị hỗ trợ OpenGL ES 3.2; chế độ AR yêu cầu ARCore.
+\end{itemize}
+
+\textbf{Luồng sự kiện chính:}
+\begin{enumerate}
+    \item Người dùng mở màn hình Quan sát vệ tinh.
+    \item Hệ thống khởi tạo bản đồ osmdroid và đăng ký \texttt{LocationManager}, \texttt{GnssStatus.Callback} cùng \texttt{GnssMeasurementsEvent.Callback} nếu thiết bị hỗ trợ.
+    \item Hệ thống hiển thị marker vị trí người dùng trên bản đồ.
+    \item Mỗi khi nhận \texttt{GnssStatus}, \texttt{GnssSatelliteTracker} phân giải vị trí từng vệ tinh theo chuỗi ưu tiên: PVT thật từ thiết bị, IGS Broadcast Ephemeris, CelesTrak TLE/SGP4 và cuối cùng là phép xấp xỉ từ azimuth/elevation.
+    \item Tại điểm rẽ nhánh này, người dùng có thể chọn một trong các thao tác:
+    \begin{enumerate}[label=(\alph*)]
+        \item Nếu chọn tìm kiếm địa điểm, chuyển sang bước 6.
+        \item Nếu chọn xem mô hình 3D, chuyển sang bước 7.
+        \item Nếu chọn xem AR, chuyển sang bước 8.
+        \item Nếu chọn xem chi tiết một vệ tinh, chuyển sang bước 9.
+    \end{enumerate}
+    \item Người dùng nhập từ khóa; hệ thống gọi Nominatim, hiển thị kết quả và vẽ tuyến đường tới điểm đích bằng hình học OSRM. Quay lại bước 5.
+    \item Hệ thống chuyển sang \texttt{EarthRenderer}, dựng Trái Đất ngày/đêm, Mặt Trời, Mặt Trăng và đặt vệ tinh theo nguồn dữ liệu khả dụng. Quay lại bước 5.
+    \item Hệ thống mở màn hình AR và phủ thông tin vệ tinh lên luồng camera theo hướng nhìn của thiết bị. Quay lại bước 5.
+    \item Hệ thống hiển thị chi tiết vệ tinh được chọn: chòm vệ tinh, SVID, C/N0, azimuth, elevation, trạng thái used-in-fix và nguồn phân giải vị trí.
+\end{enumerate}
+
+\textbf{Luồng sự kiện phát sinh:}
+
+\textbf{Luồng 4a: Không trích xuất được PVT thật.}
+\begin{enumerate}
+    \item Hệ thống không lấy được PVT từ thiết bị.
+    \item Hệ thống tự động lùi sang IGS, CelesTrak hoặc xấp xỉ azimuth/elevation và đánh dấu nguồn dữ liệu tương ứng.
+\end{enumerate}
+
+\textbf{Luồng 7a: Thiết bị không hỗ trợ OpenGL ES 3.2.}
+\begin{enumerate}
+    \item Hệ thống phát hiện thiết bị không đủ điều kiện dựng mô hình 3D.
+    \item Hệ thống thông báo và giữ nguyên bản đồ hai chiều.
+\end{enumerate}
+
+\textbf{Luồng 4b: Không có vệ tinh khả dụng.}
+\begin{enumerate}
+    \item Sau một khoảng thời gian vẫn không nhận được vệ tinh nào.
+    \item Hệ thống hiển thị hộp thoại cảnh báo thay vì dừng đột ngột.
+\end{enumerate}
+
+\textbf{Hậu điều kiện:}
+\begin{itemize}
+    \item Người dùng quan sát được vệ tinh kèm nguồn phân giải vị trí.
+    \item Tuyến đường vừa tạo có thể được chuyển tiếp sang chức năng Chỉ đường trực tiếp.
+\end{itemize}
+
+\activitydiagram{figures/activity_quan_sat_ve_tinh.png}{Biểu đồ hoạt động chức năng Quan sát vệ tinh}{fig:activity-quan-sat-ve-tinh}
+
+\subsection{Đặc tả chức năng Chỉ đường trực tiếp}
 \label{subsection:2.3.2}
-Chức năng này cho phép người dùng chuyển giữa bản đồ hai chiều, mô hình Trái Đất ba chiều và màn hình AR. Tiền điều kiện là thiết bị có quyền vị trí và hệ thống đã đăng ký callback GNSS. Trong luồng chính, ứng dụng nhận danh sách vệ tinh từ \texttt{GnssStatus}, phân giải vị trí bằng \texttt{GnssSatelliteTracker}, cập nhật \texttt{EarthRenderer} và hiển thị thông tin chi tiết khi người dùng chọn một vệ tinh. Nếu dữ liệu GNSS thật không đủ, hệ thống vẫn hiển thị theo nguồn IGS, CelesTrak hoặc xấp xỉ. Hậu điều kiện là người dùng quan sát được vệ tinh cùng các thuộc tính như chòm vệ tinh, SVID, C/N0, elevation, azimuth và nguồn vị trí.
+\textbf{Tên use case:} Dẫn đường theo tuyến có hỗ trợ Optical Flow và IMU khi GNSS suy giảm.
 
-\subsection{Phân tích camera bằng Optical Flow}
+\textbf{Tác nhân:} Người dùng (tác nhân chính); thiết bị Android cung cấp GNSS, camera và IMU, dịch vụ định tuyến OSRM (tác nhân phụ).
+
+\textbf{Mô tả:} Use case cho phép người dùng dẫn đường theo tuyến; khi GNSS suy giảm, hệ thống dùng camera kết hợp IMU để ước lượng chuyển động (visual odometry thực dụng) và map matching để giữ marker bám tuyến đường, đồng thời phân biệt rõ đoạn đường đi bằng GNSS và đoạn được hỗ trợ bằng camera.
+
+\textbf{Tiền điều kiện:}
+\begin{itemize}
+    \item Đã có tuyến đường từ một điểm đến được chọn.
+    \item Ứng dụng có quyền vị trí; có quyền camera nếu muốn bật hỗ trợ thị giác.
+\end{itemize}
+
+\textbf{Luồng sự kiện chính:}
+\begin{enumerate}
+    \item Người dùng chọn điểm đến và bắt đầu dẫn đường.
+    \item Hệ thống tải tuyến đường, cập nhật marker theo GNSS và vẽ đoạn đường đã đi bằng GNSS (path màu đen).
+    \item Hệ thống liên tục đánh giá chất lượng GNSS qua số vệ tinh used-in-fix, tuổi bản tin và độ chính xác của vị trí.
+    \item Tại điểm rẽ nhánh này, hệ thống xét chất lượng GNSS:
+    \begin{enumerate}[label=(\alph*)]
+        \item Nếu GNSS còn tin cậy, hệ thống tiếp tục bám GNSS và hiệu chỉnh hệ số pixel/giây sang mét/giây cho Optical Flow; quay lại bước 3.
+        \item Nếu GNSS không đủ tin cậy, chuyển sang bước 5.
+    \end{enumerate}
+    \item Hệ thống bật camera assist và chuyển sang chế độ ước lượng bằng cảm biến.
+    \item Hệ thống tính tốc độ từ Optical Flow, kết hợp yaw rate của IMU cho hướng và cơ chế ZUPT để khử trôi khi dừng.
+    \item Vị trí ước lượng được ghép về tuyến đường bằng map matching có điều kiện (route-lock); hệ thống vẽ đoạn hỗ trợ (path màu đỏ) và đánh dấu các điểm mất, khôi phục GNSS.
+    \item Khi GNSS phục hồi, hệ thống tắt camera assist, nối lại đoạn đường GNSS và quay lại bước 3.
+\end{enumerate}
+
+\textbf{Luồng sự kiện phát sinh:}
+
+\textbf{Luồng 5a: Người dùng từ chối quyền camera.}
+\begin{enumerate}
+    \item Ứng dụng vẫn dẫn đường bằng GNSS nhưng không bật camera assist.
+\end{enumerate}
+
+\textbf{Luồng 7a: Quỹ đạo ước lượng lệch tuyến qua nhiều mẫu.}
+\begin{enumerate}
+    \item Nếu có Internet, hệ thống gọi lại OSRM để cập nhật tuyến từ vị trí ước lượng tới đích.
+    \item Nếu mất Internet, hệ thống giữ tuyến hiện tại và hiển thị thông báo offline.
+\end{enumerate}
+
+\textbf{Luồng 3a: Bật chế độ kiểm thử dropout.}
+\begin{enumerate}
+    \item Người dùng bật mô phỏng mất GNSS để quan sát lại hành vi hỗ trợ.
+\end{enumerate}
+
+\textbf{Hậu điều kiện:}
+\begin{itemize}
+    \item Marker được duy trì liên tục kể cả khi GNSS gián đoạn.
+    \item Đoạn đường GNSS và đoạn hỗ trợ được phân biệt rõ trên bản đồ; phiên dẫn đường có thể được lưu lại để xem lại.
+\end{itemize}
+
+\activitydiagram{figures/activity_chi_duong_truc_tiep.png}{Biểu đồ hoạt động chức năng Chỉ đường trực tiếp}{fig:activity-chi-duong-truc-tiep}
+
+\subsection{Đặc tả chức năng Camera Optical Flow}
 \label{subsection:2.3.3}
-Chức năng này cho phép người dùng chạy KLT hoặc Farneback trên camera thời gian thực. Tiền điều kiện là thiết bị cấp quyền camera và OpenCV được nạp thành công. Người dùng chọn thuật toán, điều chỉnh độ nhạy, chọn chế độ tĩnh/di chuyển hoặc auto, tùy chọn ROI và bắt đầu quan sát vector chuyển động. Ứng dụng xử lý từng frame, cập nhật ảnh phủ vector hoặc heatmap, vẽ motion trail và cho phép ghi video kết quả. Hậu điều kiện là người dùng nhận được phản hồi trực quan về chuyển động camera và có thể lưu video nếu cần.
+\textbf{Tên use case:} Phân tích chuyển động camera thời gian thực bằng KLT hoặc Farneback.
 
-\subsection{So sánh KLT và Farneback}
+\textbf{Tác nhân:} Người dùng (tác nhân chính); thiết bị Android cung cấp camera và IMU (tác nhân phụ).
+
+\textbf{Mô tả:} Use case cho phép người dùng chạy KLT hoặc Farneback trên luồng camera thời gian thực, chọn chế độ hiển thị, điều chỉnh độ nhạy, khoanh đối tượng cần theo dõi (object tracker) và ghi lại kết quả chuyển động.
+
+\textbf{Tiền điều kiện:}
+\begin{itemize}
+    \item Ứng dụng được cấp quyền camera.
+    \item Thư viện OpenCV được nạp thành công.
+\end{itemize}
+
+\textbf{Luồng sự kiện chính:}
+\begin{enumerate}
+    \item Người dùng mở màn hình Camera Optical Flow và chọn thuật toán KLT hoặc Farneback.
+    \item Người dùng chọn chế độ hiển thị (vector, heatmap hoặc motion trail) và điều chỉnh độ nhạy để cân bằng giữa số điểm/vector và tốc độ xử lý.
+    \item CameraX gửi từng frame qua \texttt{ImageAnalysis} với chiến lược \texttt{STRATEGY\_KEEP\_ONLY\_LATEST}; hệ thống chuyển frame sang \texttt{Mat} của OpenCV, chạy thuật toán và phủ kết quả lên khung hình.
+    \item Tại điểm rẽ nhánh này, người dùng có thể chọn:
+    \begin{enumerate}[label=(\alph*)]
+        \item Nếu khoanh một vùng quan tâm (ROI), chuyển sang bước 5.
+        \item Nếu ghi video hoặc chụp ảnh, chuyển sang bước 6.
+        \item Nếu không, tiếp tục quan sát và quay lại bước 3.
+    \end{enumerate}
+    \item Bộ object tracker (CSRT kết hợp template matching) bám vùng ROI khi camera hoặc đối tượng dịch chuyển; Optical Flow chỉ chạy trong vùng con. Quay lại bước 3.
+    \item Hệ thống ghi video hoặc lưu ảnh kết quả vào bộ nhớ thiết bị.
+\end{enumerate}
+
+\textbf{Luồng sự kiện phát sinh:}
+
+\textbf{Luồng 1a: Chưa cấp quyền camera.}
+\begin{enumerate}
+    \item Ứng dụng yêu cầu cấp quyền camera trước khi mở luồng.
+\end{enumerate}
+
+\textbf{Luồng 5a: Vùng ROI quá nhỏ.}
+\begin{enumerate}
+    \item Hệ thống yêu cầu chọn lại vì không đủ pixel để phát hiện đặc trưng hoặc lấy mẫu vector.
+\end{enumerate}
+
+\textbf{Luồng 3a: Chế độ tự động theo IMU.}
+\begin{enumerate}
+    \item Hệ thống dùng IMU để nhận biết trạng thái tĩnh hay di chuyển nhằm điều chỉnh cách hiển thị.
+\end{enumerate}
+
+\textbf{Hậu điều kiện:}
+\begin{itemize}
+    \item Kết quả Optical Flow được hiển thị thời gian thực.
+    \item Video hoặc ảnh kết quả được lưu lại khi người dùng yêu cầu.
+\end{itemize}
+
+\activitydiagram{figures/activity_camera_optical_flow.png}{Biểu đồ hoạt động chức năng Camera Optical Flow}{fig:activity-camera-optical-flow}
+
+\subsection{Đặc tả chức năng Phân tích hiệu năng Optical Flow}
 \label{subsection:2.3.4}
-Chức năng phân tích so sánh chạy đồng thời KLT và Farneback trên cùng frame đầu vào. Tiền điều kiện là camera hoạt động và người dùng không ghi video song song. Khi bắt đầu phiên phân tích, ứng dụng khóa độ nhạy về một mức chung, chia khung hình thành hai nửa, chạy hai thuật toán, ghi nhận metrics theo từng sample và lưu thành \texttt{AnalyticsSession}. Sau khi kết thúc, người dùng có thể xem biểu đồ FPS, thời gian xử lý và số điểm/vector hoạt động. Hậu điều kiện là phiên đo được lưu dưới dạng JSON trong bộ nhớ ứng dụng và có thể mở lại ở màn hình analytics.
+\textbf{Tên use case:} So sánh hiệu năng KLT và Farneback trên cùng luồng camera.
 
-\subsection{Xử lý video bằng máy chủ RAFT}
+\textbf{Tác nhân:} Người dùng (tác nhân chính); thiết bị Android cung cấp camera (tác nhân phụ).
+
+\textbf{Mô tả:} Use case chạy đồng thời KLT và Farneback trên cùng một frame đầu vào để so sánh hiệu năng hai thuật toán và lưu lại phiên đo dưới dạng JSON, từ đó người dùng có thể mở lại và xem các biểu đồ.
+
+\textbf{Tiền điều kiện:}
+\begin{itemize}
+    \item Camera đang hoạt động.
+    \item Người dùng không ghi video song song tại thời điểm bắt đầu phân tích.
+\end{itemize}
+
+\textbf{Luồng sự kiện chính:}
+\begin{enumerate}
+    \item Người dùng nhấn bắt đầu phân tích.
+    \item Hệ thống khởi tạo hai bộ thuật toán mới và khóa độ nhạy của cả hai ở mức tối đa để bảo đảm so sánh công bằng.
+    \item Mỗi khung hình được nhân đôi và đưa vào hai thuật toán; kết quả được ghép trái--phải trên cùng màn hình để quan sát trực quan.
+    \item Hệ thống ghi sample định kỳ (khoảng một mẫu mỗi 250 ms) gồm FPS, thời gian xử lý, số điểm/vector hoạt động, vector trung bình, độ tin cậy và ngưỡng của mỗi thuật toán.
+    \item Người dùng dừng phân tích; hệ thống lưu \texttt{AnalyticsSession} thành tệp JSON trong bộ nhớ trong (\texttt{filesDir/analytics}).
+    \item Người dùng mở lại phiên để xem các biểu đồ FPS, thời gian xử lý và số điểm/vector theo thời gian.
+\end{enumerate}
+
+\textbf{Luồng sự kiện phát sinh:}
+
+\textbf{Luồng 1a: Đang ghi video.}
+\begin{enumerate}
+    \item Hệ thống yêu cầu dừng ghi video trước khi bắt đầu phân tích.
+\end{enumerate}
+
+\textbf{Luồng 5a: Phiên không có sample hợp lệ.}
+\begin{enumerate}
+    \item Hệ thống không tạo phiên rỗng.
+\end{enumerate}
+
+\textbf{Hậu điều kiện:}
+\begin{itemize}
+    \item Phiên đo được lưu dưới dạng JSON.
+    \item Phiên có thể mở lại ở màn hình phân tích để xem biểu đồ.
+\end{itemize}
+
+\activitydiagram{figures/activity_phan_tich_hieu_nang.png}{Biểu đồ hoạt động chức năng Phân tích hiệu năng Optical Flow}{fig:activity-phan-tich-hieu-nang}
+
+\subsection{Đặc tả chức năng Xử lý video Optical Flow bằng AI}
 \label{subsection:2.3.5}
-Chức năng này xử lý các video đã chọn bằng mô hình RAFT trên backend server. Tiền điều kiện là URL hoặc cấu hình backend HTTPS đã được thiết lập và thiết bị có kết nối mạng. Người dùng chọn My Server hoặc Outer Server trước khi gửi video. Với My Server, luồng chính gồm tạo multipart request hoặc upload session theo chunk, nhận \texttt{job\_id}, thăm dò trạng thái job, tải video kết quả theo file hoặc chunk và mở bằng \texttt{VideoOpticalFlowFragment}. Nếu người dùng chọn ROI, client gửi tọa độ chuẩn hóa và thời điểm frame được chọn để server có thể xử lý ROI. Hậu điều kiện là người dùng có một file video đã phủ vector hoặc heatmap, đồng thời ứng dụng cập nhật thư viện video nội bộ.
+\textbf{Tên use case:} Xử lý video bằng mô hình RAFT trên backend server.
+
+\textbf{Tác nhân:} Người dùng (tác nhân chính); máy chủ tự triển khai (My Server) và backend ngoài (Outer Server) (tác nhân phụ).
+
+\textbf{Mô tả:} Use case xử lý các video đã chọn bằng mô hình RAFT trên máy chủ. Người dùng chọn backend và chế độ xử lý, gửi video, theo dõi tiến độ và mở video kết quả; tác vụ nền được quản lý độc lập với màn hình hiện tại để không gián đoạn khi người dùng chuyển màn hình.
+
+\textbf{Tiền điều kiện:}
+\begin{itemize}
+    \item Cấu hình backend HTTPS đã được thiết lập.
+    \item Thiết bị có kết nối mạng.
+\end{itemize}
+
+\textbf{Luồng sự kiện chính:}
+\begin{enumerate}
+    \item Người dùng chọn video đầu vào.
+    \item Người dùng chọn backend (My Server hoặc Outer Server) và chế độ xử lý (vector, heatmap hoặc ROI).
+    \item Tại điểm rẽ nhánh theo kích thước video:
+    \begin{enumerate}[label=(\alph*)]
+        \item Nếu video nhỏ, hệ thống gửi bằng multipart request; chuyển sang bước 5.
+        \item Nếu video lớn, hệ thống tạo upload session, gửi từng chunk (kèm kiểm tra SHA-256) và ráp lại ở máy chủ.
+    \end{enumerate}
+    \item Máy chủ hoàn tất upload và tạo job.
+    \item Máy chủ xử lý nền: chạy RAFT bằng ONNX Runtime, ghi MP4 H.264 bằng ffmpeg, và dùng Cutie để lan truyền mask đối tượng nếu có ROI.
+    \item Ứng dụng theo dõi tiến độ qua một foreground worker (WorkManager) kèm thông báo hệ thống.
+    \item Ứng dụng tải kết quả theo file hoặc theo chunk, mở bằng \texttt{VideoOpticalFlowFragment} và gọi dọn tài nguyên trên máy chủ.
+\end{enumerate}
+
+\textbf{Luồng sự kiện phát sinh:}
+
+\textbf{Luồng 5a: Backend lỗi hoặc chưa nạp được mô hình.}
+\begin{enumerate}
+    \item Job chuyển sang trạng thái thất bại; ứng dụng hiển thị thông báo và không tạo file kết quả sai.
+\end{enumerate}
+
+\textbf{Luồng 6a: Người dùng rời màn hình.}
+\begin{enumerate}
+    \item Worker nền tiếp tục quản lý tiến độ; overlay giữ thông tin job để người dùng quay lại.
+\end{enumerate}
+
+\textbf{Luồng 6b: Người dùng hủy job.}
+\begin{enumerate}
+    \item Ứng dụng hủy phiên upload đang dở hoặc gửi yêu cầu hủy job tới máy chủ.
+\end{enumerate}
+
+\textbf{Luồng 4a: Hàng đợi máy chủ đầy.}
+\begin{enumerate}
+    \item Máy chủ trả về mã lỗi 429; ứng dụng thông báo và đề nghị thử lại sau.
+\end{enumerate}
+
+\textbf{Hậu điều kiện:}
+\begin{itemize}
+    \item Video kết quả được lưu vào thư viện của ứng dụng.
+    \item Trường hợp lỗi, thông báo được trả về rõ ràng và tài nguyên tạm trên máy chủ được dọn.
+\end{itemize}
+
+\activitydiagram{figures/activity_xu_ly_video_ai.png}{Biểu đồ hoạt động chức năng Xử lý video Optical Flow bằng AI}{fig:activity-xu-ly-video-ai}
 
 \section{Yêu cầu phi chức năng}
 \label{section:2.4}
-\subsection{Hiệu năng}
+\subsection{Hiệu năng xử lý}
 \label{subsection:2.4.1}
 Về hiệu năng, các chức năng camera thời gian thực cần sử dụng chiến lược backpressure chỉ giữ frame mới nhất để tránh hàng đợi xử lý tăng không kiểm soát. KLT và Farneback cần có tham số độ nhạy để cân bằng giữa số điểm/vector và thời gian xử lý. Với RAFT, yêu cầu thời gian thực không đặt trên thiết bị Android; thay vào đó hệ thống phải có tiến độ job, giới hạn hàng đợi server, upload/download theo chunk khi cần và không giữ một HTTP request dài trong toàn bộ thời gian xử lý video.
 
-\subsection{Độ tin cậy}
+\subsection{Độ ổn định và độ tin cậy}
 \label{subsection:2.4.2}
 Về độ tin cậy, ứng dụng cần xử lý các trường hợp thiếu quyền vị trí, GPS tắt, không có vệ tinh, không nạp được mô hình RAFT hoặc máy chủ trả lỗi. Các thao tác xử lý video phải tránh mất file đầu ra khi ứng dụng chuyển màn hình, vì vậy tiến độ được điều phối qua WorkManager foreground worker, bus sự kiện, notification và overlay độc lập với fragment hiện tại. Với GNSS, hệ thống cần có fallback khi PVT thật không tồn tại trên thiết bị.
 
-\subsection{Tính dễ dùng}
+\subsection{Tính dễ sử dụng}
 \label{subsection:2.4.3}
 Về tính dễ dùng, giao diện cần tách rõ các nhóm chức năng GNSS, Optical Flow, LiveRouting, Media và Analytics để người dùng dễ quan sát luồng xử lý. Các thao tác cần phản hồi trực tiếp bằng trạng thái tải, tiến độ xử lý, thông báo lỗi và kết quả hiển thị trên bản đồ, camera hoặc trình phát video. Với các quyền hệ thống như vị trí, camera và thông báo, ứng dụng cần hướng dẫn người dùng bật đúng quyền trước khi tiếp tục.
 
-\subsection{Tính dễ bảo trì}
+\subsection{Khả năng mở rộng và bảo trì}
 \label{subsection:2.4.4}
 Về khả năng bảo trì, mã nguồn cần được chia theo package chức năng như \texttt{gnss}, \texttt{optical\_flow}, \texttt{screen}, \texttt{video}, \texttt{model} và \texttt{util}. Các lớp thuật toán cần cùng thực thi interface \texttt{OpticalFlow} để có thể thay thế hoặc mở rộng. Máy chủ cần tách API ở \texttt{src/main.py} và xử lý suy luận ở \texttt{src/inference.py} để giảm phụ thuộc giữa giao thức HTTP và thuật toán.
 
-\subsection{Bảo mật}
+\subsection{Bảo mật dữ liệu và quyền truy cập thiết bị}
 \label{subsection:2.4.5}
 Về bảo mật, ứng dụng yêu cầu URL máy chủ bắt đầu bằng HTTPS trong cấu hình chính thức. Các file video tạm trên máy chủ phải được dọn sau khi trả kết quả, khi client gọi cleanup hoặc khi job lỗi/hủy. Ứng dụng chỉ yêu cầu các quyền cần thiết cho camera, vị trí, mạng, foreground service và thông báo, đồng thời cần thông báo rõ ràng khi người dùng chưa cấp quyền hoặc chưa bật GPS.
 
-\subsection{Tính tương thích}
+\subsection{Tính tương thích trên thiết bị Android}
 \label{subsection:2.4.6}
 Về tính tương thích, ứng dụng cần xử lý khác biệt giữa các thiết bị Android về chất lượng GNSS, camera, cảm biến IMU, hiệu năng CPU/GPU và khả năng hỗ trợ thư viện. Những chức năng phụ thuộc phần cứng như dữ liệu GNSS thô hoặc AR cần có phương án fallback hoặc thông báo phù hợp khi thiết bị không đáp ứng điều kiện. Với video RAFT, ứng dụng chỉ cần cấu hình backend phù hợp và kết nối mạng ổn định.
 

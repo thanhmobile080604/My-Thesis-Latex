@@ -1,0 +1,36 @@
+﻿@startuml usecase_xu_ly_video_ai
+skinparam defaultFontName "Times New Roman"
+title Use case phan ra: Xu ly video Optical Flow bang AI
+left to right direction
+
+actor "Nguoi dung" as User
+actor "My Server" as MyS
+actor "Outer Server" as OutS
+
+rectangle "Xu ly video Optical Flow bang AI" {
+  usecase "Chon video dau vao" as U1
+  usecase "Chon backend va che do xu ly" as U2
+  usecase "Upload video truc tiep" as U3
+  usecase "Upload video theo chunk" as U4
+  usecase "Tao job xu ly" as U5
+  usecase "Theo doi tien do job" as U6
+  usecase "Huy job" as U7
+  usecase "Tai video ket qua" as U8
+  usecase "Mo video da xu ly" as U9
+  usecase "Cleanup tai nguyen server" as U10
+}
+
+User --> U1
+User --> U2
+User --> U3
+User --> U4
+User --> U6
+User --> U7
+User --> U8
+User --> U9
+U3 ..> U5 : include
+U4 ..> U5 : include
+MyS --> U5
+OutS --> U5
+MyS --> U10
+@enduml

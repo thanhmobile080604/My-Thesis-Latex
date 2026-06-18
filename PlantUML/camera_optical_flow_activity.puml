@@ -1,0 +1,26 @@
+﻿@startuml activity_camera_optical_flow
+' Render: tao anh figures/activity_camera_optical_flow.png cho muc 2.3.3
+skinparam defaultFontName "Times New Roman"
+title Bieu do hoat dong: Camera Optical Flow
+
+|Nguoi dung|
+start
+:Chon thuat toan KLT hoac Farneback;
+:Chon che do hien thi va do nhay;
+|He thong|
+:Mo camera (CameraX, ImageAnalysis KEEP_ONLY_LATEST);
+while (Con frame camera?) is (co)
+  :Chuyen frame sang Mat va chay thuat toan;
+  :Phu vector/heatmap/motion trail len khung hinh;
+  if (Nguoi dung khoanh ROI?) then (co)
+    :Object tracker CSRT + template matching bam ROI;
+    :Chay Optical Flow trong vung con;
+  else (khong)
+  endif
+  if (Nguoi dung ghi/chup?) then (co)
+    :Ghi video hoac luu anh ket qua;
+  else (khong)
+  endif
+endwhile (khong)
+stop
+@enduml

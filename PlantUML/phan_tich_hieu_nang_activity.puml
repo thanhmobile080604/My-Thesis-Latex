@@ -1,0 +1,31 @@
+﻿@startuml activity_phan_tich_hieu_nang
+' Render: tao anh figures/activity_phan_tich_hieu_nang.png cho muc 2.3.4
+skinparam defaultFontName "Times New Roman"
+title Bieu do hoat dong: Phan tich hieu nang Optical Flow
+
+|Nguoi dung|
+start
+:Bam Bat dau phan tich;
+|He thong|
+:Khoi tao 2 thuat toan, khoa do nhay o muc toi da;
+while (Con frame camera?) is (co)
+  :Nhan doi frame cho KLT va Farneback;
+  fork
+    :Chay KLT, lay metrics;
+  fork again
+    :Chay Farneback, lay metrics;
+  end fork
+  :Ghep ket qua trai-phai;
+  :Ghi sample moi ~250 ms (FPS, process time, vectors...);
+endwhile (khong)
+|Nguoi dung|
+:Bam Dung phan tich;
+|He thong|
+if (Co sample hop le?) then (co)
+  :Luu AnalyticsSession (JSON);
+else (khong)
+  :Khong tao phien rong;
+endif
+:Mo lai phien de xem bieu do;
+stop
+@enduml

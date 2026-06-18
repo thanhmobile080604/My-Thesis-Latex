@@ -1,0 +1,23 @@
+﻿@startuml usecase_phan_tich_hieu_nang
+skinparam defaultFontName "Times New Roman"
+title Use case phan ra: Phan tich hieu nang Optical Flow
+left to right direction
+
+actor "Nguoi dung" as User
+
+rectangle "Phan tich hieu nang Optical Flow" {
+  usecase "Luu phien phan tich" as U1
+  usecase "Xem danh sach phien" as U2
+  usecase "Xem bieu do FPS" as U3
+  usecase "Xem bieu do thoi gian xu ly" as U4
+  usecase "Xem so diem/vector hoat dong" as U5
+  usecase "Xoa phien phan tich" as U6
+}
+
+User --> U1
+User --> U2
+User --> U6
+U2 ..> U3 : include
+U2 ..> U4 : include
+U2 ..> U5 : include
+@enduml
