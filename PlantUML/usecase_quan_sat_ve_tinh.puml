@@ -1,20 +1,21 @@
-﻿@startuml usecase_quan_sat_ve_tinh
+@startuml usecase_quan_sat_ve_tinh
 skinparam defaultFontName "Times New Roman"
-title Use case phan ra: Quan sat ve tinh
+skinparam linetype polyline
 left to right direction
+title Use case phân rã: Quan sát vệ tinh
 
-actor "Nguoi dung" as User
-actor "Dich vu du lieu ngoai" as Ext
+actor "Người dùng" as User
+actor "Dịch vụ dữ liệu ngoài" as Ext
 
-rectangle "Quan sat ve tinh" {
-  usecase "Xem vi tri hien tai" as U1
-  usecase "Tim kiem dia diem" as U2
-  usecase "Ve tuyen duong" as U3
-  usecase "Xem danh sach ve tinh" as U4
-  usecase "Xem ve tinh tren mo hinh 3D" as U5
-  usecase "Xem ve tinh bang AR" as U6
-  usecase "Cap nhat du lieu quy dao" as U7
-  usecase "Xem chi tiet ve tinh" as U8
+rectangle "Quan sát vệ tinh" {
+  usecase "Xem vị trí hiện tại" as U1
+  usecase "Tìm kiếm địa điểm" as U2
+  usecase "Vẽ tuyến đường" as U3
+  usecase "Xem danh sách vệ tinh" as U4
+  usecase "Xem vệ tinh trên mô hình 3D" as U5
+  usecase "Xem vệ tinh bằng AR" as U6
+  usecase "Cập nhật dữ liệu quỹ đạo" as U7
+  usecase "Xem chi tiết vệ tinh" as U8
 }
 
 User --> U1

@@ -1,3 +1,4 @@
+% !TEX root = ../DoAn.tex
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 \begin{center}
@@ -5,35 +6,38 @@
 \end{center}
 \vspace{0.5cm}
 
-\begin{longtable}{p{2.2cm} p{5.0cm} p{5.9cm}}
-	\hline
-   \textbf{Viết tắt}  & \textbf{Tên tiếng Anh}	& \textbf{Tên tiếng Việt} \\ \hline
-	\textbf{API} & Application Programming Interface & Giao diện lập trình ứng dụng\\
-	\textbf{AR} & Augmented Reality & Thực tế tăng cường\\
-	\textbf{CPU} & Central Processing Unit & Bộ xử lý trung tâm\\
-	\textbf{ECEF} & Earth-Centered, Earth-Fixed & Hệ tọa độ gắn với Trái Đất, gốc tại tâm Trái Đất\\
-	\textbf{ENU} & East-North-Up & Hệ tọa độ cục bộ Đông-Bắc-Lên\\
-	\textbf{FBE} & Forward-Backward Error & Sai số tiến-lùi trong kiểm tra Optical Flow\\
-	\textbf{FPS} & Frames Per Second & Số khung hình xử lý trong một giây\\
-	\textbf{GNSS} & Global Navigation Satellite System & Hệ thống vệ tinh dẫn đường toàn cầu\\
-	\textbf{GPS} & Global Positioning System & Hệ thống định vị toàn cầu của Hoa Kỳ\\
-	\textbf{GPU} & Graphics Processing Unit & Bộ xử lý đồ họa\\
-	\textbf{IGS} & International GNSS Service & Dịch vụ GNSS quốc tế\\
-	\textbf{IMU} & Inertial Measurement Unit & Cụm cảm biến đo lường quán tính\\
-	\textbf{KLT} & Kanade-Lucas-Tomasi & Bộ theo dõi đặc trưng dựa trên Lucas-Kanade và Shi-Tomasi\\
-	\textbf{LLA} & Latitude, Longitude, Altitude & Vĩ độ, kinh độ, độ cao\\
-	\textbf{MM} & Map Matching & Ghép khớp vị trí hoặc quỹ đạo ước lượng với tuyến đường/bản đồ\\
-	\textbf{ONNX} & Open Neural Network Exchange & Định dạng trao đổi mô hình mạng neural\\
-	\textbf{PVT} & Position, Velocity, Time & Vị trí, vận tốc và thời gian\\
-	\textbf{RAFT} & Recurrent All-Pairs Field Transforms & Mô hình mạng neural ước lượng Optical Flow\\
-	\textbf{ROI} & Region of Interest & Vùng quan tâm trong ảnh\\
-	\textbf{SGP4} & Simplified General Perturbations 4 & Mô hình lan truyền quỹ đạo từ phần tử trung bình\\
-	\textbf{TAI} & International Atomic Time & Thời gian nguyên tử quốc tế\\
-	\textbf{TLE} & Two-Line Element & Bộ phần tử quỹ đạo hai dòng\\
-	\textbf{UTC} & Coordinated Universal Time & Giờ phối hợp quốc tế\\
-	\textbf{VO} & Visual Odometry & Ước lượng chuyển động tương đối bằng chuỗi ảnh camera\\
-	\textbf{WGS84} & World Geodetic System 1984 & Hệ quy chiếu trắc địa thế giới 1984\\
-    \hline
+\begin{longtable}{|p{2.2cm}|p{11.7cm}|}
+\hline
+\textbf{Thuật ngữ} & \textbf{Ý nghĩa} \\ \hline
+\endfirsthead
+\hline
+\textbf{Thuật ngữ} & \textbf{Ý nghĩa} \\ \hline
+\endhead
+API & Giao diện lập trình ứng dụng (Application Programming Interface) \\ \hline
+AR & Thực tế tăng cường (Augmented Reality) \\ \hline
+CPU & Bộ xử lý trung tâm (Central Processing Unit) \\ \hline
+ECEF & Hệ tọa độ gắn với Trái Đất, gốc tại tâm Trái Đất (Earth-Centered, Earth-Fixed) \\ \hline
+ENU & Hệ tọa độ cục bộ Đông-Bắc-Lên (East-North-Up) \\ \hline
+FBE & Sai số tiến-lùi trong kiểm tra Optical Flow (Forward-Backward Error) \\ \hline
+FPS & Số khung hình xử lý trong một giây (Frames Per Second) \\ \hline
+GNSS & Hệ thống vệ tinh dẫn đường toàn cầu (Global Navigation Satellite System) \\ \hline
+GPS & Hệ thống định vị toàn cầu của Hoa Kỳ (Global Positioning System) \\ \hline
+GPU & Bộ xử lý đồ họa (Graphics Processing Unit) \\ \hline
+IGS & Dịch vụ GNSS quốc tế (International GNSS Service) \\ \hline
+IMU & Cụm cảm biến đo lường quán tính (Inertial Measurement Unit) \\ \hline
+KLT & Bộ theo dõi đặc trưng dựa trên Lucas-Kanade và Shi-Tomasi (Kanade-Lucas-Tomasi) \\ \hline
+LLA & Vĩ độ, kinh độ, độ cao (Latitude, Longitude, Altitude) \\ \hline
+MM & Ghép khớp vị trí hoặc quỹ đạo ước lượng với tuyến đường/bản đồ (Map Matching) \\ \hline
+ONNX & Định dạng trao đổi mô hình mạng neural (Open Neural Network Exchange) \\ \hline
+PVT & Vị trí, vận tốc và thời gian (Position, Velocity, Time) \\ \hline
+RAFT & Mô hình mạng neural ước lượng Optical Flow (Recurrent All-Pairs Field Transforms) \\ \hline
+ROI & Vùng quan tâm trong ảnh (Region of Interest) \\ \hline
+SGP4 & Mô hình lan truyền quỹ đạo từ phần tử trung bình (Simplified General Perturbations 4) \\ \hline
+TAI & Thời gian nguyên tử quốc tế (International Atomic Time) \\ \hline
+TLE & Bộ phần tử quỹ đạo hai dòng (Two-Line Element) \\ \hline
+UTC & Giờ phối hợp quốc tế (Coordinated Universal Time) \\ \hline
+VO & Ước lượng chuyển động tương đối bằng chuỗi ảnh camera (Visual Odometry) \\ \hline
+WGS84 & Hệ quy chiếu trắc địa thế giới 1984 (World Geodetic System 1984) \\ \hline
 \end{longtable}
 
 \end{document}

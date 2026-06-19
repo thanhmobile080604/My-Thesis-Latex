@@ -1,7 +1,7 @@
 @startuml
-title Luong xu ly Optical Flow thoi gian thuc
+title Luồng xử lý Optical Flow thời gian thực
 
-actor "Nguoi dung" as User
+actor "Người dùng" as User
 participant "CameraOpticalFlowFragment" as Fragment
 participant "CameraX ImageAnalysis" as CameraX
 participant "RoiOverlayView" as ROI
@@ -11,7 +11,7 @@ participant "MotionVectorViz" as MV
 participant "VideoEncoder" as Encoder
 participant "AnalyticsStorageUtil" as Analytics
 
-User -> Fragment : Mo tab Optical Flow
+User -> Fragment : Mở tab Optical Flow
 Fragment -> CameraX : bind Preview + ImageAnalysis
 CameraX -> Fragment : ImageProxy frame
 Fragment -> Fragment : Convert RGBA -> Mat, rotate frame
@@ -38,6 +38,6 @@ alt Analysis active
   Fragment -> Analytics : record sample
 end
 
-Fragment -> User : Hien thi frame vector/heatmap
+Fragment -> User : Hiển thị frame vector/heatmap
 
 @enduml

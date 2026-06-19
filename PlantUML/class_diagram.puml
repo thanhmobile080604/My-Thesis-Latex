@@ -1,6 +1,6 @@
-﻿@startuml class_diagram
+@startuml class_diagram
 skinparam defaultFontName "Times New Roman"
-title Bieu do lop (rut gon)
+title Biểu đồ lớp (rút gọn)
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
 

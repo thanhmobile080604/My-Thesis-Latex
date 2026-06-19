@@ -17,7 +17,7 @@
 	\renewcommand{\headrulewidth}{0pt} % Điều chỉnh độ dày của đương kẻ ngang header, ở đây mục đích là bỏ đường kẻ ngang ở header (Độ dày 0pt)
 	\renewcommand{\footrulewidth}{0pt}} % Điều chỉnh độ dày của đương kẻ ngang footer, ở đây mục đích là bỏ đường kẻ ngang ở footer (Độ dày 0pt)
 % Lệnh trên để tùy chỉnh lại định dạng trang 'plain' (thường dùng cho trang đầu chương).
-\setlength{\headheight}{35pt} % Đặt chiều cao cho vùng header để tránh lỗi cảnh báo của fancyhdr khi tên chương dài.
+\setlength{\headheight}{35pt} % Chiều cao vùng header đủ lớn để chứa tên chương dài (cỡ 13pt có thể xuống 2 dòng).
 
 \usepackage{pdflscape} % Hỗ trợ trang ngang, giúp đưa các bảng có kích thước đặt theo chiều ngang giấy
 \usepackage{setspace} % Hỗ trợ giãn dòng
@@ -51,7 +51,7 @@
 	\begin{figure}[H]
 		\centering
 		\IfFileExists{#1}{%
-			\includegraphics[width=0.85\textwidth,height=0.38\textheight,keepaspectratio]{#1}%
+			\includegraphics[width=0.9\textwidth,height=0.8\textheight,keepaspectratio]{#1}%
 		}{%
 			\setlength{\fboxsep}{12pt}%
 			\fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering Sơ đồ sẽ được chèn tại đây sau khi render tệp nguồn PlantUML tương ứng trong thư mục \texttt{PlantUML/}.}}%
@@ -131,14 +131,14 @@
 \titlespacing*{\chapter}{0pt}{-20pt}{20pt}
 
 \titleformat{\section}[hang]{\bfseries}{\thechapter.\arabic{section}\ \ \ \ }{0pt}{}
-\titlespacing{\section}{0pt}{\parskip}{0.5\parskip}
+\titlespacing{\section}{0pt}{\parskip}{0pt}
 
 \titleformat{\subsection}[hang]{\bfseries}{\thechapter.\arabic{section}.\arabic{subsection}\ \ \ \ }{0pt}{}
-\titlespacing{\subsection}{30pt}{\parskip}{0.5\parskip}
+\titlespacing{\subsection}{30pt}{\parskip}{0pt}
 
 \renewcommand\thesubsubsection{\alph{subsubsection}}
 \titleformat{\subsubsection}[hang]{\bfseries}{\alph{subsubsection}, \ }{0pt}{}
-\titlespacing{\subsubsection}{50pt}{\parskip}{0.5\parskip}
+\titlespacing{\subsubsection}{50pt}{\parskip}{0pt}
 
 
 % ========== KHOẢNG CÁCH ĐOẠN & CÁC THIẾT LẬP KHÁC ==========
@@ -246,7 +246,7 @@
 	
 	\pagestyle{fancy}
 	\fancyhf{}
-	\fancyhead[RE, LO]{\leftmark}
+	\fancyhead[RE, LO]{\fontsize{10pt}{16pt}\selectfont\leftmark}
 	%\fancyhead[LE]{\rightmark}
 	\fancyfoot[RE, LO]{\thepage}
 	\renewcommand{\headrulewidth}{0.4pt}
@@ -288,6 +288,7 @@
 	
 	% ===================================================
 	
+	\nocite{*} % Liệt kê toàn bộ tài liệu tham khảo trong danh mục dù đã bỏ trích dẫn dạng [n] trong nội văn
 	\printbibliography[heading=bibintoc] % Tùy chọn [heading=bibintoc] để thêm mục này vào Mục lục
 
 \end{document}

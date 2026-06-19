@@ -1,7 +1,7 @@
 @startuml
-title Luong upload va xu ly video RAFT tren backend
+title Luồng upload và xử lý video RAFT trên backend
 
-actor "Nguoi dung" as User
+actor "Người dùng" as User
 participant "Android App" as App
 participant "VideoProcessingWorker" as Worker
 participant "VideoBackendClient" as Client
@@ -12,21 +12,21 @@ participant "VideoUpload Store" as Upload
 participant "OpticalFlowProcessor" as Processor
 participant "ONNX Runtime" as ONNX
 
-User -> App : Chon video, backend va che do xu ly
+User -> App : Chọn video, backend và chế độ xử lý
 App -> Worker : enqueue WorkManager job
 note over Worker,Outer
-  Neu chon Outer Server, worker goi client rieng
-  de upload video va nhan trang thai/ket qua theo backend do.
-  Luong chi tiet duoi day mo ta My Server.
+  Nếu chọn Outer Server, worker gọi client riêng
+  để upload video và nhận trạng thái/kết quả theo backend đó.
+  Luồng chi tiết dưới đây mô tả My Server.
 end note
-alt File nho
+alt File nhỏ
   Worker -> Client : createProcessVideoJob(file, fields)
   Client -> API : POST /process-video/jobs
-else File lon
+else File lớn
   Worker -> Client : create upload session
   Client -> API : POST /process-video/uploads
   API -> Upload : create VideoUpload
-  loop tung chunk
+  loop từng chunk
     Worker -> Client : uploadProcessVideoChunk()
     Client -> API : POST /process-video/uploads/{id}/chunks
   end
@@ -51,18 +51,18 @@ Processor -> Store : update progress/completed
 
 Worker -> Client : get result info
 Client -> API : GET /process-video/jobs/{job_id}/result/info
-alt Ket qua co chunks
-  loop tung result chunk
+alt Kết quả có chunks
+  loop từng result chunk
     Worker -> Client : download chunk
     Client -> API : GET /process-video/jobs/{job_id}/result/chunks/{index}
   end
   Worker -> Client : cleanup result
   Client -> API : DELETE /process-video/jobs/{job_id}/result
-else Tai ca file
+else Tải cả file
   Worker -> Client : download result
   Client -> API : GET /process-video/jobs/{job_id}/result
 end
 Worker -> App : processedVideoPathToOpen
-App -> User : Mo video ket qua
+App -> User : Mở video kết quả
 
 @enduml

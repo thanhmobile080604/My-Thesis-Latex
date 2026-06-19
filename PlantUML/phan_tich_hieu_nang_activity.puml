@@ -1,31 +1,31 @@
-﻿@startuml activity_phan_tich_hieu_nang
-' Render: tao anh figures/activity_phan_tich_hieu_nang.png cho muc 2.3.4
+@startuml activity_phan_tich_hieu_nang
+' Render: tạo ảnh figures/activity_phan_tich_hieu_nang.png cho mục 2.3.4
 skinparam defaultFontName "Times New Roman"
-title Bieu do hoat dong: Phan tich hieu nang Optical Flow
+title Biểu đồ hoạt động: Phân tích hiệu năng Optical Flow
 
-|Nguoi dung|
+|Người dùng|
 start
-:Bam Bat dau phan tich;
-|He thong|
-:Khoi tao 2 thuat toan, khoa do nhay o muc toi da;
-while (Con frame camera?) is (co)
-  :Nhan doi frame cho KLT va Farneback;
+:Bấm Bắt đầu phân tích;
+|Hệ thống|
+:Khởi tạo 2 thuật toán, khóa độ nhạy ở mức tối đa;
+while (Còn frame camera?) is (có)
+  :Nhân đôi frame cho KLT và Farneback;
   fork
-    :Chay KLT, lay metrics;
+    :Chạy KLT, lấy metrics;
   fork again
-    :Chay Farneback, lay metrics;
+    :Chạy Farneback, lấy metrics;
   end fork
-  :Ghep ket qua trai-phai;
-  :Ghi sample moi ~250 ms (FPS, process time, vectors...);
-endwhile (khong)
-|Nguoi dung|
-:Bam Dung phan tich;
-|He thong|
-if (Co sample hop le?) then (co)
-  :Luu AnalyticsSession (JSON);
-else (khong)
-  :Khong tao phien rong;
+  :Ghép kết quả trái-phải;
+  :Ghi sample mỗi ~250 ms (FPS, process time, vectors...);
+endwhile (không)
+|Người dùng|
+:Bấm Dừng phân tích;
+|Hệ thống|
+if (Có sample hợp lệ?) then (có)
+  :Lưu AnalyticsSession (JSON);
+else (không)
+  :Không tạo phiên rỗng;
 endif
-:Mo lai phien de xem bieu do;
+:Mở lại phiên để xem biểu đồ;
 stop
 @enduml

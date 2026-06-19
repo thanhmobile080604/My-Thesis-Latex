@@ -1,23 +1,24 @@
-﻿@startuml usecase_phan_tich_hieu_nang
+@startuml usecase_phan_tich_hieu_nang
 skinparam defaultFontName "Times New Roman"
-title Use case phan ra: Phan tich hieu nang Optical Flow
+skinparam linetype polyline
 left to right direction
+title Use case phân rã: Phân tích hiệu năng Optical Flow
 
-actor "Nguoi dung" as User
+actor "Người dùng" as User
 
-rectangle "Phan tich hieu nang Optical Flow" {
-  usecase "Luu phien phan tich" as U1
-  usecase "Xem danh sach phien" as U2
-  usecase "Xem bieu do FPS" as U3
-  usecase "Xem bieu do thoi gian xu ly" as U4
-  usecase "Xem so diem/vector hoat dong" as U5
-  usecase "Xoa phien phan tich" as U6
+rectangle "Phân tích hiệu năng Optical Flow" {
+  usecase "Lưu phiên phân tích" as U1
+  usecase "Xem danh sách phiên" as U2
+  usecase "Xem biểu đồ FPS" as U3
+  usecase "Xem biểu đồ thời gian xử lý" as U4
+  usecase "Xem số điểm/vector hoạt động" as U5
+  usecase "Xóa phiên phân tích" as U6
 }
 
 User --> U1
 User --> U2
+User --> U3
+User --> U4
+User --> U5
 User --> U6
-U2 ..> U3 : include
-U2 ..> U4 : include
-U2 ..> U5 : include
 @enduml

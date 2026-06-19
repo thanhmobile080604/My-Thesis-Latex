@@ -1,10 +1,10 @@
 @startuml
-title Kien truc tong quan he thong
+title Kiến trúc tổng quan hệ thống
 
 skinparam componentStyle rectangle
 skinparam packageStyle rectangle
 
-actor "Nguoi dung" as User
+actor "Người dùng" as User
 
 package "GNSSAndOpticalFlowApp (Android)" {
   component "UI Fragments" as UI

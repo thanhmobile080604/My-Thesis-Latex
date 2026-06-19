@@ -1,34 +1,34 @@
-﻿@startuml activity_quan_sat_ve_tinh
-' Render: tao anh figures/activity_quan_sat_ve_tinh.png cho muc 2.3.1
+@startuml activity_quan_sat_ve_tinh
+' Render: tạo ảnh figures/activity_quan_sat_ve_tinh.png cho mục 2.3.1
 skinparam defaultFontName "Times New Roman"
-title Bieu do hoat dong: Quan sat ve tinh
+title Biểu đồ hoạt động: Quan sát vệ tinh
 
-|Nguoi dung|
+|Người dùng|
 start
-:Mo man hinh Quan sat ve tinh;
-|He thong|
-:Khoi tao ban do osmdroid;
-:Dang ky LocationManager va GnssStatus.Callback;
-:Hien thi marker vi tri nguoi dung;
-while (Con cap nhat GNSS?) is (co)
-  :Nhan GnssStatus;
-  :Phan giai vi tri ve tinh theo chuoi uu tien\n(PVT -> IGS -> CelesTrak -> Xap xi);
-  :Cap nhat danh sach ve tinh;
-endwhile (khong)
-|Nguoi dung|
-:Chon thao tac;
-if (Tim dia diem?) then (dung)
-  |He thong|
-  :Goi Nominatim, ve tuyen duong OSRM;
-elseif (Xem mo hinh 3D?) then (dung)
-  |He thong|
-  :Dung Trai Dat 3D, dat ve tinh theo nguon du lieu;
-elseif (Xem AR?) then (dung)
-  |He thong|
-  :Phu thong tin ve tinh len luong camera;
-else (Xem chi tiet)
-  |He thong|
-  :Hien thi chi tiet ve tinh va nguon phan giai vi tri;
+:Mở màn hình Quan sát vệ tinh;
+|Hệ thống|
+:Khởi tạo bản đồ osmdroid;
+:Đăng ký LocationManager và GnssStatus.Callback;
+:Hiển thị marker vị trí người dùng;
+while (Còn cập nhật GNSS?) is (có)
+  :Nhận GnssStatus;
+  :Phân giải vị trí vệ tinh theo chuỗi ưu tiên\n(PVT -> IGS -> CelesTrak -> Xấp xỉ);
+  :Cập nhật danh sách vệ tinh;
+endwhile (không)
+|Người dùng|
+:Chọn thao tác;
+if (Tìm địa điểm?) then (đúng)
+  |Hệ thống|
+  :Gọi Nominatim, vẽ tuyến đường OSRM;
+elseif (Xem mô hình 3D?) then (đúng)
+  |Hệ thống|
+  :Dựng Trái Đất 3D, đặt vệ tinh theo nguồn dữ liệu;
+elseif (Xem AR?) then (đúng)
+  |Hệ thống|
+  :Phủ thông tin vệ tinh lên luồng camera;
+else (Xem chi tiết)
+  |Hệ thống|
+  :Hiển thị chi tiết vệ tinh và nguồn phân giải vị trí;
 endif
 stop
 @enduml

@@ -1,20 +1,21 @@
-﻿@startuml usecase_tong_quat
+@startuml usecase_tong_quat
 skinparam defaultFontName "Times New Roman"
-title Use case tong quat
+skinparam linetype polyline
 left to right direction
+title Use case tổng quát
 skinparam packageStyle rectangle
 
-actor "Nguoi dung" as User
-actor "Backend xu ly video\n(My/Outer Server)" as Backend
-actor "Dich vu du lieu ngoai\n(Nominatim/OSRM, IGS, CelesTrak)" as External
+actor "Người dùng" as User
+actor "Backend xử lý video\n(My/Outer Server)" as Backend
+actor "Dịch vụ dữ liệu ngoài\n(Nominatim/OSRM, IGS, CelesTrak)" as External
 
 rectangle "GNSSAndOpticalFlowApp" {
-  usecase "Xem ban do GNSS hai chieu" as UC1
-  usecase "Xem ve tinh tren mo hinh 3D/AR" as UC2
-  usecase "Chi duong truc tiep co ho tro Optical Flow" as UC3
-  usecase "Phan tich camera bang Optical Flow" as UC4
-  usecase "Phan tich hieu nang KLT/Farneback" as UC5
-  usecase "Xu ly video bang RAFT" as UC6
+  usecase "Xem bản đồ GNSS hai chiều" as UC1
+  usecase "Xem vệ tinh trên mô hình 3D/AR" as UC2
+  usecase "Chỉ đường trực tiếp có hỗ trợ Optical Flow" as UC3
+  usecase "Phân tích camera bằng Optical Flow" as UC4
+  usecase "Phân tích hiệu năng KLT/Farneback" as UC5
+  usecase "Xử lý video bằng RAFT" as UC6
 }
 
 User --> UC1
@@ -28,7 +29,4 @@ External --> UC1
 External --> UC2
 External --> UC3
 Backend --> UC6
-
-UC3 ..> UC4 : include
-UC5 ..> UC4 : include
 @enduml

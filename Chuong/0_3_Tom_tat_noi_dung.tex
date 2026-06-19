@@ -1,3 +1,4 @@
+% !TEX root = ../DoAn.tex
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
@@ -6,9 +7,15 @@
 \end{center}
 \vspace{1cm}
 
-Các thiết bị di động hiện đại có khả năng thu nhận tín hiệu GNSS, dữ liệu cảm biến quán tính và luồng ảnh camera với tần suất cao. Tuy nhiên, trong quá trình theo dõi di chuyển trên đường, GNSS có thể yếu hoặc mất cập nhật do che khuất, đô thị dày đặc hoặc điều kiện thiết bị. Đồ án xây dựng một ứng dụng Android nhằm khảo sát cách dùng camera và cảm biến điện thoại để hỗ trợ cập nhật vị trí trực tiếp trên bản đồ khi GNSS suy giảm. Từ mục tiêu này, hệ thống được mở rộng thành ba bài toán: GNSS Viewer, Optical Flow View và LiveRouting kết hợp GNSS với Optical Flow/IMU. Ở GNSS Viewer, ứng dụng thu nhận vị trí, trạng thái vệ tinh và dữ liệu đo GNSS thô, sau đó ưu tiên phân giải vị trí vệ tinh theo Real GNSS PVT, IGS Broadcast Ephemeris, CelesTrak TLE/SGP4 và xấp xỉ từ azimuth/elevation. Kết quả được hiển thị trên bản đồ hai chiều, mô hình Trái Đất OpenGL 3D có ngày/đêm, Mặt Trăng, Mặt Trời, dữ liệu thời gian TAI-UTC của Orekit và màn hình AR phủ vệ tinh lên camera. Ở Optical Flow View, ứng dụng triển khai KLT và Farneback bằng OpenCV để phân tích camera thời gian thực, hỗ trợ ROI, object tracker, ghi video, lưu phiên đo và so sánh FPS, thời gian xử lý, số vector hoạt động cùng độ tin cậy. Với video upload, hệ thống hỗ trợ server FastAPI tự triển khai và backend ngoài của nhóm; pipeline RAFT dạng ONNX xử lý video theo job, upload/download chunk, hủy job, tải kết quả và dùng Cutie cho ROI đối tượng. Ở LiveRouting, ứng dụng theo dõi vị trí trên tuyến đường; khi GNSS không đủ tin cậy, camera assist được bật để Optical Flow và IMU tạo ước lượng visual odometry thực dụng, kết hợp map matching theo route và vẽ các đoạn path phục vụ kiểm thử, quan sát lại.
+Trong bối cảnh các thiết bị di động hiện đại ngày càng được trang bị nhiều cảm biến như định vị vệ tinh, cảm biến quán tính và camera, bài toán theo dõi di chuyển theo thời gian thực có thêm nhiều hướng tiếp cận mới. Tuy nhiên, trong môi trường thực tế như đô thị dày đặc, khu vực có nhiều vật che khuất hoặc điều kiện thiết bị không ổn định, tín hiệu định vị vệ tinh có thể bị suy giảm, mất cập nhật hoặc cho kết quả thiếu chính xác. Điều này ảnh hưởng trực tiếp đến khả năng xác định vị trí và hiển thị hành trình của người dùng trên bản đồ.
 
-Trong phiên bản hiện tại, LiveRouting được cập nhật theo hướng chỉ phục vụ kịch bản di chuyển bằng xe. Khi GNSS mất tin cậy, hệ thống chuyển metrics Optical Flow thành một ước lượng visual odometry thực dụng gồm tốc độ, thay đổi hướng và độ tin cậy; IMU cung cấp yaw rate để ổn định hướng; tuyến đường hiện có được dùng cho map matching có trọng số thay vì snap cứng. Bộ ước lượng duy trì độ bất định vị trí tăng dần theo thời gian mất GNSS, chỉ ghép về tuyến khi khoảng cách, hướng và tính liên tục đủ tin cậy, đồng thời kích hoạt cập nhật lại tuyến khi quỹ đạo ước lượng lệch khỏi route.
+Đồ án lựa chọn hướng tiếp cận phát triển một ứng dụng di động chạy trên nền tảng Android, nhằm khảo sát khả năng kết hợp camera và cảm biến điện thoại để hỗ trợ cập nhật vị trí khi tín hiệu định vị vệ tinh không đủ tin cậy. Hệ thống được tổ chức thành ba luồng chức năng chính: luồng xem thông tin vệ tinh, luồng xem chuyển động quang học qua camera và luồng chỉ đường trực tiếp có sự hỗ trợ của chuyển động quang học.
+
+Giải pháp của đồ án tạo thành một hệ thống kiểm thử và quan sát trực quan: từ việc thu nhận vị trí người dùng, trạng thái vệ tinh và dữ liệu đo định vị thô, cho đến trực quan hóa trên bản đồ hai chiều, mô hình Trái Đất ba chiều và màn hình thực tế tăng cường. Bên cạnh đó, hệ thống sử dụng OpenCV để phân tích luồng ảnh camera theo thời gian thực, hỗ trợ lựa chọn vùng quan tâm, theo dõi đối tượng, kết hợp server mô hình mạng lưới học sâu để phân tích luồng chuyển động quang học trong video được đăng tải lên, lưu phiên đo và đánh giá các chỉ số xử lý.
+
+Đóng góp chính của đồ án là xây dựng được một ứng dụng Android hỗ trợ khảo sát khả năng kết hợp định vị vệ tinh, cảm biến quán tính và chuyển động quang học trong bài toán chỉ đường trực tiếp. Khi tín hiệu định vị suy giảm, ứng dụng sử dụng dữ liệu từ camera và cảm biến quán tính để ước lượng tốc độ, hướng di chuyển và hỗ trợ hiệu chỉnh vị trí theo tuyến đường hiện tại. Đây là cơ sở thực tiễn để đánh giá khả năng hỗ trợ định vị trong các tình huống tín hiệu vệ tinh không ổn định.
+
+
 
 \begin{flushright}
 Sinh viên thực hiện\\

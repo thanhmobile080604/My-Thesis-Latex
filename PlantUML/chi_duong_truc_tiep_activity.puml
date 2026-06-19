@@ -1,30 +1,30 @@
-﻿@startuml activity_chi_duong_truc_tiep
-' Render: tao anh figures/activity_chi_duong_truc_tiep.png cho muc 2.3.2
+@startuml activity_chi_duong_truc_tiep
+' Render: tạo ảnh figures/activity_chi_duong_truc_tiep.png cho mục 2.3.2
 skinparam defaultFontName "Times New Roman"
-title Bieu do hoat dong: Chi duong truc tiep
+title Biểu đồ hoạt động: Chỉ đường trực tiếp
 
-|Nguoi dung|
+|Người dùng|
 start
-:Chon diem den va bat dau dan duong;
-|He thong|
-:Tai tuyen duong, cap nhat marker theo GNSS;
-:Ve doan duong GNSS (path den);
-while (Dang dan duong?) is (co)
-  :Danh gia chat luong GNSS\n(so ve tinh, tuoi tin, do chinh xac);
-  if (GNSS con tin cay?) then (co)
-    :Bam GNSS;
-    :Hieu chinh pixel/giay -> met/giay cho Optical Flow;
-  else (khong)
-    :Bat camera assist;
-    :Uoc luong toc do tu Optical Flow + yaw rate IMU (ZUPT);
-    :Map matching co dieu kien (route-lock);
-    :Ve doan ho tro (path do), danh dau mat/khoi phuc GNSS;
-    if (Lech tuyen nhieu mau va co Internet?) then (co)
-      :Goi lai OSRM cap nhat tuyen;
-    else (khong)
-      :Giu tuyen hien tai, thong bao offline neu mat mang;
+:Chọn điểm đến và bắt đầu dẫn đường;
+|Hệ thống|
+:Tải tuyến đường, cập nhật marker theo GNSS;
+:Vẽ đoạn đường GNSS (path đen);
+while (Đang dẫn đường?) is (có)
+  :Đánh giá chất lượng GNSS\n(số vệ tinh, tuổi tin, độ chính xác);
+  if (GNSS còn tin cậy?) then (có)
+    :Bám GNSS;
+    :Hiệu chỉnh pixel/giây -> mét/giây cho Optical Flow;
+  else (không)
+    :Bật camera assist;
+    :Ước lượng tốc độ từ Optical Flow + yaw rate IMU (ZUPT);
+    :Map matching có điều kiện (route-lock);
+    :Vẽ đoạn hỗ trợ (path đỏ), đánh dấu mất/khôi phục GNSS;
+    if (Lệch tuyến nhiều mẫu và có Internet?) then (có)
+      :Gọi lại OSRM cập nhật tuyến;
+    else (không)
+      :Giữ tuyến hiện tại, thông báo offline nếu mất mạng;
     endif
   endif
-endwhile (khong)
+endwhile (không)
 stop
 @enduml

@@ -1,19 +1,20 @@
-﻿@startuml usecase_camera_optical_flow
+@startuml usecase_camera_optical_flow
 skinparam defaultFontName "Times New Roman"
-title Use case phan ra: Camera Optical Flow
+skinparam linetype polyline
 left to right direction
+title Use case phân rã: Xem Optical Flow trên Camera
 
-actor "Nguoi dung" as User
+actor "Người dùng" as User
 
-rectangle "Camera Optical Flow" {
-  usecase "Chon thuat toan KLT/Farneback" as U1
-  usecase "Chon che do hien thi" as U2
-  usecase "Dieu chinh do nhay" as U3
-  usecase "Chon ROI" as U4
-  usecase "Bam doi tuong trong ROI" as U5
-  usecase "Ghi video ket qua" as U6
-  usecase "Chup anh ket qua" as U7
-  usecase "Bat/dung phien analytics" as U8
+rectangle "Xem Optical Flow trên Camera" {
+  usecase "Chọn thuật toán KLT/Farneback" as U1
+  usecase "Chọn chế độ hiển thị" as U2
+  usecase "Điều chỉnh độ nhạy" as U3
+  usecase "Chọn ROI" as U4
+  usecase "Bám đối tượng trong ROI" as U5
+  usecase "Ghi video kết quả" as U6
+  usecase "Chụp ảnh kết quả" as U7
+  usecase "Bật/dừng phiên analytics" as U8
 }
 
 User --> U1

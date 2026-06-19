@@ -1,27 +1,27 @@
-﻿@startuml activity_xu_ly_video_ai
-' Render: tao anh figures/activity_xu_ly_video_ai.png cho muc 2.3.5
+@startuml activity_xu_ly_video_ai
+' Render: tạo ảnh figures/activity_xu_ly_video_ai.png cho mục 2.3.5
 skinparam defaultFontName "Times New Roman"
-title Bieu do hoat dong: Xu ly video Optical Flow bang AI
+title Biểu đồ hoạt động: Xử lý video Optical Flow bằng mô hình mạng lưới học sâu
 
-|Nguoi dung|
+|Người dùng|
 start
-:Chon video dau vao;
-:Chon backend (My/Outer) va che do xu ly;
-|He thong|
-if (Video lon?) then (co)
-  :Tao upload session;
-  :Gui tung chunk (SHA-256), rap lai o may chu;
-else (khong)
-  :Gui multipart request;
+:Chọn video đầu vào;
+:Chọn backend (My/Outer) và chế độ xử lý;
+|Hệ thống|
+if (Video lớn?) then (có)
+  :Tạo upload session;
+  :Gửi từng chunk (SHA-256), ráp lại ở máy chủ;
+else (không)
+  :Gửi multipart request;
 endif
-:May chu tao job;
-if (Backend nap duoc mo hinh?) then (co)
-  :Chay RAFT (ONNX Runtime), ghi MP4 H.264 (ffmpeg);
-  :Cutie lan truyen mask neu co ROI;
-  :Foreground worker (WorkManager) theo doi tien do;
-  :Tai ket qua, mo video, don tai nguyen may chu;
-else (khong)
-  :Job that bai, hien thi thong bao loi;
+:Máy chủ tạo job;
+if (Backend nạp được mô hình?) then (có)
+  :Chạy RAFT (ONNX Runtime), ghi MP4 H.264 (ffmpeg);
+  :Cutie lan truyền mask nếu có ROI;
+  :Foreground worker (WorkManager) theo dõi tiến độ;
+  :Tải kết quả, mở video, dọn tài nguyên máy chủ;
+else (không)
+  :Job thất bại, hiển thị thông báo lỗi;
 endif
 stop
 @enduml

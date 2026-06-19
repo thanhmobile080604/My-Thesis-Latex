@@ -1,7 +1,7 @@
 @startuml
-title Luong phan giai vi tri ve tinh GNSS
+title Luồng phân giải vị trí vệ tinh GNSS
 
-actor "Nguoi dung" as User
+actor "Người dùng" as User
 participant "GNSSViewerFragment" as Fragment
 participant "GNSSViewerViewModel" as VM
 participant "GnssSatelliteTracker" as Tracker
@@ -11,8 +11,8 @@ participant "CelesTrak Repository" as CT
 participant "SatelliteCalculator" as Calc
 participant "EarthRenderer" as Renderer
 
-User -> Fragment : Mo tab GNSS
-Fragment -> Fragment : Kiem tra GPS/quyen vi tri
+User -> Fragment : Mở tab GNSS
+Fragment -> Fragment : Kiểm tra GPS/quyền vị trí
 Fragment -> VM : startLocationUpdates()
 VM -> Tracker : refreshIgsBroadcastDataIfNeeded()
 Tracker -> IGS : getSnapshot()
@@ -26,11 +26,11 @@ PVT --> Tracker : SatellitePvtSnapshot?
 Fragment -> VM : updateSatelliteSnapshot(status)
 VM -> Tracker : buildSatelliteInfo(status, location)
 
-alt Co PVT hop le
+alt Có PVT hợp lệ
   Tracker -> Calc : ECEF -> LLA
-else Co IGS ephemeris
+else Có IGS ephemeris
   Tracker -> Calc : propagate broadcast ephemeris
-else Co CelesTrak orbit
+else Có CelesTrak orbit
   Tracker -> Calc : SGP4/Kepler propagation
 else Fallback
   Tracker -> Calc : approximate from azimuth/elevation

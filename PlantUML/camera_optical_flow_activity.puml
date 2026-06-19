@@ -1,26 +1,26 @@
-﻿@startuml activity_camera_optical_flow
-' Render: tao anh figures/activity_camera_optical_flow.png cho muc 2.3.3
+@startuml activity_camera_optical_flow
+' Render: tạo ảnh figures/activity_camera_optical_flow.png cho mục 2.3.3
 skinparam defaultFontName "Times New Roman"
-title Bieu do hoat dong: Camera Optical Flow
+title Biểu đồ hoạt động: Xem Optical Flow trên Camera
 
-|Nguoi dung|
+|Người dùng|
 start
-:Chon thuat toan KLT hoac Farneback;
-:Chon che do hien thi va do nhay;
-|He thong|
-:Mo camera (CameraX, ImageAnalysis KEEP_ONLY_LATEST);
-while (Con frame camera?) is (co)
-  :Chuyen frame sang Mat va chay thuat toan;
-  :Phu vector/heatmap/motion trail len khung hinh;
-  if (Nguoi dung khoanh ROI?) then (co)
-    :Object tracker CSRT + template matching bam ROI;
-    :Chay Optical Flow trong vung con;
-  else (khong)
+:Chọn thuật toán KLT hoặc Farneback;
+:Chọn chế độ hiển thị và độ nhạy;
+|Hệ thống|
+:Mở camera (CameraX, ImageAnalysis KEEP_ONLY_LATEST);
+while (Còn frame camera?) is (có)
+  :Chuyển frame sang Mat và chạy thuật toán;
+  :Phủ vector/heatmap/motion trail lên khung hình;
+  if (Người dùng khoanh ROI?) then (có)
+    :Object tracker CSRT + template matching bám ROI;
+    :Chạy Optical Flow trong vùng con;
+  else (không)
   endif
-  if (Nguoi dung ghi/chup?) then (co)
-    :Ghi video hoac luu anh ket qua;
-  else (khong)
+  if (Người dùng ghi/chụp?) then (có)
+    :Ghi video hoặc lưu ảnh kết quả;
+  else (không)
   endif
-endwhile (khong)
+endwhile (không)
 stop
 @enduml

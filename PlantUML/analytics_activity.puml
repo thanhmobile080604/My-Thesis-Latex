@@ -1,32 +1,32 @@
 @startuml
-title Activity phien analytics KLT/Farneback
+title Activity phiên analytics KLT/Farneback
 
 start
-:Nguoi dung bam Start Analysis;
-:Khoa do nhay KLT va Farneback o muc 100;
-:Vo hieu hoa ghi video va doi mode;
-while (Con frame camera?) is (co)
-  :Clone frame thanh 2 ban;
+:Người dùng bấm Start Analysis;
+:Khóa độ nhạy KLT và Farneback ở mức 100;
+:Vô hiệu hóa ghi video và đổi mode;
+while (Còn frame camera?) is (có)
+  :Clone frame thành 2 bản;
   fork
-    :Chay KLT;
-    :Lay KLT metrics;
+    :Chạy KLT;
+    :Lấy KLT metrics;
   fork again
-    :Chay Farneback;
-    :Lay Farneback metrics;
+    :Chạy Farneback;
+    :Lấy Farneback metrics;
   end fork
-  :Ghep frame trai-phai;
-  :Ve overlay thong so;
-  :Tao AnalyticsSample;
-  :Luu sample vao session tam;
-endwhile (khong)
-:Nguoi dung bam Stop Analysis;
-if (Co sample hop le?) then (co)
-  :Tao AnalyticsSession;
-  :Luu JSON bang AnalyticsStorageUtil;
-else (khong)
-  :Thong bao khong co sample;
+  :Ghép frame trái-phải;
+  :Vẽ overlay thông số;
+  :Tạo AnalyticsSample;
+  :Lưu sample vào session tạm;
+endwhile (không)
+:Người dùng bấm Stop Analysis;
+if (Có sample hợp lệ?) then (có)
+  :Tạo AnalyticsSession;
+  :Lưu JSON bằng AnalyticsStorageUtil;
+else (không)
+  :Thông báo không có sample;
 endif
-:Khoi phuc dieu khien giao dien;
+:Khôi phục điều khiển giao diện;
 stop
 
 @enduml
