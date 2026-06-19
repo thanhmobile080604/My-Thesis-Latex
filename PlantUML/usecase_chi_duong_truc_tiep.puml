@@ -1,31 +1,43 @@
 @startuml usecase_chi_duong_truc_tiep
 skinparam defaultFontName "Times New Roman"
-skinparam linetype polyline
 left to right direction
+skinparam packageStyle rectangle
+skinparam nodesep 18
+skinparam ranksep 55
 title Use case phân rã: Chỉ đường trực tiếp
 
 actor "Người dùng" as User
 actor "Dịch vụ định tuyến OSRM" as OSRM
 
 rectangle "Chỉ đường trực tiếp" {
-  usecase "Chọn điểm đến" as U1
-  usecase "Bắt đầu dẫn đường" as U2
-  usecase "Đánh giá chất lượng GNSS" as U3
-  usecase "Bật camera assist" as U4
-  usecase "Ước lượng chuyển động\nbằng Optical Flow/IMU" as U5
-  usecase "Map matching theo route" as U6
-  usecase "Cập nhật lại tuyến khi lệch đường" as U7
-  usecase "Hiển thị path GNSS và path assist" as U8
+
+  usecase "Bắt đầu dẫn đường\ntheo tuyến" as UC_Start
+  usecase "Chọn thuật toán Optical Flow\n(KLT/Farneback)" as UC_Algo
+  usecase "Chọn chế độ bám tuyến\n(SNAP/REAL)" as UC_Snap
+  usecase "Bật chế độ kiểm thử\nmất GNSS" as UC_Test
+  usecase "Lưu phiên dẫn đường" as UC_Save
+
+  usecase "Đánh giá\nchất lượng GNSS" as UC_Gnss
+  usecase "Hiệu chỉnh tỉ lệ tốc độ camera\nvà trục tiến IMU theo GNSS" as UC_Calib
+  usecase "Ước lượng chuyển động\nbằng dead reckoning\n(Optical Flow + IMU + con quay)" as UC_DR
+  usecase "Bám vị trí ước lượng\nvào tuyến (chế độ SNAP)" as UC_Lock
+  usecase "Cập nhật lại tuyến\nkhi lệch đường" as UC_Reroute
+  usecase "Hiển thị path GNSS, path hỗ trợ\nvà điểm mất/khôi phục GNSS" as UC_Draw
 }
 
-User --> U1
-User --> U2
-User --> U3
-User --> U4
-User --> U5
-User --> U6
-User --> U7
-User --> U8
-OSRM --> U2
-OSRM --> U7
+User --> UC_Start
+User --> UC_Algo
+User --> UC_Snap
+User --> UC_Test
+User --> UC_Save
+
+UC_Start ..> UC_Gnss : <<include>>
+UC_Start ..> UC_Draw : <<include>>
+UC_Gnss ..> UC_Calib : <<extend>>
+UC_Gnss ..> UC_DR : <<extend>>
+UC_DR ..> UC_Lock : <<extend>>
+UC_DR ..> UC_Reroute : <<extend>>
+
+OSRM --> UC_Start
+OSRM --> UC_Reroute
 @enduml

@@ -1,28 +1,65 @@
 @startuml usecase_camera_optical_flow
 skinparam defaultFontName "Times New Roman"
-skinparam linetype polyline
 left to right direction
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 35
+skinparam ranksep 45
 title Use case phân rã: Xem Optical Flow trên Camera
 
 actor "Người dùng" as User
 
 rectangle "Xem Optical Flow trên Camera" {
-  usecase "Chọn thuật toán KLT/Farneback" as U1
-  usecase "Chọn chế độ hiển thị" as U2
-  usecase "Điều chỉnh độ nhạy" as U3
-  usecase "Chọn ROI" as U4
-  usecase "Bám đối tượng trong ROI" as U5
-  usecase "Ghi video kết quả" as U6
-  usecase "Chụp ảnh kết quả" as U7
-  usecase "Bật/dừng phiên analytics" as U8
+
+  usecase "Bắt đầu/dừng\nphiên phân tích" as UC_StartStop
+
+  usecase "Chọn thuật toán\nOptical Flow" as UC_Algorithm
+  usecase "Sử dụng\nKLT" as UC_KLT
+  usecase "Sử dụng\nFarneback" as UC_FB
+
+  usecase "Hiển thị\nvector" as UC_Vector
+  usecase "Hiển thị\nheatmap" as UC_Heatmap
+
+  usecase "Điều chỉnh\nđộ nhạy" as UC_Sensitivity
+
+  usecase "Chọn phạm vi\nphân tích" as UC_Target
+  usecase "Phân tích\ntoàn khung hình" as UC_Full
+  usecase "Chọn vùng\nđối tượng" as UC_SelectObject
+  usecase "Bám đối tượng\ntrong vùng chọn" as UC_Track
+
+  usecase "Ghi video\nkết quả" as UC_Record
+
+  UC_StartStop -[hidden]down- UC_Algorithm
+  UC_Algorithm -[hidden]down- UC_Sensitivity
+  UC_Sensitivity -[hidden]down- UC_Target
+  UC_Target -[hidden]down- UC_Record
+
+  UC_Algorithm -[hidden]right- UC_KLT
+  UC_KLT -[hidden]down- UC_FB
+
+  UC_FB -[hidden]right- UC_Vector
+  UC_Vector -[hidden]down- UC_Heatmap
+
+  UC_Target -[hidden]right- UC_Full
+  UC_Full -[hidden]down- UC_SelectObject
+  UC_SelectObject -[hidden]down- UC_Track
 }
 
-User --> U1
-User --> U2
-User --> U3
-User --> U4
-User --> U6
-User --> U7
-User --> U8
-U4 ..> U5 : include
+User -right-> UC_StartStop
+User -right-> UC_Algorithm
+User -right-> UC_Sensitivity
+User -right-> UC_Target
+User -right-> UC_Record
+
+UC_KLT ..> UC_Algorithm : <<extend>>
+UC_FB ..> UC_Algorithm : <<extend>>
+
+UC_KLT ..> UC_Vector : <<include>>
+UC_Vector ..> UC_FB : <<extend>>
+UC_Heatmap ..> UC_FB : <<extend>>
+
+UC_Full ..> UC_Target : <<extend>>
+UC_SelectObject ..> UC_Target : <<extend>>
+UC_SelectObject ..> UC_Track : <<include>>
+
 @enduml

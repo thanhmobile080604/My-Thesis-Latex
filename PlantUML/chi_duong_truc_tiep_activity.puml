@@ -13,11 +13,14 @@ while (Đang dẫn đường?) is (có)
   :Đánh giá chất lượng GNSS\n(số vệ tinh, tuổi tin, độ chính xác);
   if (GNSS còn tin cậy?) then (có)
     :Bám GNSS;
-    :Hiệu chỉnh pixel/giây -> mét/giây cho Optical Flow;
+    :Hiệu chỉnh tỉ lệ pixel/giây -> mét/giây\nvà trục tiến IMU theo GNSS;
   else (không)
-    :Bật camera assist;
-    :Ước lượng tốc độ từ Optical Flow + yaw rate IMU (ZUPT);
-    :Map matching có điều kiện (route-lock);
+    :Ước lượng chuyển động bằng dead reckoning\n(Optical Flow + gia tốc IMU + con quay, ZUPT);
+    if (Chế độ SNAP và gần tuyến?) then (có)
+      :Bám vị trí ước lượng vào tuyến;
+    else (không)
+      :Giữ nguyên vị trí dead reckoning (chế độ REAL);
+    endif
     :Vẽ đoạn hỗ trợ (path đỏ), đánh dấu mất/khôi phục GNSS;
     if (Lệch tuyến nhiều mẫu và có Internet?) then (có)
       :Gọi lại OSRM cập nhật tuyến;

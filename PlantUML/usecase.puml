@@ -1,21 +1,19 @@
 @startuml usecase_tong_quat
 skinparam defaultFontName "Times New Roman"
-skinparam linetype polyline
 left to right direction
-title Use case tổng quát
 skinparam packageStyle rectangle
+skinparam nodesep 12
+title Use case tổng quát
 
 actor "Người dùng" as User
-actor "Backend xử lý video\n(My/Outer Server)" as Backend
-actor "Dịch vụ dữ liệu ngoài\n(Nominatim/OSRM, IGS, CelesTrak)" as External
 
 rectangle "GNSSAndOpticalFlowApp" {
-  usecase "Xem bản đồ GNSS hai chiều" as UC1
-  usecase "Xem vệ tinh trên mô hình 3D/AR" as UC2
-  usecase "Chỉ đường trực tiếp có hỗ trợ Optical Flow" as UC3
-  usecase "Phân tích camera bằng Optical Flow" as UC4
-  usecase "Phân tích hiệu năng KLT/Farneback" as UC5
-  usecase "Xử lý video bằng RAFT" as UC6
+  usecase "Quan sát vệ tinh" as UC1
+  usecase "Xem bản đồ hai chiều" as UC2
+  usecase "Chỉ đường trực tiếp" as UC3
+  usecase "Xem Optical Flow trên Camera" as UC4
+  usecase "Phân tích hiệu năng Optical Flow" as UC5
+  usecase "Xử lý video Optical Flow\nbằng mô hình mạng lưới học sâu" as UC6
   usecase "Xem lưu trữ" as UC7
 }
 
@@ -26,9 +24,4 @@ User --> UC4
 User --> UC5
 User --> UC6
 User --> UC7
-
-External --> UC1
-External --> UC2
-External --> UC3
-Backend --> UC6
 @enduml

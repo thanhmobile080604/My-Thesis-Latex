@@ -1,0 +1,24 @@
+@startuml package_diagram
+skinparam defaultFontName "Times New Roman"
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 30
+skinparam ranksep 38
+title Biểu đồ phụ thuộc gói của ứng dụng Android
+
+package "Tầng giao diện (screen)\nFragment + layout XML" as P
+package "Tầng ViewModel (screen.viewmodel)" as VM
+package "Tầng nghiệp vụ / Repository (function)\ngnss · optical_flow · video" as R
+package "Tầng dữ liệu (model + Room)\nEntity · DAO · Database · lưu trữ media" as D
+package "Tầng native (C/C++)\nOpenCV qua JNI" as N
+
+P ..> VM
+VM ..> R
+R ..> D
+R ..> N
+
+P -[hidden]down- VM
+VM -[hidden]down- R
+R -[hidden]down- D
+D -[hidden]right- N
+@enduml

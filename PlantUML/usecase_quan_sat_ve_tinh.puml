@@ -1,24 +1,31 @@
 @startuml usecase_quan_sat_ve_tinh
 skinparam defaultFontName "Times New Roman"
-skinparam linetype polyline
 left to right direction
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 35
+skinparam ranksep 50
 title Use case phân rã: Quan sát vệ tinh
 
 actor "Người dùng" as User
-actor "Dịch vụ dữ liệu ngoài" as Ext
 
 rectangle "Quan sát vệ tinh" {
-  usecase "Xem danh sách vệ tinh" as U1
-  usecase "Xem vệ tinh trên mô hình 3D" as U2
-  usecase "Xem vệ tinh bằng AR" as U3
-  usecase "Cập nhật dữ liệu quỹ đạo" as U4
-  usecase "Xem chi tiết vệ tinh" as U5
+
+  usecase "Xem vệ tinh quanh\nTrái Đất trên mô hình 3D" as UC_3D
+  usecase "Xem vệ tinh bằng\nthực tế tăng cường" as UC_AR
+
+  usecase "Chọn vệ tinh để xem\nthông tin chi tiết" as UC_Detail
+  usecase "Xem vị trí Mặt Trời, Mặt Trăng,\nvùng ngày/đêm Trái Đất" as UC_SpaceInfo
+
+  UC_3D -[hidden]down- UC_AR
+  UC_3D -[hidden]right- UC_Detail
+  UC_AR -[hidden]right- UC_SpaceInfo
 }
 
-User --> U1
-User --> U2
-User --> U3
-User --> U4
-User --> U5
-Ext --> U4
+User --> UC_3D
+User --> UC_AR
+
+UC_Detail ..> UC_3D : <<extend>>
+UC_3D ..> UC_SpaceInfo : <<include>>
+
 @enduml

@@ -1,0 +1,25 @@
+@startuml package_video
+skinparam defaultFontName "Times New Roman"
+hide empty members
+skinparam linetype ortho
+title Thiết kế gói Video
+
+interface OpticalFlowServerApi
+class OpticalFlowServerClient
+class ServerVideoProcessor
+class GnssBackendVideoProcessor
+class VideoProcessingWorker
+class VideoProcessingBus
+class VideoProcessingNotifier
+class VideoProcessOptions
+class VideoProgressMetadata
+
+OpticalFlowServerClient ..> OpticalFlowServerApi
+VideoProcessingWorker --> OpticalFlowServerClient
+VideoProcessingWorker ..> ServerVideoProcessor
+VideoProcessingWorker ..> GnssBackendVideoProcessor
+VideoProcessingWorker --> VideoProcessingBus
+VideoProcessingNotifier ..> VideoProcessingBus
+VideoProcessingWorker ..> VideoProcessOptions
+VideoProcessingBus o-- VideoProgressMetadata
+@enduml

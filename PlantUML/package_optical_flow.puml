@@ -1,0 +1,21 @@
+@startuml package_optical_flow
+skinparam defaultFontName "Times New Roman"
+hide empty members
+skinparam linetype ortho
+title Thiết kế gói Optical Flow
+
+interface OpticalFlow
+class KLT
+class Farneback
+class MotionVectorViz
+class IMUEstimator
+class OFOutput
+class OpticalFlowMetrics
+
+OpticalFlow <|.. KLT
+OpticalFlow <|.. Farneback
+KLT ..> MotionVectorViz
+Farneback ..> MotionVectorViz
+OpticalFlow ..> OFOutput
+OFOutput *-- OpticalFlowMetrics
+@enduml

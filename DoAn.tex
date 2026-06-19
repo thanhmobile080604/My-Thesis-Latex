@@ -28,12 +28,12 @@
 
 % =================== GÓI LỆNH HÌNH ẢNH, BẢNG, CHÚ THÍCH ===================
 \usepackage{graphicx} %Cho phép chèn hình ảnh với lệnh \includegraphics.
-\graphicspath{{figures/}{../figures/}} % Thư mục chứa các hình ảnh, tùy chọn đường dẫn dựa vào người dùng
+\graphicspath{{figures/}{../figures/}{Hinhve/}{../Hinhve/}} % Thư mục chứa các hình ảnh, tùy chọn đường dẫn dựa vào người dùng
 % Macro chèn biểu đồ hoạt động (activity). Nếu đã render ảnh từ PlantUML thì hiển thị ảnh;
 % nếu chưa có ảnh thì hiển thị khung giữ chỗ để tài liệu vẫn biên dịch được.
 % Cú pháp: \activitydiagram{đường-dẫn-ảnh}{caption}{label}
 \newcommand{\activitydiagram}[3]{%
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\IfFileExists{#1}{%
 			\includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{#1}%
@@ -48,7 +48,7 @@
 % Macro chung cho các sơ đồ PlantUML khác (use case, lớp...). Cùng cơ chế giữ chỗ an toàn.
 % Cú pháp: \pumlfig{đường-dẫn-ảnh}{caption}{label}
 \newcommand{\pumlfig}[3]{%
-	\begin{figure}[H]
+	\begin{figure}[htbp]
 		\centering
 		\IfFileExists{#1}{%
 			\includegraphics[width=0.9\textwidth,height=0.8\textheight,keepaspectratio]{#1}%
@@ -60,6 +60,16 @@
 		\label{#3}
 	\end{figure}%
 }
+% Nới lỏng ngưỡng đặt float để tránh khoảng trắng lớn phía sau/ trước hình ảnh.
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.7}
+\usepackage{placeins} % Cung cấp \FloatBarrier để giữ hình trong đúng mục, tránh trôi sang mục khác.
+
 \usepackage{array} % Tạo bảng, mở rộng khả năng tùy biến các cột trong môi trường bảng (tabular).
 \usepackage{longtable}
 \usepackage{multirow} % Hợp nhất các ô trong bảng.
@@ -265,13 +275,13 @@
 	
 	\newpage
 	%\pagestyle{fancy} % Áp dụng header và footer
-	\chapter{CÔNG NGHỆ SỬ DỤNG}
+	\chapter{NỀN TẢNG LÝ THUYẾT VÀ CÔNG NGHỆ SỬ DỤNG}
 	\label{chapter:Methodology}
 	\subfile{Chuong/3_Cong_nghe}
 	
 	\newpage
 	%\pagestyle{fancy} % Áp dụng header và footer
-	\chapter{THIẾT KẾ, TRIỂN KHAI VÀ ĐÁNH GIÁ HỆ THỐNG}
+	\chapter{PHÂN TÍCH THIẾT KẾ, TRIỂN KHAI VÀ ĐÁNH GIÁ HỆ THỐNG}
 	\label{chapter:Experiment}
 	\subfile{Chuong/4_Ket_qua_thuc_nghiem}
 	
@@ -288,7 +298,7 @@
 	
 	% ===================================================
 	
-	\nocite{*} % Liệt kê toàn bộ tài liệu tham khảo trong danh mục dù đã bỏ trích dẫn dạng [n] trong nội văn
+	\nocite{*} % An toàn: bảo đảm mọi tài liệu trong .bib đều xuất hiện trong danh mục, kể cả khi chưa được trích dẫn [n] trong nội văn
 	\printbibliography[heading=bibintoc] % Tùy chọn [heading=bibintoc] để thêm mục này vào Mục lục
 
 \end{document}

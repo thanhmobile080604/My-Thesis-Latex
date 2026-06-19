@@ -1,37 +1,127 @@
 @startuml usecase_xu_ly_video_ai
 skinparam defaultFontName "Times New Roman"
-skinparam linetype polyline
 left to right direction
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 45
 title Use case phân rã: Xử lý video Optical Flow bằng mô hình mạng lưới học sâu
 
 actor "Người dùng" as User
-actor "My Server" as MyS
-actor "Outer Server" as OutS
+actor "Backend tự triển khai" as OwnBackend
+actor "Backend ngoài" as ExternalBackend
+actor "MQTT Broker" as MQTT
+actor "Storage" as Storage
+actor "Cloudflare Tunnel" as Tunnel
 
-rectangle "Xử lý video Optical Flow bằng mô hình mạng lưới học sâu" {
-  usecase "Chọn video đầu vào" as U1
-  usecase "Chọn backend và chế độ xử lý" as U2
-  usecase "Upload video trực tiếp" as U3
-  usecase "Upload video theo chunk" as U4
-  usecase "Tạo job xử lý" as U5
-  usecase "Theo dõi tiến độ job" as U6
-  usecase "Hủy job" as U7
-  usecase "Tải video kết quả" as U8
-  usecase "Mở video đã xử lý" as U9
-  usecase "Cleanup tài nguyên server" as U10
+rectangle "Xử lý video Optical Flow bằng mô hình học sâu" {
+
+  rectangle "Luồng chung trên ứng dụng Android" {
+    usecase "Chọn video\nđầu vào" as UC_SelectVideo
+    usecase "Chọn backend\nxử lý" as UC_SelectBackend
+    usecase "Chọn chế độ\nxử lý" as UC_Mode
+    usecase "Yêu cầu bám\nđối tượng đã chọn" as UC_ObjectTrack
+    usecase "Theo dõi tiến độ\nxử lý" as UC_Progress
+    usecase "Hiển thị tiến độ\ntrên UI/thông báo" as UC_Notify
+    usecase "Hủy job\nxử lý" as UC_Cancel
+    usecase "Tải video\nkết quả" as UC_Download
+    usecase "Mở video\nđã xử lý" as UC_OpenResult
+
+    UC_SelectVideo -[hidden]down- UC_SelectBackend
+    UC_SelectBackend -[hidden]down- UC_Mode
+    UC_Mode -[hidden]down- UC_Progress
+    UC_Progress -[hidden]down- UC_Download
+    UC_Download -[hidden]down- UC_OpenResult
+  }
+
+  rectangle "Nhánh backend tự triển khai" {
+    usecase "Sử dụng backend\ntự triển khai" as UC_OwnBackend
+    usecase "Kết nối qua\nCloudflare Tunnel/API" as UC_OwnConnect
+    usecase "Upload video\ntrực tiếp/theo chunk" as UC_OwnUpload
+
+    UC_OwnBackend -[hidden]down- UC_OwnConnect
+    UC_OwnConnect -[hidden]down- UC_OwnUpload
+  }
+
+  rectangle "Nhánh backend ngoài" {
+    usecase "Sử dụng backend\nngoài" as UC_ExternalBackend
+    usecase "Gửi yêu cầu xử lý\nqua MQTT" as UC_MqttRequest
+    usecase "Nhận URL upload\nstorage" as UC_GetUploadUrl
+    usecase "Upload video\nlên URL storage" as UC_StorageUpload
+    usecase "Nhận URL\nvideo kết quả" as UC_ResultUrl
+
+    UC_ExternalBackend -[hidden]down- UC_MqttRequest
+    UC_MqttRequest -[hidden]down- UC_GetUploadUrl
+    UC_GetUploadUrl -[hidden]down- UC_StorageUpload
+    UC_StorageUpload -[hidden]down- UC_ResultUrl
+  }
+
+  rectangle "Xử lý trên backend" {
+    usecase "Tạo job\nxử lý video" as UC_CreateJob
+    usecase "Xử lý Optical Flow\nbằng RAFT" as UC_RAFT
+    usecase "Xử lý bám đối tượng\nbằng Cutie" as UC_Cutie
+    usecase "Dọn dẹp video và\ntài nguyên tạm" as UC_Cleanup
+
+    UC_CreateJob -[hidden]down- UC_RAFT
+    UC_RAFT -[hidden]down- UC_Cutie
+    UC_Cutie -[hidden]down- UC_Cleanup
+  }
+
+  UC_SelectBackend -[hidden]right- UC_OwnBackend
+  UC_OwnBackend -[hidden]right- UC_CreateJob
+  UC_OwnBackend -[hidden]down- UC_ExternalBackend
 }
 
-User --> U1
-User --> U2
-User --> U3
-User --> U4
-User --> U6
-User --> U7
-User --> U8
-User --> U9
-U3 ..> U5 : include
-U4 ..> U5 : include
-MyS --> U5
-OutS --> U5
-MyS --> U10
+User -right-> UC_SelectVideo
+User -right-> UC_SelectBackend
+User -right-> UC_Mode
+User -right-> UC_Progress
+User -right-> UC_Cancel
+User -right-> UC_Download
+User -right-> UC_OpenResult
+
+UC_OwnBackend ..> UC_SelectBackend : <<extend>>
+UC_ExternalBackend ..> UC_SelectBackend : <<extend>>
+
+UC_ObjectTrack ..> UC_Mode : <<extend>>
+UC_Progress ..> UC_Notify : <<include>>
+UC_Cancel ..> UC_Progress : <<extend>>
+UC_Download ..> UC_OpenResult : <<include>>
+
+UC_OwnBackend ..> UC_OwnConnect : <<include>>
+UC_OwnBackend ..> UC_OwnUpload : <<include>>
+UC_OwnUpload ..> UC_CreateJob : <<include>>
+
+UC_ExternalBackend ..> UC_MqttRequest : <<include>>
+UC_ExternalBackend ..> UC_GetUploadUrl : <<include>>
+UC_ExternalBackend ..> UC_StorageUpload : <<include>>
+UC_StorageUpload ..> UC_CreateJob : <<include>>
+UC_ResultUrl ..> UC_Download : <<extend>>
+
+UC_CreateJob ..> UC_RAFT : <<include>>
+UC_Cutie ..> UC_RAFT : <<extend>>
+UC_Cleanup ..> UC_CreateJob : <<extend>>
+
+OwnBackend -left-> UC_OwnConnect
+OwnBackend -left-> UC_OwnUpload
+OwnBackend -left-> UC_CreateJob
+OwnBackend -left-> UC_RAFT
+OwnBackend -left-> UC_Cleanup
+
+ExternalBackend -left-> UC_MqttRequest
+ExternalBackend -left-> UC_GetUploadUrl
+ExternalBackend -left-> UC_CreateJob
+ExternalBackend -left-> UC_RAFT
+ExternalBackend -left-> UC_ResultUrl
+ExternalBackend -left-> UC_Cleanup
+
+MQTT -left-> UC_MqttRequest
+MQTT -left-> UC_GetUploadUrl
+MQTT -left-> UC_ResultUrl
+
+Storage -left-> UC_StorageUpload
+Storage -left-> UC_Download
+
+Tunnel -left-> UC_OwnConnect
+
 @enduml

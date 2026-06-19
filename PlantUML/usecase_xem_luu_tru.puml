@@ -1,22 +1,44 @@
 @startuml usecase_xem_luu_tru
 skinparam defaultFontName "Times New Roman"
-skinparam linetype polyline
 left to right direction
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 35
+skinparam ranksep 45
 title Use case phân rã: Xem lưu trữ
 
 actor "Người dùng" as User
 
 rectangle "Xem lưu trữ" {
-  usecase "Xem danh sách phiên phân tích" as U1
-  usecase "Xem lại tuyến đường đã đi" as U2
-  usecase "Xem thư viện ảnh" as U3
-  usecase "Xem thư viện video" as U4
-  usecase "Xóa mục đã lưu" as U5
+
+  usecase "Xem danh sách\ncác mục đã lưu" as UC_List
+  usecase "Mở chi tiết\nmột mục đã lưu" as UC_Detail
+
+  usecase "Xem lại tuyến đường\nđã đi" as UC_Route
+  usecase "Xem ảnh\nđã lưu" as UC_Image
+  usecase "Xem video\nđã lưu" as UC_Video
+
+  usecase "Xóa mục\nđã lưu" as UC_Delete
+
+  UC_List -[hidden]down- UC_Detail
+  UC_Detail -[hidden]down- UC_Delete
+
+  UC_Detail -[hidden]right- UC_Route
+  UC_Route -[hidden]down- UC_Image
+  UC_Image -[hidden]down- UC_Video
 }
 
-User --> U1
-User --> U2
-User --> U3
-User --> U4
-User --> U5
+User -right-> UC_List
+User -right-> UC_Detail
+User -right-> UC_Delete
+
+UC_Detail ..> UC_List : <<extend>>
+
+UC_Route ..> UC_Detail : <<extend>>
+UC_Image ..> UC_Detail : <<extend>>
+UC_Video ..> UC_Detail : <<extend>>
+
+UC_Delete ..> UC_List : <<extend>>
+UC_Delete ..> UC_Detail : <<extend>>
+
 @enduml

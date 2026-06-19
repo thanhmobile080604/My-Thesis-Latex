@@ -2,6 +2,8 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
+Chương mở đầu này giới thiệu bối cảnh và định hướng tổng thể của đồ án. Trước hết, chương đặt vấn đề về nhu cầu trực quan hóa dữ liệu định vị vệ tinh và chuyển động quang học trên thiết bị di động; tiếp đó xác định mục tiêu, phạm vi và định hướng giải pháp của hệ thống; cuối cùng trình bày phương pháp nghiên cứu và bố cục của toàn bộ đồ án. Các nội dung này lần lượt được trình bày trong các mục Đặt vấn đề (Mục~\ref{section:1.1}), Mục tiêu và phạm vi đề tài (Mục~\ref{section:1.2}), Định hướng giải pháp (Mục~\ref{section:1.3}), Phương pháp nghiên cứu (Mục~\ref{section:1.4}) và Bố cục đồ án (Mục~\ref{section:1.5}).
+
 \section{Đặt vấn đề}
 \label{section:1.1}
 Trong bài toán định vị trên thiết bị di động, người dùng thường chỉ quan sát kết quả cuối cùng là một điểm tọa độ trên bản đồ. Tuy nhiên, phía sau điểm tọa độ đó là nhiều thông tin kỹ thuật có giá trị, bao gồm số lượng vệ tinh đang được quan sát, cường độ tín hiệu, chòm vệ tinh, trạng thái được dùng trong nghiệm định vị và nguồn dữ liệu quỹ đạo. Android cung cấp các API cho phép truy cập trạng thái vệ tinh và một phần dữ liệu đo GNSS thô, trong đó \texttt{GnssMeasurementsEvent} cho phép ứng dụng nhận tập đo từ GNSS engine trên thiết bị. Nếu được trực quan hóa hợp lý, các dữ liệu này có thể hỗ trợ việc học tập, kiểm thử và đánh giá chất lượng định vị trong các môi trường khác nhau.
@@ -46,5 +48,8 @@ Các video do người dùng chọn được tải lên backend để xử lý b
 \section{Bố cục đồ án}
 \label{section:1.5}
 Đồ án gồm sáu chương. Chương 1 trình bày tổng quan về đề tài, lý do chọn đề tài, mục tiêu, phạm vi và định hướng giải pháp. Chương 2 khảo sát hiện trạng, phân tích yêu cầu, mô tả các ca sử dụng và yêu cầu phi chức năng của hệ thống. Chương 3 trình bày cơ sở lý thuyết và công nghệ sử dụng, bao gồm Android, định vị vệ tinh, hệ tọa độ, bản đồ, mô hình 3D, thực tế tăng cường, Optical Flow, RAFT, ONNX Runtime, FastAPI và cơ chế kết hợp định vị vệ tinh, chuyển động quang học, cảm biến quán tính.Chương 4 mô tả thiết kế và triển khai hệ thống, các mô hình UML, luồng xử lý dữ liệu và kết quả kiểm thử chức năng. Chương 5 phân tích các giải pháp và đóng góp chính của đồ án như phân giải vị trí vệ tinh, hỗ trợ chỉ đường khi tín hiệu định vị suy giảm, đánh giá hiệu năng thuật toán Optical Flow, xử lý video RAFT trên backend và bám đối tượng qua camera. Cuối cùng, Chương 6 tổng kết kết quả đạt được, nêu hạn chế và đề xuất hướng phát triển tiếp theo.
+
+\section*{Kết chương}
+Chương này đã làm rõ lý do hình thành đề tài: khoảng trống giữa các ứng dụng bản đồ phổ thông và nhu cầu quan sát, so sánh dữ liệu GNSS cùng chuyển động quang học trong một hệ thống thống nhất. Trên cơ sở đó, đồ án xác định mục tiêu xây dựng ứng dụng Android kết hợp GNSS, camera, Optical Flow và backend xử lý video bằng mô hình mạng lưới học sâu, cùng phạm vi, định hướng giải pháp và phương pháp nghiên cứu tương ứng. Để hiện thực hóa định hướng này, trước hết cần khảo sát hiện trạng và phân tích yêu cầu của hệ thống --- nội dung được trình bày trong Chương~\ref{chapter:Related_works}.
 
 \end{document}

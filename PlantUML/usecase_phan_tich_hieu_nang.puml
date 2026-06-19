@@ -1,24 +1,48 @@
 @startuml usecase_phan_tich_hieu_nang
 skinparam defaultFontName "Times New Roman"
-skinparam linetype polyline
 left to right direction
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam nodesep 35
+skinparam ranksep 45
 title Use case phân rã: Phân tích hiệu năng Optical Flow
 
 actor "Người dùng" as User
 
 rectangle "Phân tích hiệu năng Optical Flow" {
-  usecase "Lưu phiên phân tích" as U1
-  usecase "Xem danh sách phiên" as U2
-  usecase "Xem biểu đồ FPS" as U3
-  usecase "Xem biểu đồ thời gian xử lý" as U4
-  usecase "Xem số điểm/vector hoạt động" as U5
-  usecase "Xóa phiên phân tích" as U6
+
+  usecase "Xem danh sách\nphiên phân tích" as UC_List
+  usecase "Xem chi tiết\nphiên phân tích" as UC_Detail
+
+  usecase "Xem biểu đồ\nFPS" as UC_FPS
+  usecase "Xem biểu đồ\nthời gian xử lý" as UC_ProcessTime
+  usecase "Xem biểu đồ\nsố điểm/vector hoạt động" as UC_VectorCount
+
+  usecase "Xem chi tiết thông số\ntheo mốc thời gian" as UC_TimeDetail
+  usecase "Xóa phiên\nphân tích" as UC_Delete
+
+  UC_List -[hidden]down- UC_Detail
+  UC_Detail -[hidden]down- UC_Delete
+
+  UC_Detail -[hidden]right- UC_FPS
+  UC_FPS -[hidden]down- UC_ProcessTime
+  UC_ProcessTime -[hidden]down- UC_VectorCount
+  UC_VectorCount -[hidden]down- UC_TimeDetail
 }
 
-User --> U1
-User --> U2
-User --> U3
-User --> U4
-User --> U5
-User --> U6
+User -right-> UC_List
+User -right-> UC_Delete
+
+UC_Detail ..> UC_List : <<extend>>
+
+UC_Detail ..> UC_FPS : <<include>>
+UC_Detail ..> UC_ProcessTime : <<include>>
+UC_Detail ..> UC_VectorCount : <<include>>
+
+UC_TimeDetail ..> UC_FPS : <<extend>>
+UC_TimeDetail ..> UC_ProcessTime : <<extend>>
+UC_TimeDetail ..> UC_VectorCount : <<extend>>
+
+UC_Delete ..> UC_List : <<extend>>
+
 @enduml

@@ -1,0 +1,30 @@
+@startuml package_gnss
+skinparam defaultFontName "Times New Roman"
+hide empty members
+skinparam linetype ortho
+title Thiết kế gói GNSS
+
+class GnssSatelliteTracker
+class GnssSatellitePVTResolver
+class IgsBroadcastEphemerisRepository
+class IgsBroadcastEphemerisPropagator
+class CelesTrakSatelliteRepository
+class Sgp4OrbitPropagator
+class SatelliteCalculator
+class EarthRenderer
+class GNSSARRenderer
+class MapRepository
+class SatelliteInfo
+class RouteInfo
+
+GnssSatelliteTracker ..> GnssSatellitePVTResolver
+GnssSatelliteTracker ..> IgsBroadcastEphemerisRepository
+GnssSatelliteTracker ..> CelesTrakSatelliteRepository
+GnssSatelliteTracker ..> SatelliteCalculator
+IgsBroadcastEphemerisRepository o-- IgsBroadcastEphemerisPropagator
+CelesTrakSatelliteRepository o-- Sgp4OrbitPropagator
+GnssSatelliteTracker --> "*" SatelliteInfo
+EarthRenderer ..> SatelliteInfo
+GNSSARRenderer ..> SatelliteInfo
+MapRepository --> RouteInfo
+@enduml
