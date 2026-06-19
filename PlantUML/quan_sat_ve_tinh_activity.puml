@@ -17,10 +17,7 @@ while (Còn cập nhật GNSS?) is (có)
 endwhile (không)
 |Người dùng|
 :Chọn thao tác;
-if (Tìm địa điểm?) then (đúng)
-  |Hệ thống|
-  :Gọi Nominatim, vẽ tuyến đường OSRM;
-elseif (Xem mô hình 3D?) then (đúng)
+if (Xem mô hình 3D?) then (đúng)
   |Hệ thống|
   :Dựng Trái Đất 3D, đặt vệ tinh theo nguồn dữ liệu;
 elseif (Xem AR?) then (đúng)

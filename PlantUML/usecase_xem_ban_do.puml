@@ -1,0 +1,21 @@
+@startuml usecase_xem_ban_do
+skinparam defaultFontName "Times New Roman"
+skinparam linetype polyline
+left to right direction
+title Use case phân rã: Xem bản đồ hai chiều
+
+actor "Người dùng" as User
+actor "Dịch vụ dữ liệu ngoài" as Ext
+
+rectangle "Xem bản đồ hai chiều" {
+  usecase "Xem vị trí hiện tại" as U1
+  usecase "Tìm kiếm địa điểm" as U2
+  usecase "Vẽ tuyến đường" as U3
+}
+
+User --> U1
+User --> U2
+User --> U3
+Ext --> U2
+Ext --> U3
+@enduml

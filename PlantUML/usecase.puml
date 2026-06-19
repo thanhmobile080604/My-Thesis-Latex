@@ -16,6 +16,7 @@ rectangle "GNSSAndOpticalFlowApp" {
   usecase "Phân tích camera bằng Optical Flow" as UC4
   usecase "Phân tích hiệu năng KLT/Farneback" as UC5
   usecase "Xử lý video bằng RAFT" as UC6
+  usecase "Xem lưu trữ" as UC7
 }
 
 User --> UC1
@@ -24,6 +25,7 @@ User --> UC3
 User --> UC4
 User --> UC5
 User --> UC6
+User --> UC7
 
 External --> UC1
 External --> UC2

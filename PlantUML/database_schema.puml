@@ -1,0 +1,55 @@
+@startuml database_schema
+skinparam defaultFontName "Times New Roman"
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+title Lược đồ cơ sở dữ liệu Room
+
+class AnalyticsSession {
+  + id : Long <<PK>>
+  name : String
+  mode : String
+  createdAt : Long
+  durationMs : Long
+}
+
+class AnalyticsSample {
+  + id : Long <<PK>>
+  # sessionId : Long <<FK>>
+  timestampMs : Long
+  kltFps : Float
+  farnebackFps : Float
+  kltProcessMs : Float
+  farnebackProcessMs : Float
+  kltVectors : Int
+  farnebackVectors : Int
+}
+
+class RoutingSession {
+  + id : Long <<PK>>
+  destination : String
+  distanceMeters : Double
+  gnssDistanceMeters : Double
+  assistDistanceMeters : Double
+  createdAt : Long
+}
+
+class RoutePoint {
+  + id : Long <<PK>>
+  # sessionId : Long <<FK>>
+  latitude : Double
+  longitude : Double
+  source : String
+  timestampMs : Long
+}
+
+class MediaItem {
+  + id : Long <<PK>>
+  type : String
+  filePath : String
+  sourceModule : String
+  createdAt : Long
+}
+
+AnalyticsSession "1" --> "*" AnalyticsSample : sessionId
+RoutingSession "1" --> "*" RoutePoint : sessionId
+@enduml

@@ -44,6 +44,14 @@ Biểu đồ lớp rút gọn của hệ thống được trình bày trong Hìn
 
 \pumlfig{figures/class_diagram.png}{Biểu đồ lớp rút gọn của hệ thống}{fig:class-diagram}
 
+\subsection{Thiết kế cơ sở dữ liệu}
+\label{subsection:4.2.3}
+Để lưu trữ và truy xuất dữ liệu phát sinh trong quá trình sử dụng, ứng dụng tổ chức dữ liệu cục bộ bằng thư viện Room của Android. Room cung cấp lớp trừu tượng trên SQLite, cho phép định nghĩa các bảng dưới dạng \texttt{@Entity}, truy vấn qua \texttt{@Dao} và quản lý bằng một lớp \texttt{@Database} duy nhất; nhờ đó dữ liệu được lưu có cấu trúc và truy xuất nhanh hơn so với việc lưu các chuỗi JSON rời rạc.
+
+Cơ sở dữ liệu được thiết kế gồm các bảng \texttt{AnalyticsSession}, \texttt{AnalyticsSample}, \texttt{RoutingSession}, \texttt{RoutePoint} và \texttt{MediaItem}. Mỗi bảng có khóa chính riêng và có quan hệ chặt chẽ với nhau thông qua khóa ngoại: \texttt{AnalyticsSample} tham chiếu \texttt{AnalyticsSession}, còn \texttt{RoutePoint} tham chiếu \texttt{RoutingSession}. Thiết kế này cho phép hệ thống truy xuất và thống kê dữ liệu nhanh chóng, phục vụ cho các chức năng xem lại phiên phân tích, tuyến đường trực tiếp đã đi và thư viện ảnh, video kết quả. Lược đồ cơ sở dữ liệu được minh họa trong Hình~\ref{fig:database-schema}.
+
+\pumlfig{figures/database_schema.png}{Lược đồ cơ sở dữ liệu của ứng dụng}{fig:database-schema}
+
 \section{Xây dựng ứng dụng}
 \label{section:4.3}
 \subsection{Thư viện và công cụ sử dụng}
@@ -104,7 +112,7 @@ Quyền vị trí và GPS & Mở ứng dụng khi chưa cấp quyền hoặc GPS
 GNSS viewer & Bật bản đồ, chuyển 2D/3D, chọn vệ tinh. & Bản đồ và renderer cập nhật vị trí; thông tin vệ tinh hiển thị theo dữ liệu có sẵn. \\ \hline
 LiveRouting & Bắt đầu tuyến đường rồi mô phỏng GNSS yếu hoặc dropout. & Camera assist được bật; visual odometry và map matching cập nhật marker/path assist. \\ \hline
 Camera Optical Flow & Chạy KLT/Farneback, đổi độ nhạy, chọn ROI. & Frame được phủ vector/heatmap; đổi thuật toán không làm gián đoạn camera; ROI giới hạn vùng xử lý. \\ \hline
-Analytics & Bắt đầu và dừng phiên phân tích. & Ứng dụng lưu JSON session, hiển thị danh sách và biểu đồ chi tiết. \\ \hline
+Analytics & Bắt đầu và dừng phiên phân tích. & Ứng dụng lưu session vào Room, hiển thị danh sách và biểu đồ chi tiết. \\ \hline
 Video backend & Chọn My Server hoặc Outer Server, gửi video nhỏ/lớn, theo dõi job, tải kết quả và hủy job. & Overlay tiến độ cập nhật; upload/download theo chunk hoạt động với server hỗ trợ; video kết quả mở được khi job thành công. \\ \hline
 Lỗi server/model & Server không nạp được model hoặc trả lỗi. & Ứng dụng hiển thị thông báo lỗi và không tạo file kết quả sai. \\ \hline
 \end{longtable}

@@ -1,0 +1,22 @@
+@startuml usecase_xem_luu_tru
+skinparam defaultFontName "Times New Roman"
+skinparam linetype polyline
+left to right direction
+title Use case phân rã: Xem lưu trữ
+
+actor "Người dùng" as User
+
+rectangle "Xem lưu trữ" {
+  usecase "Xem danh sách phiên phân tích" as U1
+  usecase "Xem lại tuyến đường đã đi" as U2
+  usecase "Xem thư viện ảnh" as U3
+  usecase "Xem thư viện video" as U4
+  usecase "Xóa mục đã lưu" as U5
+}
+
+User --> U1
+User --> U2
+User --> U3
+User --> U4
+User --> U5
+@enduml

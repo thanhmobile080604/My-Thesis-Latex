@@ -22,7 +22,7 @@ endwhile (không)
 :Bấm Dừng phân tích;
 |Hệ thống|
 if (Có sample hợp lệ?) then (có)
-  :Lưu AnalyticsSession (JSON);
+  :Lưu AnalyticsSession vào Room;
 else (không)
   :Không tạo phiên rỗng;
 endif

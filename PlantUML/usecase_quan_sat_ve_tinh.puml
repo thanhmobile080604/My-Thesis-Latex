@@ -8,14 +8,11 @@ actor "Người dùng" as User
 actor "Dịch vụ dữ liệu ngoài" as Ext
 
 rectangle "Quan sát vệ tinh" {
-  usecase "Xem vị trí hiện tại" as U1
-  usecase "Tìm kiếm địa điểm" as U2
-  usecase "Vẽ tuyến đường" as U3
-  usecase "Xem danh sách vệ tinh" as U4
-  usecase "Xem vệ tinh trên mô hình 3D" as U5
-  usecase "Xem vệ tinh bằng AR" as U6
-  usecase "Cập nhật dữ liệu quỹ đạo" as U7
-  usecase "Xem chi tiết vệ tinh" as U8
+  usecase "Xem danh sách vệ tinh" as U1
+  usecase "Xem vệ tinh trên mô hình 3D" as U2
+  usecase "Xem vệ tinh bằng AR" as U3
+  usecase "Cập nhật dữ liệu quỹ đạo" as U4
+  usecase "Xem chi tiết vệ tinh" as U5
 }
 
 User --> U1
@@ -23,12 +20,5 @@ User --> U2
 User --> U3
 User --> U4
 User --> U5
-User --> U6
-User --> U7
-User --> U8
-
-U3 ..> U2 : include
-Ext --> U2
-Ext --> U3
-Ext --> U7
+Ext --> U4
 @enduml
