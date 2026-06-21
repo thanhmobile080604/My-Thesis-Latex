@@ -44,49 +44,49 @@ Bên cạnh đó, nhóm \emph{Xem Optical Flow trên Camera} cho phép phân tí
 Hình~\ref{fig:usecase-tong-quat} trình bày tổng quan bảy nhóm chức năng này. Người dùng giữ vai trò trung tâm trong toàn bộ quy trình, từ quan sát dữ liệu định vị, phân tích chuyển động thời gian thực đến xử lý video trên máy chủ và xem lại dữ liệu đã lưu. Biểu đồ này là cơ sở để triển khai phần phân tích yêu cầu chi tiết, đồng thời giúp xác định rõ phạm vi chức năng của hệ thống.
 
 
-\pumlfig{figures/usecase_tong_quat.png}{Biểu đồ use case tổng quát của hệ thống}{fig:usecase-tong-quat}
+\pumlfig{figures/usecase/usecase_tong_quat.png}{Biểu đồ use case tổng quát của hệ thống}{fig:usecase-tong-quat}
 
 \subsection{Biểu đồ use case phân rã Quan sát vệ tinh}
 \label{subsection:2.2.2}
 Quan sát vệ tinh (GNSS Viewer) mô tả nhóm thao tác hiển thị và tra cứu vệ tinh một cách trực quan. Người dùng có hai thao tác chính: xem vệ tinh quay quanh Trái Đất trên mô hình ba chiều và xem vệ tinh bằng thực tế tăng cường. Từ chế độ ba chiều, người dùng có thể chọn một vệ tinh bất kỳ để xem thông tin chi tiết đồng thời mô hình ba chiều luôn hiển thị kèm vị trí Mặt Trời, Mặt Trăng và vùng ngày/đêm của Trái Đất để người dùng định vị bối cảnh không gian. Biểu đồ use case phân rã Quan sát vệ tinh được minh họa ở Hình~\ref{fig:usecase-quan-sat-ve-tinh}, bao gồm Xem vệ tinh quanh Trái Đất trên mô hình 3D, Xem vệ tinh bằng thực tế tăng cường, Chọn vệ tinh để xem thông tin chi tiết và Xem vị trí Mặt Trời, Mặt Trăng, vùng ngày/đêm Trái Đất.
 
-\pumlfig{figures/usecase_quan_sat_ve_tinh.png}{Biểu đồ use case phân rã Quan sát vệ tinh}{fig:usecase-quan-sat-ve-tinh}
+\pumlfig{figures/usecase/usecase_quan_sat_ve_tinh.png}{Biểu đồ use case phân rã Quan sát vệ tinh}{fig:usecase-quan-sat-ve-tinh}
 
 \subsection{Biểu đồ use case phân rã Xem bản đồ hai chiều}
 \label{subsection:2.2.bando}
 Xem bản đồ hai chiều mô tả nhóm thao tác trên bản đồ GNSS hai chiều. Người dùng có thể xem vị trí hiện tại, tìm kiếm địa điểm và xem tuyến đường từ điểm A đến điểm B (từ vị trí hiện tại tới địa điểm đã chọn). Biểu đồ use case phân rã Xem bản đồ hai chiều, minh họa ở Hình~\ref{fig:usecase-xem-ban-do}, bao gồm Xem vị trí hiện tại, Tìm kiếm địa điểm và Xem tuyến đường từ điểm A đến điểm B.
 
-\pumlfig{figures/usecase_xem_ban_do.png}{Biểu đồ use case phân rã Xem bản đồ hai chiều}{fig:usecase-xem-ban-do}
+\pumlfig{figures/usecase/usecase_xem_ban_do.png}{Biểu đồ use case phân rã Xem bản đồ hai chiều}{fig:usecase-xem-ban-do}
 
 \subsection{Biểu đồ use case phân rã Chỉ đường trực tiếp}
 \label{subsection:2.2.3}
 Chỉ đường trực tiếp (LiveRouting) mô tả luồng dẫn đường theo tuyến, trong đó camera và cảm biến quán tính được sử dụng để hỗ trợ duy trì vị trí khi tín hiệu GNSS suy giảm. Cơ chế hiện tại lấy ước lượng chuyển động bằng dead reckoning làm lõi, kết hợp Optical Flow, gia tốc kế và con quay hồi chuyển; việc bám vị trí vào tuyến chỉ là tùy chọn hiển thị thông qua chế độ SNAP/REAL.Trong luồng này, người dùng có thể bắt đầu dẫn đường, chọn thuật toán Optical Flow, chọn chế độ bám tuyến, bật kiểm thử mất GNSS và lưu phiên dẫn đường. Hệ thống thực hiện các chức năng như đánh giá chất lượng GNSS, hiệu chỉnh tỉ lệ chuyển động khi GNSS còn tốt, ước lượng chuyển động khi GNSS suy giảm, hiển thị các path kiểm thử và yêu cầu OSRM tính lại tuyến khi phát hiện lệch đường. Biểu đồ use case phân rã Chỉ đường trực tiếp được minh họa ở Hình~\ref{fig:usecase-chi-duong-truc-tiep}.
 
-\pumlfig{figures/usecase_chi_duong_truc_tiep.png}{Biểu đồ use case phân rã Chỉ đường trực tiếp}{fig:usecase-chi-duong-truc-tiep}
+\pumlfig{figures/usecase/usecase_chi_duong_truc_tiep.png}{Biểu đồ use case phân rã Chỉ đường trực tiếp}{fig:usecase-chi-duong-truc-tiep}
 
 \subsection{Biểu đồ use case phân rã Xem Optical Flow trên Camera}
 \label{subsection:2.2.4}
 Xem Optical Flow trên Camera mô tả nhóm thao tác phân tích chuyển động camera thời gian thực. Biểu đồ use case phân rã Xem Optical Flow trên Camera, minh họa ở Hình~\ref{fig:usecase-camera-optical-flow}, bao gồm Bắt đầu/dừng phiên phân tích, Chọn thuật toán Optical Flow (KLT hoặc Farneback), Hiển thị kết quả dưới dạng vector hoặc heatmap, Điều chỉnh độ nhạy, Chọn phạm vi phân tích (toàn khung hình hoặc chọn vùng đối tượng), Bám đối tượng trong vùng chọn và Ghi video kết quả. Trong đó, KLT luôn hiển thị vector, còn việc chọn giữa vector và heatmap áp dụng cho Farneback.
 
-\pumlfig{figures/usecase_camera_optical_flow.png}{Biểu đồ use case phân rã Xem Optical Flow trên Camera}{fig:usecase-camera-optical-flow}
+\pumlfig{figures/usecase/usecase_camera_optical_flow.png}{Biểu đồ use case phân rã Xem Optical Flow trên Camera}{fig:usecase-camera-optical-flow}
 
 \subsection{Biểu đồ use case phân rã Phân tích hiệu năng Optical Flow}
 \label{subsection:2.2.5}
 Phân tích hiệu năng Optical Flow (Analytics) mô tả nhóm chức năng xem lại và so sánh kết quả các phiên phân tích đã lưu. Người dùng mở danh sách phiên, vào chi tiết một phiên để xem các biểu đồ FPS, thời gian xử lý và số điểm/vector hoạt động, đồng thời có thể chạm vào biểu đồ để xem chi tiết thông số theo từng mốc thời gian. Biểu đồ use case phân rã Phân tích hiệu năng Optical Flow, minh họa ở Hình~\ref{fig:usecase-phan-tich-hieu-nang}, bao gồm Xem danh sách phiên phân tích, Xem chi tiết phiên phân tích, Xem biểu đồ FPS, Xem biểu đồ thời gian xử lý, Xem biểu đồ số điểm/vector hoạt động, Xem chi tiết thông số theo mốc thời gian và Xóa phiên phân tích.
 
-\pumlfig{figures/usecase_phan_tich_hieu_nang.png}{Biểu đồ use case phân rã Phân tích hiệu năng Optical Flow}{fig:usecase-phan-tich-hieu-nang}
+\pumlfig{figures/usecase/usecase_phan_tich_hieu_nang.png}{Biểu đồ use case phân rã Phân tích hiệu năng Optical Flow}{fig:usecase-phan-tich-hieu-nang}
 
 \subsection{Biểu đồ use case phân rã Xử lý video Optical Flow bằng mô hình mạng lưới học sâu}
 \label{subsection:2.2.6}
 Xử lý video Optical Flow bằng mô hình mạng lưới học sâu (Video RAFT Backend) mô tả luồng xử lý video ngoại tuyến trên máy chủ, với hai nhánh backend khác nhau. Ngoài Người dùng, biểu đồ còn có các tác nhân phụ: Backend tự triển khai, Backend ngoài, MQTT Broker, Storage và Cloudflare Tunnel. Trong luồng chung trên ứng dụng Android, người dùng Chọn video đầu vào, Chọn backend xử lý, Chọn chế độ xử lý (có thể Yêu cầu bám đối tượng đã chọn), Theo dõi tiến độ xử lý (hiển thị trên giao diện và thông báo), Hủy job, Tải video kết quả và Mở video đã xử lý. Ở nhánh backend tự triển khai, ứng dụng Kết nối qua Cloudflare Tunnel/API và Upload video trực tiếp hoặc theo chunk. Ở nhánh backend ngoài, ứng dụng Gửi yêu cầu xử lý qua MQTT, Nhận URL upload storage, Upload video lên URL storage và Nhận URL video kết quả. Phía máy chủ thực hiện Tạo job xử lý video, Xử lý Optical Flow bằng RAFT, Xử lý bám đối tượng bằng Cutie và Dọn dẹp video cùng tài nguyên tạm. Biểu đồ use case phân rã nhóm này được minh họa ở Hình~\ref{fig:usecase-xu-ly-video-ai}.
 
-\pumlfig{figures/usecase_xu_ly_video_ai.png}{Biểu đồ use case phân rã Xử lý video Optical Flow bằng mô hình mạng lưới học sâu}{fig:usecase-xu-ly-video-ai}
+\pumlfig{figures/usecase/usecase_xu_ly_video_ai.png}{Biểu đồ use case phân rã Xử lý video Optical Flow bằng mô hình mạng lưới học sâu}{fig:usecase-xu-ly-video-ai}
 
 \subsection{Biểu đồ use case phân rã Xem lưu trữ}
 \label{subsection:2.2.luutru}
 Xem lưu trữ mô tả nhóm thao tác xem lại các dữ liệu đã được ứng dụng lưu trong cơ sở dữ liệu Room và bộ nhớ thiết bị. Người dùng xem danh sách các mục đã lưu, mở chi tiết một mục để xem lại tuyến đường đã đi, ảnh hoặc video đã lưu, và có thể xóa mục không còn cần. Biểu đồ use case phân rã Xem lưu trữ, minh họa ở Hình~\ref{fig:usecase-xem-luu-tru}, bao gồm Xem danh sách các mục đã lưu, Mở chi tiết một mục đã lưu, Xem lại tuyến đường đã đi, Xem ảnh đã lưu, Xem video đã lưu và Xóa mục đã lưu.
 
-\pumlfig{figures/usecase_xem_luu_tru.png}{Biểu đồ use case phân rã Xem lưu trữ}{fig:usecase-xem-luu-tru}
+\pumlfig{figures/usecase/usecase_xem_luu_tru.png}{Biểu đồ use case phân rã Xem lưu trữ}{fig:usecase-xem-luu-tru}
 
 \section{Đặc tả chức năng chi tiết}
 \label{section:2.3}
@@ -166,7 +166,7 @@ Xem lưu trữ mô tả nhóm thao tác xem lại các dữ liệu đã được
     \item Không có dữ liệu người dùng bị thay đổi sau khi kết thúc use case.
 \end{itemize}
 
-\activitydiagram{figures/activity_quan_sat_ve_tinh.png}{Biểu đồ hoạt động chức năng Quan sát vệ tinh}{fig:activity-quan-sat-ve-tinh}
+\activitydiagram{figures/activity/activity_quan_sat_ve_tinh.png}{Biểu đồ hoạt động chức năng Quan sát vệ tinh}{fig:activity-quan-sat-ve-tinh}
 
 \subsection{Xem bản đồ hai chiều}
 \label{subsection:2.3.bando}
@@ -271,7 +271,7 @@ Xem lưu trữ mô tả nhóm thao tác xem lại các dữ liệu đã được
     \item Phiên dẫn đường được lưu lại để xem lại trong mục lưu trữ.
 \end{itemize}
 
-\activitydiagram{figures/activity_chi_duong_truc_tiep.png}{Biểu đồ hoạt động chức năng Chỉ đường trực tiếp}{fig:activity-chi-duong-truc-tiep}
+\activitydiagram{figures/activity/activity_chi_duong_truc_tiep.png}{Biểu đồ hoạt động chức năng Chỉ đường trực tiếp}{fig:activity-chi-duong-truc-tiep}
 
 \subsection{Xem Optical Flow trên Camera}
 \label{subsection:2.3.3}
@@ -327,7 +327,7 @@ Xem lưu trữ mô tả nhóm thao tác xem lại các dữ liệu đã được
     \item Không có dữ liệu người dùng bị thay đổi nếu người dùng không ghi video.
 \end{itemize}
 
-\activitydiagram{figures/activity_camera_optical_flow.png}{Biểu đồ hoạt động chức năng Xem Optical Flow trên Camera}{fig:activity-camera-optical-flow}
+\activitydiagram{figures/activity/activity_camera_optical_flow.png}{Biểu đồ hoạt động chức năng Xem Optical Flow trên Camera}{fig:activity-camera-optical-flow}
 
 \subsection{Phân tích hiệu năng Optical Flow}
 \label{subsection:2.3.4}
@@ -374,7 +374,7 @@ Xem lưu trữ mô tả nhóm thao tác xem lại các dữ liệu đã được
     \item Phiên có thể mở lại ở màn hình phân tích để xem biểu đồ và chi tiết theo mốc thời gian.
 \end{itemize}
 
-\activitydiagram{figures/activity_phan_tich_hieu_nang.png}{Biểu đồ hoạt động chức năng Phân tích hiệu năng Optical Flow}{fig:activity-phan-tich-hieu-nang}
+\activitydiagram{figures/activity/activity_phan_tich_hieu_nang.png}{Biểu đồ hoạt động chức năng Phân tích hiệu năng Optical Flow}{fig:activity-phan-tich-hieu-nang}
 
 \subsection{Xử lý video Optical Flow bằng mô hình mạng lưới học sâu}
 \label{subsection:2.3.5}
@@ -433,7 +433,7 @@ Xem lưu trữ mô tả nhóm thao tác xem lại các dữ liệu đã được
     \item Trường hợp lỗi, thông báo được trả về rõ ràng và tài nguyên tạm trên máy chủ được dọn dẹp.
 \end{itemize}
 
-\activitydiagram{figures/activity_xu_ly_video_ai.png}{Biểu đồ hoạt động chức năng Xử lý video Optical Flow bằng mô hình mạng lưới học sâu}{fig:activity-xu-ly-video-ai}
+\activitydiagram{figures/activity/activity_xu_ly_video_ai.png}{Biểu đồ hoạt động chức năng Xử lý video Optical Flow bằng mô hình mạng lưới học sâu}{fig:activity-xu-ly-video-ai}
 
 \subsection{Xem lưu trữ}
 \label{subsection:2.3.luutru}
