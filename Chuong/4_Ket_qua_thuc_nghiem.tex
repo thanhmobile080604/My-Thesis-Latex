@@ -111,83 +111,106 @@ Mã nguồn máy chủ Python & 2 & 2612 dòng \\ \hline
 
 \subsection{Minh họa các chức năng chính}
 \label{subsection:4.3.3}
-Phần này minh họa giao diện thực tế của các chức năng chính, được chụp trên thiết bị thử nghiệm.
+Phần này minh họa giao diện thực tế của các chức năng chính, được chụp trên thiết bị thử nghiệm. Các giao diện được chia thành 4 nhóm chính tương ứng với các tính năng cốt lõi.
 
-Với nhóm quan sát vệ tinh, người dùng theo dõi vị trí trên bản đồ hai chiều rồi chuyển sang mô hình Trái Đất ba chiều để quan sát vệ tinh trong không gian (Hình~\ref{fig:ui-gnss-map3d}); ngoài ra có thể quan sát vệ tinh bằng thực tế tăng cường và mở hộp thoại chi tiết của từng vệ tinh kèm nguồn phân giải vị trí (Hình~\ref{fig:ui-gnss-ardetail}).
-
-\begin{figure}[htbp]
+Nhóm bản đồ 2 chiều (Hình~\ref{fig:group1-2d-routing}) hỗ trợ người dùng theo dõi vị trí trên bản đồ và sử dụng tính năng chỉ đường trực tiếp.
+\begin{figure}[H]
 \centering
-\begin{subfigure}[t]{0.42\textwidth}
+\begin{subfigure}[t]{0.48\textwidth}
 \centering
-\includegraphics[height=10cm,keepaspectratio]{2d_map_view.jpg}
+\includegraphics[width=\textwidth,keepaspectratio]{2d_map_view.jpg}
 \caption{Bản đồ hai chiều}
 \end{subfigure}\hfill
-\begin{subfigure}[t]{0.42\textwidth}
+\begin{subfigure}[t]{0.48\textwidth}
 \centering
-\includegraphics[height=10cm,keepaspectratio]{3d_sattelite.jpg}
-\caption{Mô hình vệ tinh ba chiều}
-\end{subfigure}
-\caption{Giao diện quan sát vệ tinh trên bản đồ hai chiều và mô hình ba chiều}
-\label{fig:ui-gnss-map3d}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\begin{subfigure}[t]{0.42\textwidth}
-\centering
-\includegraphics[height=10cm,keepaspectratio]{ar_screen.jpg}
-\caption{Quan sát vệ tinh bằng AR}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.42\textwidth}
-\centering
-\includegraphics[height=10cm,keepaspectratio]{sattelite_detail_dialog.jpg}
-\caption{Hộp thoại chi tiết vệ tinh}
-\end{subfigure}
-\caption{Giao diện thực tế tăng cường và chi tiết thông tin vệ tinh}
-\label{fig:ui-gnss-ardetail}
-\end{figure}
-
-Với nhóm Optical Flow trên camera, người dùng chạy KLT hoặc Farneback theo thời gian thực và có thể so sánh hai thuật toán trên cùng khung hình (Hình~\ref{fig:ui-of}); kết quả các phiên đo được xem lại qua biểu đồ hiệu năng (Hình~\ref{fig:ui-results}).
-
-\begin{figure}[htbp]
-\centering
-\begin{subfigure}[t]{0.42\textwidth}
-\centering
-\includegraphics[height=10cm,keepaspectratio]{optical_flow_camera.jpg}
-\caption{Optical Flow trên camera}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.42\textwidth}
-\centering
-\includegraphics[height=10cm,keepaspectratio]{analytic_optical_flow_camera.jpg}
-\caption{So sánh KLT--Farneback}
-\end{subfigure}
-\caption{Giao diện phân tích Optical Flow trên camera và chế độ so sánh hai thuật toán}
-\label{fig:ui-of}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.9\textwidth,keepaspectratio]{analytic_view.jpg}
-\caption{Biểu đồ phân tích hiệu năng các phiên đo Optical Flow}
-\label{fig:ui-results}
-\end{figure}
-
-Với luồng xử lý video bằng mô hình học sâu, người dùng theo dõi tiến độ qua hộp thoại xử lý video; còn màn hình chỉ đường trực tiếp hiển thị tuyến đường cùng đoạn đi bằng GNSS và đoạn được hỗ trợ bằng camera/IMU khi tín hiệu định vị suy giảm (Hình~\ref{fig:ui-video-routing}).
-
-\begin{figure}[htbp]
-\centering
-\begin{subfigure}[t]{0.42\textwidth}
-\centering
-\includegraphics[height=10cm,keepaspectratio]{video_process_dialog.jpg}
-\caption{Hộp thoại xử lý video}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.42\textwidth}
-\centering
-\includegraphics[height=10cm,keepaspectratio]{live_routing.jpg}
+\includegraphics[width=\textwidth,keepaspectratio]{live_routing.png}
 \caption{Chỉ đường trực tiếp}
 \end{subfigure}
-\caption{Hộp thoại theo dõi xử lý video trên backend và màn hình chỉ đường trực tiếp}
-\label{fig:ui-video-routing}
+\caption{Nhóm bản đồ 2 chiều}
+\label{fig:group1-2d-routing}
+\end{figure}
+
+Nhóm quan sát vệ tinh (Hình~\ref{fig:group2-3d-ar}) cho phép quan sát vệ tinh không gian thông qua mô hình Trái Đất hoặc qua thực tế tăng cường (AR), đồng thời cung cấp hộp thoại chi tiết thông tin cho từng vệ tinh.
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.32\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{3d_sattelite.jpg}
+\caption{Mô hình vệ tinh ba chiều}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.32\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{ar_screen.jpg}
+\caption{Quan sát vệ tinh bằng AR}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.32\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{sattelite_detail_dialog.jpg}
+\caption{Hộp thoại chi tiết vệ tinh}
+\end{subfigure}
+\caption{Nhóm quan sát vệ tinh}
+\label{fig:group2-3d-ar}
+\end{figure}
+
+Nhóm Optical Flow trên camera (Hình~\ref{fig:group3-of-camera}) minh họa giao diện chạy phân tích và so sánh các thuật toán theo thời gian thực. Bên cạnh đó, hệ thống còn cung cấp biểu đồ đánh giá hiệu năng của các phiên đo.
+\begin{figure}[H]
+\centering
+\begin{subfigure}[t]{0.42\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{analytic_optical_flow_camera.jpg}
+\caption{So sánh KLT--Farneback}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.42\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{optical_flow_camera.jpg}
+\caption{Optical Flow trên camera}
+\end{subfigure}
+
+\vspace{0.5cm}
+\begin{subfigure}[t]{0.92\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{analytic_view.jpg}
+\caption{Biểu đồ phân tích hiệu năng}
+\end{subfigure}
+\caption{Nhóm Optical Flow camera}
+\label{fig:group3-of-camera}
+\end{figure}
+
+Nhóm xử lý Optical Flow trên video (Hình~\ref{fig:group4-video}) bao gồm hộp thoại theo dõi tiến trình xử lý trên backend và các kết quả phát hiện chuyển động trên video (toàn cảnh, vùng chuyển động và giới hạn trong vùng quan tâm - ROI).
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.35\textwidth}
+\vspace{0pt}
+\begin{subfigure}[t]{\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{video_process_dialog.jpg}
+\caption{Hộp thoại xử lý video}
+\end{subfigure}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.62\textwidth}
+\vspace{0pt}
+\begin{subfigure}[t]{\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{video_full.png}
+\caption{Kết quả Optical Flow toàn khung hình}
+\end{subfigure}
+
+\vspace{0.3cm}
+\begin{subfigure}[t]{\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{video_moving.png}
+\caption{Kết quả Optical Flow theo vùng quan tâm (ROI)}
+\end{subfigure}
+
+\vspace{0.3cm}
+\begin{subfigure}[t]{\textwidth}
+\centering
+\includegraphics[width=\textwidth,keepaspectratio]{video_roi.png}
+\caption{Kết quả Optical Flow khi người dùng di chuyển}
+\end{subfigure}
+\end{minipage}
+\caption{Nhóm xử lý Video Optical Flow}
+\label{fig:group4-video}
 \end{figure}
 
 \FloatBarrier
