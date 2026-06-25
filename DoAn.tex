@@ -18,6 +18,8 @@
 	\renewcommand{\footrulewidth}{0pt}} % Điều chỉnh độ dày của đương kẻ ngang footer, ở đây mục đích là bỏ đường kẻ ngang ở footer (Độ dày 0pt)
 % Lệnh trên để tùy chỉnh lại định dạng trang 'plain' (thường dùng cho trang đầu chương).
 \setlength{\headheight}{35pt} % Chiều cao vùng header đủ lớn để chứa tên chương dài (cỡ 13pt có thể xuống 2 dòng).
+\setlength{\footskip}{1cm} % Đưa footer/số trang lên khỏi mép dưới trang.
+\addtolength{\textheight}{-23pt} % Bù phần tăng headheight sau geometry để footer không tràn xuống dưới.
 
 \usepackage{pdflscape} % Hỗ trợ trang ngang, giúp đưa các bảng có kích thước đặt theo chiều ngang giấy
 \usepackage{setspace} % Hỗ trợ giãn dòng
@@ -36,7 +38,7 @@
 	\begin{figure}[htbp]
 		\centering
 		\IfFileExists{#1}{%
-			\includegraphics[width=\textwidth,height=0.45\textheight,keepaspectratio]{#1}%
+			\includegraphics[width=\textwidth,height=0.55\textheight,keepaspectratio]{#1}%
 		}{%
 			\setlength{\fboxsep}{12pt}%
 			\fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering Biểu đồ hoạt động của chức năng này sẽ được chèn tại đây sau khi render tệp nguồn PlantUML tương ứng trong thư mục \texttt{PlantUML/}.}}%
@@ -52,6 +54,20 @@
 		\centering
 		\IfFileExists{#1}{%
 			\includegraphics[width=0.9\textwidth,height=0.8\textheight,keepaspectratio]{#1}%
+		}{%
+			\setlength{\fboxsep}{12pt}%
+			\fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering Sơ đồ sẽ được chèn tại đây sau khi render tệp nguồn PlantUML tương ứng trong thư mục \texttt{PlantUML/}.}}%
+		}
+		\caption{#2}
+		\label{#3}
+	\end{figure}%
+}
+% Macro rieng cho use case de hinh lon hon cac so do PlantUML thong thuong.
+\newcommand{\usecasefig}[3]{%
+	\begin{figure}[htbp]
+		\centering
+		\IfFileExists{#1}{%
+			\includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{#1}%
 		}{%
 			\setlength{\fboxsep}{12pt}%
 			\fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering Sơ đồ sẽ được chèn tại đây sau khi render tệp nguồn PlantUML tương ứng trong thư mục \texttt{PlantUML/}.}}%
