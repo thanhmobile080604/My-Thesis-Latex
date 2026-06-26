@@ -2,7 +2,7 @@
 \documentclass[../DoAn.tex]{subfiles}
 \begin{document}
 
-Chương~\ref{chapter:Experiment} đã trình bày thiết kế, xây dựng và đánh giá tổng thể hệ thống. Chương này tập trung vào những giải pháp mang tính đóng góp riêng của đồ án. Mỗi đóng góp được trình bày theo ba phần: bài toán cần giải quyết, giải pháp đã triển khai và kết quả đạt được. Sáu đóng góp được trình bày gồm: chuỗi phân giải vị trí vệ tinh GNSS theo độ ưu tiên (Mục~\ref{section:5.1}); cơ chế chỉ đường trực tiếp bằng đo chuyển động thị giác khi GNSS suy giảm (Mục~\ref{section:5.live-routing-fusion}); cơ chế so sánh hiệu năng hai thuật toán Optical Flow (Mục~\ref{section:5.2}); quy trình tải lên và xử lý video RAFT bất đồng bộ trên máy chủ (Mục~\ref{section:5.3}); cơ chế bám đối tượng trong luồng Optical Flow camera trực tiếp (Mục~\ref{section:5.4}); và bộ dựng giao diện kính lỏng thời gian thực bằng AGSL kèm cơ chế suy biến mượt (Mục~\ref{section:5.liquidglass}).
+Chương~\ref{chapter:Experiment} đã trình bày thiết kế, xây dựng và đánh giá tổng thể hệ thống. Chương này tập trung vào những giải pháp mang tính đóng góp riêng của đồ án. Mỗi đóng góp được trình bày theo ba phần: bài toán cần giải quyết, giải pháp đã triển khai và kết quả đạt được. Sáu đóng góp được trình bày gồm: xác định vị trí vệ tinh GNSS dựa trên thứ tự ưu tiên độ tin cậy của nguồn dữ liệu (Mục~\ref{section:5.1}); chỉ đường trực tiếp bằng đo chuyển động thiết bị khi tín hiệu GNSS yếuhoặc mất (Mục~\ref{section:5.live-routing-fusion}); cơ chế so sánh hiệu năng hai thuật toán Optical Flow (Mục~\ref{section:5.2}); quy trình tải lên và xử lý video RAFT bất đồng bộ trên máy chủ (Mục~\ref{section:5.3}); cơ chế bám đối tượng trong luồng Optical Flow camera trực tiếp (Mục~\ref{section:5.4}); và cơ chế dựng hiệu ứng Liquid Glass thời gian thực dựa trên AGSL (Mục~\ref{section:5.liquidglass}).
 
 \section{Xác định vị trí vệ tinh GNSS dựa trên thứ tự ưu tiên độ tin cậy của nguồn dữ liệu}
 \label{section:5.1}
@@ -56,7 +56,7 @@ Khi quỹ đạo lệch tuyến qua nhiều mẫu liên tiếp và còn Internet
 \subsection{Kết quả đạt được}
 Cơ chế này giúp chỉ đường trực tiếp phản ứng tốt hơn trong các khoảng mất GNSS ngắn, vì tốc độ hỗ trợ tăng giảm theo chuyển động ảnh thay vì cố định ở tốc độ cuối cùng. Bám tuyến có điều kiện làm giảm hiện tượng đoạn hỗ trợ trôi khỏi tuyến khi camera còn đáng tin, nhưng vẫn cho phép phát hiện lệch tuyến khi hướng và khoảng cách không còn phù hợp.
 
-Tuy vậy, giải pháp vẫn có giới hạn rõ ràng: đây là cơ chế ước lượng chuyển động thực dụng dựa trên các chỉ số Optical Flow, chưa phải hệ thống khôi phục pose camera đầy đủ. Camera đơn không tự cung cấp tỷ lệ tuyệt đối nếu thiếu hiệu chỉnh bằng GNSS, và kết quả vẫn phụ thuộc vào ánh sáng, kết cấu bề mặt và điều kiện đặt thiết bị. Vì vậy, đúng như đánh giá ở Chương~\ref{chapter:Experiment}, chức năng này hiện ở mức thử nghiệm kỹ thuật và vẫn đang được tinh chỉnh.
+Tuy vậy, giải pháp vẫn có giới hạn rõ ràng: đây là cơ chế ước lượng chuyển động thực dụng dựa trên các chỉ số Optical Flow, chưa phải hệ thống khôi phục pose camera đầy đủ. Camera đơn không tự cung cấp tỷ lệ tuyệt đối nếu thiếu hiệu chỉnh bằng GNSS, và kết quả vẫn phụ thuộc vào ánh sáng, kết cấu bề mặt và điều kiện đặt thiết bị. Vì vậy, chức năng này hiện ở mức thử nghiệm kỹ thuật và vẫn đang được tinh chỉnh.
 
 \section{Cơ chế phân tích hiệu năng hai thuật toán Optical Flow}
 \label{section:5.2}

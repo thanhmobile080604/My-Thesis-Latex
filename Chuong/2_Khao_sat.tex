@@ -37,9 +37,9 @@ Hệ thống được xây dựng theo hướng trở thành một môi trườn
 \label{subsection:2.2.1}
 Biểu đồ use case tổng quát thể hiện phạm vi chức năng chính của hệ thống dưới góc nhìn của người sử dụng. Ở mức tổng quát, hệ thống chỉ có một tác nhân duy nhất là Người dùng, bao gồm những người có nhu cầu quan sát, nghiên cứu hoặc kiểm thử dữ liệu định vị vệ tinh và chuyển động quang học. Người dùng trực tiếp thao tác với ứng dụng để sử dụng toàn bộ các nhóm chức năng. Các tác nhân phụ như backend xử lý video, dịch vụ định tuyến hay nguồn dữ liệu quỹ đạo vệ tinh không xuất hiện ở mức tổng quát mà chỉ được thể hiện trong các biểu đồ use case phân rã của những nhóm chức năng liên quan.
 
-Tương ứng với mục lục chức năng, Người dùng có thể tương tác với bảy nhóm nghiệp vụ chính. Nhóm \emph{Quan sát vệ tinh} cho phép theo dõi vệ tinh trên mô hình ba chiều và thực tế tăng cường cùng các thông tin không gian liên quan. Nhóm \emph{Xem bản đồ hai chiều} hỗ trợ hiển thị vị trí hiện tại, tìm kiếm địa điểm và xem tuyến đường từ điểm A đến điểm B. Nhóm \emph{Chỉ đường trực tiếp} dẫn đường theo tuyến và duy trì vị trí bằng ước lượng chuyển động từ camera và cảm biến quán tính khi tín hiệu định vị suy giảm.
+Người dùng có thể tương tác với bảy nhóm nghiệp vụ chính. Nhóm Quan sát vệ tinh cho phép theo dõi vệ tinh trên mô hình ba chiều và thực tế tăng cường cùng các thông tin không gian liên quan. Nhóm Xem bản đồ hai chiều hỗ trợ hiển thị vị trí hiện tại, tìm kiếm địa điểm và xem tuyến đường từ điểm A đến điểm B. Nhóm Chỉ đường trực tiếp dẫn đường theo tuyến và duy trì vị trí bằng ước lượng chuyển động từ camera và cảm biến quán tính khi tín hiệu định vị suy giảm.
 
-Bên cạnh đó, nhóm \emph{Xem Optical Flow trên Camera} cho phép phân tích chuyển động camera thời gian thực bằng KLT và Farneback; nhóm \emph{Phân tích hiệu năng Optical Flow} lưu lại và so sánh các phiên đo qua biểu đồ tốc độ khung hình, thời gian xử lý và số điểm/vector hoạt động; nhóm \emph{Xử lý video Optical Flow bằng mô hình mạng lưới học sâu} gửi video tới máy chủ để xử lý bằng mô hình RAFT và theo dõi tiến trình; cuối cùng, nhóm \emph{Xem lưu trữ} cho phép xem lại các phiên phân tích, tuyến đường đã đi cùng ảnh và video kết quả đã lưu.
+Bên cạnh đó, nhóm Xem Optical Flow trên Camera cho phép phân tích chuyển động camera thời gian thực bằng KLT và Farneback; nhóm Phân tích hiệu năng Optical Flow lưu lại và so sánh các phiên đo qua biểu đồ tốc độ khung hình, thời gian xử lý và số điểm/vector hoạt động; nhóm Xử lý video Optical Flow bằng mô hình mạng lưới học sâu gửi video tới máy chủ để xử lý bằng mô hình RAFT và theo dõi tiến trình; cuối cùng, nhóm Xem lưu trữ cho phép xem lại các phiên phân tích, tuyến đường đã đi cùng ảnh và video kết quả đã lưu.
 
 Hình~\ref{fig:usecase-tong-quat} trình bày tổng quan bảy nhóm chức năng này. Người dùng giữ vai trò trung tâm trong toàn bộ quy trình, từ quan sát dữ liệu định vị, phân tích chuyển động thời gian thực đến xử lý video trên máy chủ và xem lại dữ liệu đã lưu. Biểu đồ này là cơ sở để triển khai phần phân tích yêu cầu chi tiết, đồng thời giúp xác định rõ phạm vi chức năng của hệ thống.
 
@@ -50,7 +50,20 @@ Hình~\ref{fig:usecase-tong-quat} trình bày tổng quan bảy nhóm chức nă
 \label{subsection:2.2.2}
 Quan sát vệ tinh (GNSS Viewer) mô tả nhóm thao tác hiển thị và tra cứu vệ tinh một cách trực quan. Người dùng có hai thao tác chính: xem vệ tinh quay quanh Trái Đất trên mô hình ba chiều và xem vệ tinh bằng thực tế tăng cường. Từ chế độ ba chiều, người dùng có thể chọn một vệ tinh bất kỳ để xem thông tin chi tiết đồng thời mô hình ba chiều luôn hiển thị kèm vị trí Mặt Trời, Mặt Trăng và vùng ngày/đêm của Trái Đất để người dùng định vị bối cảnh không gian. Biểu đồ use case phân rã Quan sát vệ tinh được minh họa ở Hình~\ref{fig:usecase-quan-sat-ve-tinh}, bao gồm Xem vệ tinh quanh Trái Đất trên mô hình 3D, Xem vệ tinh bằng thực tế tăng cường, Chọn vệ tinh để xem thông tin chi tiết và Xem vị trí Mặt Trời, Mặt Trăng, vùng ngày/đêm Trái Đất.
 
-\usecasefig{figures/usecase/usecase_quan_sat_ve_tinh.png}{Biểu đồ use case phân rã Quan sát vệ tinh}{fig:usecase-quan-sat-ve-tinh}
+\par\vspace{0.1\baselineskip}
+\noindent\begin{minipage}{\textwidth}
+    \centering
+    \captionsetup{skip=4pt}
+    \IfFileExists{figures/usecase/usecase_quan_sat_ve_tinh.png}{%
+        \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/usecase/usecase_quan_sat_ve_tinh.png}%
+    }{%
+        \setlength{\fboxsep}{12pt}%
+        \fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering Sơ đồ sẽ được chèn tại đây sau khi render tệp nguồn PlantUML tương ứng trong thư mục \texttt{PlantUML/}.}}%
+    }
+    \captionof{figure}{Biểu đồ use case phân rã Quan sát vệ tinh}
+    \label{fig:usecase-quan-sat-ve-tinh}
+\end{minipage}
+\par\vspace{0.1\baselineskip}
 
 \subsection{Biểu đồ use case phân rã Xem bản đồ hai chiều}
 \label{subsection:2.2.bando}
@@ -73,7 +86,20 @@ Xem bản đồ hai chiều mô tả nhóm thao tác trên bản đồ GNSS hai 
 \label{subsection:2.2.3}
 Chỉ đường trực tiếp (LiveRouting) mô tả luồng dẫn đường theo tuyến, trong đó camera và cảm biến quán tính được sử dụng để hỗ trợ duy trì vị trí khi tín hiệu GNSS suy giảm. Cơ chế hiện tại lấy ước lượng chuyển động bằng dead reckoning làm lõi, kết hợp Optical Flow, gia tốc kế và con quay hồi chuyển; việc bám vị trí vào tuyến chỉ là tùy chọn hiển thị thông qua chế độ SNAP/REAL.Trong luồng này, người dùng có thể bắt đầu dẫn đường, chọn thuật toán Optical Flow, chọn chế độ bám tuyến, bật kiểm thử mất GNSS và lưu phiên dẫn đường. Hệ thống thực hiện các chức năng như đánh giá chất lượng GNSS, hiệu chỉnh tỉ lệ chuyển động khi GNSS còn tốt, ước lượng chuyển động khi GNSS suy giảm, hiển thị các path kiểm thử và yêu cầu OSRM tính lại tuyến khi phát hiện lệch đường. Biểu đồ use case phân rã Chỉ đường trực tiếp được minh họa ở Hình~\ref{fig:usecase-chi-duong-truc-tiep}.
 
-\usecasefig{figures/usecase/usecase_chi_duong_truc_tiep.png}{Biểu đồ use case phân rã Chỉ đường trực tiếp}{fig:usecase-chi-duong-truc-tiep}
+\par\vspace{0.1\baselineskip}
+\noindent\begin{minipage}{\textwidth}
+    \centering
+    \captionsetup{skip=4pt}
+    \IfFileExists{figures/usecase/usecase_chi_duong_truc_tiep.png}{%
+        \includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{figures/usecase/usecase_chi_duong_truc_tiep.png}%
+    }{%
+        \setlength{\fboxsep}{12pt}%
+        \fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering Sơ đồ sẽ được chèn tại đây sau khi render tệp nguồn PlantUML tương ứng trong thư mục \texttt{PlantUML/}.}}%
+    }
+    \captionof{figure}{Biểu đồ use case phân rã Chỉ đường trực tiếp}
+    \label{fig:usecase-chi-duong-truc-tiep}
+\end{minipage}
+\par\vspace{0.1\baselineskip}
 \FloatBarrier
 \subsection{Biểu đồ use case phân rã Xem Optical Flow trên Camera}
 \label{subsection:2.2.4}

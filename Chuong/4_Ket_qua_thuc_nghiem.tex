@@ -68,7 +68,20 @@ Biểu đồ lớp của hệ thống được trình bày trong Hình~\ref{fig:
 
 Cơ sở dữ liệu được thiết kế gồm các bảng \texttt{AnalyticsSession}, \texttt{AnalyticsSample}, \texttt{RoutingSession}, \texttt{RoutePoint} và \texttt{MediaItem}. Mỗi bảng có khóa chính riêng và có quan hệ chặt chẽ với nhau thông qua khóa ngoại: \texttt{AnalyticsSample} tham chiếu \texttt{AnalyticsSession}, còn \texttt{RoutePoint} tham chiếu \texttt{RoutingSession}. Thiết kế này cho phép hệ thống truy xuất và thống kê dữ liệu nhanh chóng, phục vụ cho các chức năng xem lại phiên phân tích, tuyến đường trực tiếp đã đi và thư viện ảnh, video kết quả. Lược đồ cơ sở dữ liệu được minh họa trong Hình~\ref{fig:database-schema}.
 
-\pumlfig{figures/database/database_schema.png}{Lược đồ cơ sở dữ liệu của ứng dụng}{fig:database-schema}
+\par\vspace{0.1\baselineskip}
+\noindent\begin{minipage}{\textwidth}
+    \centering
+    \captionsetup{skip=4pt}
+    \IfFileExists{figures/database/database_schema.png}{%
+        \includegraphics[width=0.9\textwidth,height=0.8\textheight,keepaspectratio]{figures/database/database_schema.png}%
+    }{%
+        \setlength{\fboxsep}{12pt}%
+        \fbox{\parbox[c][4.2cm][c]{0.82\textwidth}{\centering Sơ đồ sẽ được chèn tại đây sau khi render tệp nguồn PlantUML tương ứng trong thư mục \texttt{PlantUML/}.}}%
+    }
+    \captionof{figure}{Lược đồ cơ sở dữ liệu của ứng dụng}
+    \label{fig:database-schema}
+\end{minipage}
+\par\vspace{0.1\baselineskip}
 
 \FloatBarrier
 \section{Xây dựng ứng dụng}
